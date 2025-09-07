@@ -5,14 +5,15 @@ class Ship(Sprite):
     """Class that manages the player ship."""
 
     def __init__(self, game_screen):
-        super().__init__()
         """Initialize the ship."""
+        
+        super().__init__()
         self.game_screen = game_screen
         self.screen_rect = game_screen.get_rect()
 
         # show the ship as a rectangle
         # TODO: load ship as an image
-        self.rect = pygame.Rect(20, 20, 20, 20)
+        self.rect = pygame.Rect(0, 0, 24, 24)
         self.color = "green"
 
         # start at the bottom of the screen

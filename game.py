@@ -9,7 +9,11 @@ class Game:
         """Initialize the core game object."""
         pygame.init()
 
-        self.screen = pygame.display.set_mode((968, 2376), pygame.SCALED)
+        self.screen = pygame.display.set_mode((1080, 2340))
+        self.screen = pygame.display.set_mode(
+                self._calculate_render_resolution(),
+                pygame.SCALED
+            )
         self.clock = pygame.time.Clock()
         self.dt = 0
         self.running = True
@@ -48,15 +52,7 @@ class Game:
                     self.player_ship.moving_up = True
                 if event.key == pygame.K_DOWN:
                     self.player_ship.moving_down = True
-                if event.key == pygame.K_SPACE:
-                    print("UNFOLDING")
-                    # simulating a foldable opening
-                    self.screen = pygame.display.set_mode((2160, 1856))
-                    new_res = self._calculate_render_resolution()
-                    self.screen = pygame.display.set_mode(
-                        new_res,
-                        pygame.SCALED
-                    )
+
         
             elif event.type == pygame.KEYUP:
                 if event.key == pygame.K_LEFT:
@@ -67,15 +63,7 @@ class Game:
                     self.player_ship.moving_up = False
                 if event.key == pygame.K_DOWN:
                     self.player_ship.moving_down = False
-                if event.key == pygame.K_RETURN:
-                    print("FOLDING")
-                    # simulating a foldable closing
-                    self.screen = pygame.display.set_mode((968, 2376))
-                    new_res = self._calculate_render_resolution()
-                    self.screen = pygame.display.set_mode(
-                        new_res,
-                        pygame.SCALED
-                    )
+
             
             # handle resizing
             elif event.type == pygame.WINDOWSIZECHANGED:

@@ -68,8 +68,6 @@ class Ship(Sprite):
     def handle_resize(self, game_screen):
         """Handles what happens when the game window is resized."""
         old_rect = self.screen_rect
-        
-        self.game_screen = game_screen
         self.screen_rect = self.game_screen.get_rect()
 
         self.speed_x, self.speed_y = self._calculate_relative_speed()

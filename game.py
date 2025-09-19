@@ -1,7 +1,7 @@
 import pygame
 
-from ship import Ship
-from entity import Entity
+from ships import Ship
+from aliens import Alien
 
 class Game:
     """Class that represents the game object."""
@@ -20,7 +20,6 @@ class Game:
 
         # --- used for testing ---
         self.native_resolution = (1080, 2340)
-        #self.native_resolution = (640, 480)
         # ---
 
         self._configure_display()
@@ -32,9 +31,11 @@ class Game:
         # create the player ship
         self.ship = Ship(self.screen)
         # TODO: add ship to group, after adding image loading
+        self.alien = Alien(self.screen)
     
     def run(self):
         """Run the game loop."""
+
         while self.running:
             self._handle_events()
             self._update()
@@ -56,7 +57,6 @@ class Game:
         if resolution is None:
             resolution = self._calculate_render_resolution()
 
-        print(resolution)
         # --- use in the final version ---
         """ 
         self.screen = pygame.display.set_mode(
@@ -124,7 +124,8 @@ class Game:
     # -------------------------------------------------------------------
 
     def _handle_events(self):
-        """Handle user input (or window events too?)."""
+        """Handle user input and window events."""
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.running = False
@@ -170,17 +171,24 @@ class Game:
 
     def _update(self):
         """Update the game objects."""
+
         # TODO: use the group to update the ship
         self.ship.update(self.dt)
+
+        self.alien.update(self.dt)
+        print(self.alien.x, self.alien.y)
     
     def _draw(self):
         """Draw to the screen."""
+        
         # first, clear the screen/ fill with background color
         self.screen.fill("black")
 
         # handle the rest of the drawing
         # TODO: use the group to draw the ship
         self.ship.draw()
+
+        self.alien.draw()
 
         # draw everything to the screen
         pygame.display.flip()

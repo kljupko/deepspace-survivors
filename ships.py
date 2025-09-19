@@ -1,8 +1,12 @@
+"""
+A module containing all the playable ships.
+"""
+
 import pygame
 from entity import Entity
 
 class Ship(Entity):
-    """Class that manages the player ship."""
+    """Base class that manages the player ship."""
 
     def __init__(self, game_screen):
         """Initialize the ship."""
@@ -20,4 +24,12 @@ class Ship(Entity):
         # allow the ship to move horizontally
         self.base_speed_x = 100
         self.speed_x, self.speed_y = self._calculate_relative_speed()
+
+        # ship stats
+        self.hp = 3
+        self.thrust = 1
+        self.fire_rate = 1
+        self.fire_power = 1
+        self.active_abilities = [None, False, False]
+        self.passive_abilities = [None, False, False, False]
         

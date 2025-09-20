@@ -22,10 +22,7 @@ class Entity(Sprite):
         self.rect.center = self.screen_rect.center
 
         # set the entity's bounds
-        self.topbound = self.screen_rect.top
-        self.rightbound = self.screen_rect.right - self.rect.width
-        self.botbound = self.screen_rect.bottom - self.rect.height
-        self.leftbound = self.screen_rect.left
+        self.bounds = self._calculate_bounds()
 
         # set the entity's position
         self.x = float(self.rect.x)
@@ -44,6 +41,11 @@ class Entity(Sprite):
     
     def update(self, dt):
         """Update the entity."""
+
+        self._move(dt)
+
+    def _move(self, dt):
+        """Move the entity."""
         
         if self.moving_left:
             self.x -= self.speed_x * dt
@@ -55,14 +57,14 @@ class Entity(Sprite):
             self.y += self.speed_y * dt
         
         # return to screen if out of bounds
-        if self.x < self.leftbound:
-            self.x = self.leftbound
-        elif self.x > self.rightbound:
-            self.x = self.rightbound
-        if self.y < self.topbound:
-            self.y = self.topbound
-        elif self.y > self.botbound:
-            self.y = self.botbound
+        if self.x < self.bounds["left"]:
+            self.x = self.bounds["left"]
+        elif self.x > self.bounds["right"]:
+            self.x = self.bounds["right"]
+        if self.y < self.bounds["top"]:
+            self.y = self.bounds["top"]
+        elif self.y > self.bounds["bottom"]:
+            self.y = self.bounds["bottom"]
         
         # update the rectangle
         self.rect.x = round(self.x)
@@ -79,8 +81,21 @@ class Entity(Sprite):
         old_rect = self.screen_rect
         self.screen_rect = self.game_screen.get_rect()
 
+        self.bounds = self._calculate_bounds()
+
         self.speed_x, self.speed_y = self._calculate_relative_speed()
         self.x, self.y = self._calculate_relative_position(old_rect)
+    
+    def _calculate_bounds(self):
+        """Calculate the bounds within which the entity can be."""
+
+        bounds = {}
+        bounds["top"] = self.screen_rect.top
+        bounds["right"] = self.screen_rect.right - self.rect.width
+        bounds["bottom"] = self.screen_rect.bottom - self.rect.height
+        bounds["left"] = self.screen_rect.left
+
+        return bounds
         
     def _calculate_relative_speed(self):
         """
@@ -94,7 +109,7 @@ class Entity(Sprite):
 
     def _calculate_relative_position(self, old_screen_rect):
         """
-        Recalculates the entity's relative position
+        Calculate the entity's relative position
         when the screen is resized.
         """
 

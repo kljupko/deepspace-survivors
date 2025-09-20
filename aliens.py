@@ -17,7 +17,7 @@ class Alien(Entity):
         self.color = "red"
 
         # spawn enemy above the screen
-        self.topbound = - self.rect.height
+        self.bounds = self._calculate_bounds()
         self.rect.midbottom = self.screen_rect.midtop
         self.x = float(self.rect.x)
         self.y = float(self.rect.y)
@@ -32,4 +32,32 @@ class Alien(Entity):
         self.speed = 1
         self.damage = 1
         self.credits = 10
+    
+    # override Entity update method
+    def update(self, dt):
+        """Update the alien."""
+
+        self._move(dt)
+        self._check_bottom()
+    
+    def _check_bottom(self):
+        """Check if the alien is past the bottom of the screen."""
+
+        if self.y >= self.bounds["bottom"]:
+            # TODO: handle alien moving past bottom (reduce ship hp, del)
+            return True
+        return False
+    
+    # override Entity bounds
+    def _calculate_bounds(self):
+        """Calculate the bounds within which the alien can be."""
+
+        bounds = {}
+        bounds["top"] = self.screen_rect.top - self.rect.height
+        bounds["right"] = self.screen_rect.right - self.rect.width
+        bounds["bottom"] = self.screen_rect.bottom
+        bounds["left"] = self.screen_rect.left
+
+        return bounds
+    
     

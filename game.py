@@ -29,10 +29,10 @@ class Game:
         self.running = True
 
         # create the player ship
-        self.ship = Ship(self.screen)
+        self.ship = Ship(self)
         # TODO: add ship to group, after adding image loading
         self.aliens = pygame.sprite.Group()
-        self.aliens.add(Alien(self.screen))
+        self.aliens.add(Alien(self))
     
     def run(self):
         """Run the game loop."""
@@ -165,8 +165,9 @@ class Game:
         
         # TODO: recalculate speed of all game entities
         # TODO: move all game entities to appropriate positions
-        self.ship.handle_resize(self.screen)
-        self.alien.handle_resize(self.screen)
+        self.ship.handle_resize()
+        for alien in self.aliens:
+            alien.handle_resize()
 
     # -------------------------------------------------------------------
     # endregion
@@ -176,13 +177,7 @@ class Game:
 
         # TODO: use the group to update the ship
         self.ship.update(self.dt)
-
         self.aliens.update(self.dt)
-
-        # check ship-alien collisions
-        # TODO: handle hp reduction to ship
-        collisions = pygame.sprite.spritecollide(self.ship, self.aliens, False)
-        print(collisions)
     
     def _draw(self):
         """Draw to the screen."""

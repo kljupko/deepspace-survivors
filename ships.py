@@ -8,10 +8,10 @@ from entity import Entity
 class Ship(Entity):
     """Base class that manages the player ship."""
 
-    def __init__(self, game_screen):
+    def __init__(self, game):
         """Initialize the ship."""
         
-        super().__init__(game_screen)
+        super().__init__(game)
 
         # TODO: load ship as an image
         self.color = "green"
@@ -32,4 +32,25 @@ class Ship(Entity):
         self.fire_power = 1
         self.active_abilities = [None, False, False]
         self.passive_abilities = [None, False, False, False]
+    
+    # override Entity update method
+    def update(self, dt):
+        """Update the ship."""
+
+        self._move(dt)
+        self._check_alien_collisions()
+    
+    def _check_alien_collisions(self):
+        """Check if the ship is colliding with any aliens."""
+
+        collisions = pygame.sprite.spritecollide(self, self.game.aliens, False)
+        if not collisions:
+            return False
         
+        print(f"We're hit! {len(collisions)} aliens hit the ship.")
+        for alien in collisions:
+            self.hp -= alien.damage
+            print(f"\tCurrent hp: {self.hp} (-{alien.damage})")
+            alien.destroy()
+        
+        return False

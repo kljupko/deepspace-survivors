@@ -7,12 +7,13 @@ class Entity(Sprite):
     which other game objects inherit methods and properties.
     """
 
-    def __init__(self, game_screen):
+    def __init__(self, game):
         """Initialize the entity."""
         
         super().__init__()
-        self.game_screen = game_screen
-        self.screen_rect = game_screen.get_rect()
+        self.game = game
+        self.game_screen = game.screen
+        self.screen_rect = game.screen.get_rect()
 
         # show the entity as a rectangle
         self.rect = pygame.Rect(0, 0, 24, 24)
@@ -75,7 +76,7 @@ class Entity(Sprite):
 
         pygame.draw.rect(self.game_screen, self.color, self.rect)
     
-    def handle_resize(self, game_screen):
+    def handle_resize(self):
         """Handle what happens when the game window is resized."""
 
         old_rect = self.screen_rect

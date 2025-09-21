@@ -8,10 +8,10 @@ from entity import Entity
 class Alien(Entity):
     """Base class that manages the aliens."""
 
-    def __init__(self, game_screen):
+    def __init__(self, game):
         """Initialize the alien."""
 
-        super().__init__(game_screen)
+        super().__init__(game)
 
         # TODO: load alien as an image
         self.color = "red"
@@ -41,10 +41,16 @@ class Alien(Entity):
         self._check_bottom()
     
     def _check_bottom(self):
-        """Check if the alien is past the bottom of the screen."""
+        """
+        Check if the alien is past the bottom of the screen.
+        If so, destroy alien and reduce player ship hit points.
+        """
 
         if self.y >= self.bounds["bottom"]:
-            # TODO: handle alien moving past bottom (reduce ship hp, del)
+            self.game.ship.hp -= self.damage
+            self.destroy()
+            print(f"Alien moved past ship! HP reduced to {self.game.ship.hp}",
+                  f"(-{self.damage})")
             return True
         return False
     
@@ -60,4 +66,8 @@ class Alien(Entity):
 
         return bounds
     
-    
+    def destroy(self):
+        """Destroy the alien. Handle sounds, animations, etc."""
+
+        # TODO: play sounds and animations
+        self.game.aliens.remove(self)

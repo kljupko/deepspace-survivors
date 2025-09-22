@@ -2,7 +2,6 @@
 A module containing all the aliens.
 """
 
-import pygame
 from entity import Entity
 
 class Alien(Entity):
@@ -46,13 +45,14 @@ class Alien(Entity):
         If so, destroy alien and reduce player ship hit points.
         """
 
-        if self.y >= self.bounds["bottom"]:
-            self.game.ship.hp -= self.damage
-            self.destroy()
-            print(f"Alien moved past ship! HP reduced to {self.game.ship.hp}",
-                  f"(-{self.damage})")
-            return True
-        return False
+        if self.y < self.bounds["bottom"]:
+            return False
+        
+        self.game.ship.hp -= self.damage
+        self.destroy()
+        print(f"Alien moved past ship! HP reduced to {self.game.ship.hp}",
+                f"(-{self.damage})")
+        return True
     
     # override Entity bounds
     def _calculate_bounds(self):

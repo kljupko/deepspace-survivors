@@ -4,6 +4,7 @@ A module containing all the playable ships.
 
 import pygame
 from entity import Entity
+from bullet import Bullet
 
 class Ship(Entity):
     """Base class that manages the player ship."""
@@ -53,4 +54,9 @@ class Ship(Entity):
             print(f"\tCurrent hp: {self.hp} (-{alien.damage})")
             alien.destroy()
         
-        return False
+        return True
+
+    def fire_bullet(self):
+        """Fire a bullet."""
+
+        self.game.bullets.add(Bullet(self.game))

@@ -31,6 +31,7 @@ class Game:
         # create the player ship
         self.ship = Ship(self)
         # TODO: add ship to group, after adding image loading
+        self.bullets = pygame.sprite.Group()
         self.aliens = pygame.sprite.Group()
         self.aliens.add(Alien(self))
     
@@ -147,6 +148,8 @@ class Game:
             self.ship.moving_left = True
         if event.key == pygame.K_RIGHT:
             self.ship.moving_right = True
+        if event.key == pygame.K_SPACE:
+            self.ship.fire_bullet()
                 
     def _handle_keyup_events(self, event):
         """Handle what happens when certain keys are released."""
@@ -177,6 +180,7 @@ class Game:
 
         # TODO: use the group to update the ship
         self.ship.update(self.dt)
+        self.bullets.update(self.dt)
         self.aliens.update(self.dt)
     
     def _draw(self):
@@ -188,6 +192,10 @@ class Game:
         # handle the rest of the drawing
         # TODO: use the group to draw the ship?
         self.ship.draw()
+
+        # TODO: use the group to draw bullets
+        for bullet in self.bullets:
+            bullet.draw()
 
         # TODO: use the group to draw aliens
         for alien in self.aliens:

@@ -2,6 +2,7 @@ import pygame
 
 from ships import Ship
 from aliens import Alien
+import abilities
 
 class Game:
     """Class that represents the game object."""
@@ -31,6 +32,7 @@ class Game:
         # create the player ship
         self.ship = Ship(self)
         # TODO: add ship to group, after adding image loading
+
         self.bullets = pygame.sprite.Group()
         self.aliens = pygame.sprite.Group()
         self.aliens.add(Alien(self))

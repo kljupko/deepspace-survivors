@@ -19,7 +19,7 @@ class Ability():
         self.enabled = not self.enabled
 
     def fire(self):
-        """Fire the ability"""
+        """Fire the ability."""
 
         print(f"Hook for firing: {self.name}.")
 

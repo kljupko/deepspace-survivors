@@ -42,6 +42,7 @@ class Ship(Entity):
 
         self._move(dt)
         self._fire_passive_abilities()
+        self._check_powerup_collisions()
         self._check_alien_collisions()
     
     def _check_alien_collisions(self):
@@ -58,6 +59,21 @@ class Ship(Entity):
             alien.destroy()
         
         return True
+    
+    def _check_powerup_collisions(self):
+        """Check if the ship is colliding with any powerups."""
+
+        collisions = pygame.sprite.spritecollide(
+                self, self.game.powerups, False
+            )
+        if not collisions:
+            return False
+        
+        for powerup in collisions:
+            powerup.apply()
+        
+        return True
+
 
     def fire_bullet(self, fire_rate_bonus = 0):
         """Fire a bullet."""
@@ -93,9 +109,9 @@ class Ship(Entity):
             return True
         
         for abil in abils:
-            if abil and not abil.activated:
+            if abil and not abil.enabled:
                 abil = ability
-                print("Replaced a deactivated ability.")
+                print("Replaced a disabled ability.")
                 return True
         
         print("Failed to add ability.")

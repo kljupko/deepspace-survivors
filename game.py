@@ -2,7 +2,6 @@ import pygame
 
 from ships import Ship
 from aliens import Alien
-import abilities
 
 class Game:
     """Class that represents the game object."""
@@ -36,6 +35,7 @@ class Game:
         self.bullets = pygame.sprite.Group()
         self.aliens = pygame.sprite.Group()
         self.aliens.add(Alien(self))
+        self.powerups = pygame.sprite.Group()
     
     def run(self):
         """Run the game loop."""
@@ -183,6 +183,7 @@ class Game:
         # TODO: use the group to update the ship
         self.ship.update(self.dt)
         self.bullets.update(self.dt)
+        self.powerups.update(self.dt)
         self.aliens.update(self.dt)
     
     def _draw(self):
@@ -198,6 +199,10 @@ class Game:
         # TODO: use the group to draw bullets
         for bullet in self.bullets:
             bullet.draw()
+        
+        # TODO: use the group to draw powerups
+        for powerup in self.powerups:
+            powerup.draw()
 
         # TODO: use the group to draw aliens
         for alien in self.aliens:

@@ -3,6 +3,8 @@ A module containing all the aliens.
 """
 
 from entity import Entity
+import abilities
+import powerups
 
 class Alien(Entity):
     """Base class that manages the aliens."""
@@ -16,10 +18,11 @@ class Alien(Entity):
         self.color = "red"
 
         # spawn enemy above the screen
-        self.bounds = self._calculate_bounds()
         self.rect.midbottom = self.screen_rect.midtop
         self.x = float(self.rect.x)
         self.y = float(self.rect.y)
+
+        self.bounds = self._calculate_bounds()
 
         # allow the alien to move downwards
         self.base_speed_y = 25
@@ -68,6 +71,14 @@ class Alien(Entity):
     
     def destroy(self):
         """Destroy the alien. Handle sounds, animations, etc."""
+
+        # TODO: add random chance to drop powerup, choose random powerup
+        self.game.powerups.add(
+            powerups.AddAbility(
+                self.game, self.rect.center,
+                abilities.Spear(self.game)
+            )
+        )
 
         # TODO: play sounds and animations
         self.game.aliens.remove(self)

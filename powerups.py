@@ -28,7 +28,7 @@ class PowerUp(Entity):
 
         self.base_speed_y = 15
         self.speed_x, self.speed_y = self._calculate_relative_speed()
-        self.moving_down = True
+        self.destination = (self.x, self.bounds["bottom"])
     
     # override Entity bounds
     def _calculate_bounds(self):

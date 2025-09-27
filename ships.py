@@ -25,6 +25,8 @@ class Ship(Entity):
         # allow the ship to move horizontally
         self.base_speed_x = 100
         self.speed_x, self.speed_y = self._calculate_relative_speed()
+        self.moving_left = False
+        self.moving_right = False
 
         # ship stats
         self.hp = 3
@@ -40,10 +42,27 @@ class Ship(Entity):
     def update(self, dt):
         """Update the ship."""
 
+        self._steer()
         self._move(dt)
         self._fire_passive_abilities()
+        self._charge_active_ability()
         self._check_powerup_collisions()
         self._check_alien_collisions()
+    
+    def _steer(self):
+        """Steer the ship left or "right."""
+        
+        if self.game.touch and self.game.touch.touch_start_ts:
+            return False
+        
+        if self.moving_left and self.moving_right:
+            self.destination = None
+        elif not self.moving_left and not self.moving_right:
+            self.destination = None
+        elif self.moving_left:
+            self.destination = (self.bounds["left"], self.y)
+        elif self.moving_right:
+            self.destination = (self.bounds["right"], self.y)
     
     def _check_alien_collisions(self):
         """Check if the ship is colliding with any aliens."""
@@ -139,6 +158,24 @@ class Ship(Entity):
         for passive in self.passive_abilities:
             if passive and passive.enabled:
                 passive.fire()
+    
+    def _charge_active_ability(self):
+        """Fire an active ability after the charge-up time."""
+
+        enabled_idx = None
+        for i in range(len(self.active_abilities)):
+            ability = self.active_abilities[i]
+            if ability and ability.enabled:
+                enabled_idx = i
+                break
+
+        if enabled_idx == None:
+            return False
+        
+        charge = 2000 # ms
+        touch = self.game.touch
+        if touch.touch_duration and touch.touch_duration >= charge:
+            self.fire_active_ability(enabled_idx)
     
     def fire_active_ability(self, index):
         """

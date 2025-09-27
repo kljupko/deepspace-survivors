@@ -22,7 +22,7 @@ class Bullet(Entity):
         # allow the bullet to move upwards
         self.base_speed_y = 50
         self.speed_x, self.speed_y = self._calculate_relative_speed()
-        self.moving_up = True
+        self.destination = (self.x, self.bounds["top"])
 
         # TODO: determine if bullet will have any stats
 

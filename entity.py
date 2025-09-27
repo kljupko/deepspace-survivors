@@ -35,10 +35,7 @@ class Entity(Sprite):
         self.speed_x, self.speed_y = self._calculate_relative_speed()
 
         # set default as not moving
-        self.moving_up = False
-        self.moving_down = False
-        self.moving_left = False
-        self.moving_right = False
+        self.destination = None
     
     def update(self, dt):
         """Update the entity."""
@@ -47,15 +44,26 @@ class Entity(Sprite):
 
     def _move(self, dt):
         """Move the entity."""
+
+        if self.destination == None:
+            return False
         
-        if self.moving_left:
-            self.x -= self.speed_x * dt
-        if self.moving_right:
-            self.x += self.speed_x * dt
-        if self.moving_up:
-            self.y -= self.speed_y * dt
-        if self.moving_down:
-            self.y += self.speed_y * dt
+        move_x = self.speed_x * dt
+        move_y = self.speed_y * dt
+        dx = self.destination[0] - self.x
+        dy = self.destination[1] - self.y
+        
+        if dx <= -move_x: # if destination is more than one step left
+            move_x = -move_x
+        elif -move_x < dx < move_x: # if destination is within one step
+            move_x = dx
+        if dy <= -move_y:
+            move_y = -move_y
+        elif -move_y < dy < move_y:
+            move_y = dy
+
+        self.x += move_x
+        self.y += move_y
         
         # return to screen if out of bounds
         if self.x < self.bounds["left"]:

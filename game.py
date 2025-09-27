@@ -2,6 +2,8 @@ import pygame
 
 from ships import Ship
 from aliens import Alien
+import abilities
+from touch import Touch
 
 class Game:
     """Class that represents the game object."""
@@ -27,6 +29,8 @@ class Game:
         self.clock = pygame.time.Clock()
         self.dt = 0
         self.running = True
+
+        self.touch = Touch()
 
         # create the player ship
         self.ship = Ship(self)
@@ -142,6 +146,15 @@ class Game:
 
             elif event.type == pygame.WINDOWSIZECHANGED:
                 self._handle_resize_event()
+            
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                self._handle_mousedown_event(event)
+            
+            elif event.type == pygame.MOUSEBUTTONUP:
+                self._handle_mouseup_event(event)
+            
+            elif event.type == pygame.MOUSEMOTION:
+                self._handle_mousemove_event(event)
                 
     def _handle_keydown_events(self, event):
         """Handle what happens when certain keys are pressed."""
@@ -173,6 +186,42 @@ class Game:
         self.ship.handle_resize()
         for alien in self.aliens:
             alien.handle_resize()
+    
+    def _handle_mousedown_event(self, event):
+        """
+        Handle what happens when the user presses the mouse button.
+        A touchscreen touch is interpreted as a mouse click.
+        """
+
+        self.touch.register_mousedown_event(event)
+        if self.touch.touch_start_ts:
+            self.ship.fire_bullet()
+            self.ship.destination = (
+                self.touch.current_pos[0] - self.ship.rect.width/2,
+                self.ship.y
+            )
+    
+    def _handle_mouseup_event(self, event):
+        """
+        Handle what happens when the user releases the mouse button.
+        A touchscreen touch is interpreted as a mouse click.
+        """
+
+        self.touch.register_mouseup_event()
+        self.ship.destination = None
+
+    def _handle_mousemove_event(self, event):
+        """
+        Handle what happens when the user moves the mouse.
+        A touchscreen touch is interpreted as a mouse.
+        """
+
+        self.touch.register_mousemove_event(event)
+        if self.touch.touch_start_ts:
+            self.ship.destination = (
+                self.touch.current_pos[0] - self.ship.rect.width/2,
+                self.ship.y
+            )
 
     # -------------------------------------------------------------------
     # endregion
@@ -180,7 +229,9 @@ class Game:
     def _update(self):
         """Update the game objects."""
 
-        # TODO: use the group to update the ship
+        if self.touch:
+            self.touch.track_touch_duration()
+        # TODO: use the group to update the ship maybe
         self.ship.update(self.dt)
         self.bullets.update(self.dt)
         self.powerups.update(self.dt)

@@ -22,6 +22,15 @@ class Ability():
         """Fire the ability."""
 
         print(f"Hook for firing: {self.name}.")
+    
+    def _remove(self, isActive=True):
+        """Remove the ability from the ship."""
+
+        if isActive:
+            self_idx = self.game.ship.active_abilities.index(self)
+        else:
+            self_idx = self.game.ship.passive_abilities.index(self)
+        self.game.ship.active_abilities[self_idx] = None
 
 class PassiveAbility(Ability):
     """A class that represents a ship's passive ability."""
@@ -80,3 +89,5 @@ class DeathPulse(Ability):
             alien.hp -= self.game.ship.fire_power * self.fp_bonus
             if alien.hp <= 0:
                 alien.destroy()
+        
+        self._remove()

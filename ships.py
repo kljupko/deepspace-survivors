@@ -36,6 +36,10 @@ class Ship(Entity):
         self.bullet_delay_ms = 1000 * 3
         self.fire_rate = 3
         self.fire_power = 1
+
+        # abilities
+        self.charge = None
+        self.required_charge = None
         self.active_abilities = [
             abilities.Blank(self.game),
             abilities.Locked(self.game),
@@ -54,8 +58,8 @@ class Ship(Entity):
 
         self._steer()
         self._move(dt)
+        self._fire_active_abilities()
         self._fire_passive_abilities()
-        self._charge_active_ability()
         self._check_powerup_collisions()
         self._check_alien_collisions()
     
@@ -74,6 +78,9 @@ class Ship(Entity):
         elif self.moving_right:
             self.destination = (self.bounds["right"], self.y)
     
+    # region COLLISION CHECKING
+    # -------------------------------------------------------------------
+
     def _check_alien_collisions(self):
         """Check if the ship is colliding with any aliens."""
 
@@ -102,7 +109,9 @@ class Ship(Entity):
             powerup.apply()
         
         return True
-
+    
+    # -------------------------------------------------------------------
+    # endregion
 
     def fire_bullet(self, fire_rate_bonus = 0):
         """Fire a bullet."""
@@ -116,6 +125,64 @@ class Ship(Entity):
         fire_rate = self.fire_rate + fire_rate_bonus
         self.next_bullet_time = now + (self.bullet_delay_ms / fire_rate)
         return True
+    
+    # region ACTIVE ABILITIES
+    # -------------------------------------------------------------------
+
+    def add_active_ability(self, new_ability):
+        """
+        Add an active ability to the ship if there are free slots.
+        The method returns True if the ability is added/ upgraded.
+        """
+
+        abils = self.active_abilities
+        
+        for abil in abils:
+            idx = abils.index(abil)
+
+            if abil.name == abilities.Blank(self.game).name:
+                abils[idx] = new_ability
+                return True
+        
+        return False
+    
+    def start_ability_charge(self):
+        """Start charging active abilities."""
+
+        if self.charge is None:
+            req = self.game.config.required_ability_charge
+            self.charge = pygame.time.get_ticks()
+            self.required_charge = self.charge + req
+            return True
+        return False
+    
+    def cancel_ability_charge(self):
+        """Cancel charging active abilities."""
+
+        self.charge = None
+        self.required_charge = None
+    
+    def _fire_active_abilities(self):
+        """Fire enabled active abilities if the charge is complete."""
+
+        if self.charge is None:
+            return False
+        
+        if self.charge < self.required_charge:
+            self.charge = pygame.time.get_ticks()
+            return False
+        
+        for ability in self.active_abilities:
+            if ability.enabled:
+                ability.fire()
+        self.cancel_ability_charge()
+        return True
+    
+    # -------------------------------------------------------------------
+    # endregion
+
+    # region PASSIVE ABILITIES
+    # -------------------------------------------------------------------
     
     def add_passive_ability(self, new_ability):
         """
@@ -144,23 +211,6 @@ class Ship(Entity):
         
         return False
     
-    def add_active_ability(self, new_ability):
-        """
-        Add an active ability to the ship if there are free slots.
-        The method returns True if the ability is added/ upgraded.
-        """
-
-        abils = self.active_abilities
-        
-        for abil in abils:
-            idx = abils.index(abil)
-
-            if abil.name == abilities.Blank(self.game).name:
-                abils[idx] = new_ability
-                return True
-        
-        return False
-    
     def _fire_passive_abilities(self):
         """Fire all the enabled passive abilities."""
 
@@ -168,33 +218,5 @@ class Ship(Entity):
             if ability and ability.enabled:
                 ability.fire()
     
-    def _charge_active_ability(self):
-        """Fire an active ability after the charge-up time."""
-
-        enabled_idx = None
-        for i in range(len(self.active_abilities)):
-            ability = self.active_abilities[i]
-            if ability and ability.enabled:
-                enabled_idx = i
-                break
-
-        if enabled_idx == None:
-            return False
-        
-        charge = 2000 # ms
-        touch = self.game.touch
-        if touch.touch_duration and touch.touch_duration >= charge:
-            self.fire_active_ability(enabled_idx)
-    
-    def fire_active_ability(self, index):
-        """
-        Fire the active ability with the given index if it is enabled.
-        """
-        
-        ability = self.active_abilities[index]
-
-        if not ability or not ability.enabled:
-            return False
-        
-        self.active_abilities[index].fire()
-        return True
+    # -------------------------------------------------------------------
+    # endregion

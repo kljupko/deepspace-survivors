@@ -5,4 +5,5 @@ class Config():
         """Initialize the config object."""
 
         self.base_speed = 100
+        self.required_ability_charge = 2000 # in miliseconds
         # TODO: add file paths

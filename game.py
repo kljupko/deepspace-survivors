@@ -43,9 +43,6 @@ class Game:
         self.ship = Ship(self)
         # TODO: add ship to group, after adding image loading
 
-        self.ship.add_active_ability(abilities.DeathPulse(self))
-        self.ship.active_abilities[0].toggle()
-
         self.bullets = pygame.sprite.Group()
         self.aliens = pygame.sprite.Group()
         self.aliens.add(Alien(self))
@@ -174,6 +171,22 @@ class Game:
             self.ship.moving_right = True
         if event.key == self.controls.fire:
             self.ship.fire_bullet()
+            self.ship.start_ability_charge()
+
+        if event.key == self.controls.active_1:
+            self.ship.active_abilities[0].toggle()
+        if event.key == self.controls.active_2:
+            self.ship.active_abilities[1].toggle()
+        if event.key == self.controls.active_3:
+            self.ship.active_abilities[2].toggle()
+        if event.key == self.controls.passive_1:
+            self.ship.passive_abilities[0].toggle()
+        if event.key == self.controls.passive_2:
+            self.ship.passive_abilities[1].toggle()
+        if event.key == self.controls.passive_3:
+            self.ship.passive_abilities[2].toggle()
+        if event.key == self.controls.passive_4:
+            self.ship.passive_abilities[3].toggle()
                 
     def _handle_keyup_events(self, event):
         """Handle what happens when certain keys are released."""
@@ -182,6 +195,8 @@ class Game:
             self.ship.moving_left = False
         if event.key == self.controls.move_right:
             self.ship.moving_right = False
+        if event.key == self.controls.fire:
+            self.ship.cancel_ability_charge()
     
     def _handle_resize_event(self):
         """Handle what happens when the window is resized."""
@@ -205,6 +220,7 @@ class Game:
         self.touch.register_mousedown_event(event)
         if self.touch.touch_start_ts:
             self.ship.fire_bullet()
+            self.ship.start_ability_charge()
             self.ship.destination = (
                 self.touch.current_pos[0] - self.ship.rect.width/2,
                 self.ship.y
@@ -217,6 +233,7 @@ class Game:
         """
 
         self.touch.register_mouseup_event()
+        self.ship.cancel_ability_charge()
         self.ship.destination = None
 
     def _handle_mousemove_event(self, event):

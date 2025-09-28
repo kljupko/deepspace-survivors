@@ -4,6 +4,9 @@ from ships import Ship
 from aliens import Alien
 import abilities
 from touch import Touch
+from config import Config
+from settings import Settings, Controls
+from state import State
 
 class Game:
     """Class that represents the game object."""
@@ -25,34 +28,40 @@ class Game:
         # ---
 
         self._configure_display()
+        self.touch = Touch()
+        self.config = Config()
+        self.settings = Settings()
+        self.controls = Controls()
+        self.state = State()
+        self.state.running = True
 
         self.clock = pygame.time.Clock()
         self.dt = 0
-        self.running = True
 
-        self.touch = Touch()
 
         # create the player ship
         self.ship = Ship(self)
         # TODO: add ship to group, after adding image loading
 
+        self.ship.add_active_ability(abilities.DeathPulse(self))
+        self.ship.active_abilities[0].toggle()
+
         self.bullets = pygame.sprite.Group()
         self.aliens = pygame.sprite.Group()
+        self.aliens.add(Alien(self))
         self.aliens.add(Alien(self))
         self.powerups = pygame.sprite.Group()
     
     def run(self):
         """Run the game loop."""
 
-        while self.running:
+        while self.state.running:
             self._handle_events()
             self._update()
             self._draw()
 
             # control the framerate and timing
-            self.dt = self.clock.tick(60) / 1000
-            # TODO: add a settings variable for the framerate,
-            #   avoid hardcoding values
+            self.dt = self.clock.tick(self.settings.fps) / 1000
         
         pygame.quit()
     
@@ -136,7 +145,7 @@ class Game:
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                self.running = False
+                self.state.running = False
 
             elif event.type == pygame.KEYDOWN:
                 self._handle_keydown_events(event)
@@ -159,19 +168,19 @@ class Game:
     def _handle_keydown_events(self, event):
         """Handle what happens when certain keys are pressed."""
 
-        if event.key == pygame.K_LEFT:
+        if event.key == self.controls.move_left:
             self.ship.moving_left = True
-        if event.key == pygame.K_RIGHT:
+        if event.key == self.controls.move_right:
             self.ship.moving_right = True
-        if event.key == pygame.K_SPACE:
+        if event.key == self.controls.fire:
             self.ship.fire_bullet()
                 
     def _handle_keyup_events(self, event):
         """Handle what happens when certain keys are released."""
 
-        if event.key == pygame.K_LEFT:
+        if event.key == self.controls.move_left:
             self.ship.moving_left = False
-        if event.key == pygame.K_RIGHT:
+        if event.key == self.controls.move_right:
             self.ship.moving_right = False
     
     def _handle_resize_event(self):
@@ -229,8 +238,11 @@ class Game:
     def _update(self):
         """Update the game objects."""
 
+        self.state.track_duration()
+
         if self.touch:
             self.touch.track_touch_duration()
+
         # TODO: use the group to update the ship maybe
         self.ship.update(self.dt)
         self.bullets.update(self.dt)

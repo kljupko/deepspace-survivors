@@ -24,10 +24,10 @@ class PowerUp(Entity):
         self.x = float(self.rect.x)
         self.y = float(self.rect.y)
 
-        self.bounds = self._calculate_bounds()
+        self._calculate_bounds()
 
-        self.base_speed_y = 15
-        self.speed_x, self.speed_y = self._calculate_relative_speed()
+        self.base_speed_y = self.game.config.base_speed * 0.15
+        self._calculate_relative_speed()
         self.destination = (self.x, self.bounds["bottom"])
     
     # override Entity bounds
@@ -40,7 +40,7 @@ class PowerUp(Entity):
         bounds["bottom"] = self.screen_rect.bottom
         bounds["left"] = self.screen_rect.left
 
-        return bounds
+        self.bounds = bounds
     
     def apply(self):
         """Apply the powerup on pickup."""

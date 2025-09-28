@@ -5,6 +5,7 @@ A module containing all the playable ships.
 import pygame
 from entity import Entity
 from bullet import Bullet
+import abilities
 
 class Ship(Entity):
     """Base class that manages the player ship."""
@@ -23,8 +24,8 @@ class Ship(Entity):
         self.y = float(self.rect.y)
 
         # allow the ship to move horizontally
-        self.base_speed_x = 100
-        self.speed_x, self.speed_y = self._calculate_relative_speed()
+        self.base_speed_x = self.game.config.base_speed
+        self._calculate_relative_speed()
         self.moving_left = False
         self.moving_right = False
 
@@ -35,8 +36,17 @@ class Ship(Entity):
         self.bullet_delay_ms = 1000 * 3
         self.fire_rate = 3
         self.fire_power = 1
-        self.active_abilities = [None, False, False]
-        self.passive_abilities = [None, False, False, False]
+        self.active_abilities = [
+            abilities.Blank(self.game),
+            abilities.Locked(self.game),
+            abilities.Locked(self.game)
+        ]
+        self.passive_abilities = [
+            abilities.Blank(self.game),
+            abilities.Locked(self.game),
+            abilities.Locked(self.game),
+            abilities.Locked(self.game)
+        ]
     
     # override Entity update method
     def update(self, dt):
@@ -50,7 +60,7 @@ class Ship(Entity):
         self._check_alien_collisions()
     
     def _steer(self):
-        """Steer the ship left or "right."""
+        """Steer the ship left or right."""
         
         if self.game.touch and self.game.touch.touch_start_ts:
             return False
@@ -107,7 +117,7 @@ class Ship(Entity):
         self.next_bullet_time = now + (self.bullet_delay_ms / fire_rate)
         return True
     
-    def add_passive_ability(self, ability):
+    def add_passive_ability(self, new_ability):
         """
         Add a passive ability to the ship. If the ability is already
         present, it is leveled up. If there is a free slot, it is added.
@@ -117,26 +127,24 @@ class Ship(Entity):
 
         abils = self.passive_abilities
 
-        if ability in abils:
-            # TODO: level up the ability
-            print("Leveled up the ability.")
-            return True
-        
-        if None in abils: # None represents a free slot
-            abils[abils.index(None)] = ability
-            print("Added ability to a free slot.")
-            return True
-        
         for abil in abils:
-            if abil and not abil.enabled:
-                abil = ability
-                print("Replaced a disabled ability.")
+            idx = abils.index(abil)
+
+            if abil.name == new_ability.name:
+                # TODO: level up the ability
+                return True
+            
+            if abil.name == abilities.Blank(self.game).name:
+                abils[idx] = new_ability
+                return True
+            
+            if not abil.enabled:
+                abils[idx] = new_ability
                 return True
         
-        print("Failed to add ability.")
         return False
     
-    def add_active_ability(self, ability):
+    def add_active_ability(self, new_ability):
         """
         Add an active ability to the ship if there are free slots.
         The method returns True if the ability is added/ upgraded.
@@ -144,20 +152,21 @@ class Ship(Entity):
 
         abils = self.active_abilities
         
-        if None in abils: # None represents a free slot
-            abils[abils.index(None)] = ability
-            print("Added ability to a free slot.")
-            return True
+        for abil in abils:
+            idx = abils.index(abil)
+
+            if abil.name == abilities.Blank(self.game).name:
+                abils[idx] = new_ability
+                return True
         
-        print("Failed to add ability.")
         return False
     
     def _fire_passive_abilities(self):
         """Fire all the enabled passive abilities."""
 
-        for passive in self.passive_abilities:
-            if passive and passive.enabled:
-                passive.fire()
+        for ability in self.passive_abilities:
+            if ability and ability.enabled:
+                ability.fire()
     
     def _charge_active_ability(self):
         """Fire an active ability after the charge-up time."""

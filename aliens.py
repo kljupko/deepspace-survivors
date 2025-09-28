@@ -22,11 +22,11 @@ class Alien(Entity):
         self.x = float(self.rect.x)
         self.y = float(self.rect.y)
 
-        self.bounds = self._calculate_bounds()
+        self._calculate_bounds()
 
         # allow the alien to move downwards
-        self.base_speed_y = 25
-        self.speed_x, self.speed_y = self._calculate_relative_speed()
+        self.base_speed_y = self.game.config.base_speed * 0.25
+        self._calculate_relative_speed()
         self.destination = (self.x, self.bounds["bottom"])
 
         # alien stats
@@ -67,11 +67,19 @@ class Alien(Entity):
         bounds["bottom"] = self.screen_rect.bottom
         bounds["left"] = self.screen_rect.left
 
-        return bounds
+        self.bounds = bounds
     
-    def destroy(self):
-        """Destroy the alien. Handle sounds, animations, etc."""
+    def take_damage(self, damage):
+        """
+        Reduce the alien's HP by the given amount.
+        The alien is destroyed if HP is 0 or less. Returns True.
+        Handle powerup drops.
+        """
 
+        self.hp -= damage
+        if self.hp > 0:
+            return False
+        
         # TODO: add random chance to drop powerup, choose random powerup
         self.game.powerups.add(
             powerups.AddAbility(
@@ -80,5 +88,11 @@ class Alien(Entity):
             )
         )
 
+        self.destroy()
+        return True
+    
+    def destroy(self):
+        """Destroy the alien. Handle sounds, animations, etc."""
+
         # TODO: play sounds and animations
-        self.game.aliens.remove(self)
+        self.kill() # remove from all sprite groups

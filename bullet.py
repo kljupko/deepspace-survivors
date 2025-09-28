@@ -14,14 +14,14 @@ class Bullet(Entity):
         self.rect = pygame.Rect(0, 0, 4, 4)
 
         # spawn bullet on top of the ship
-        self.bounds = self._calculate_bounds()
+        self._calculate_bounds()
         self.rect.midtop = self.game.ship.rect.midtop
         self.x = float(self.rect.x)
         self.y = float(self.rect.y)
 
         # allow the bullet to move upwards
-        self.base_speed_y = 50
-        self.speed_x, self.speed_y = self._calculate_relative_speed()
+        self.base_speed_y = self.game.config.base_speed * 0.5
+        self._calculate_relative_speed()
         self.destination = (self.x, self.bounds["top"])
 
         # TODO: determine if bullet will have any stats
@@ -41,13 +41,8 @@ class Bullet(Entity):
         if not collisions:
             return False
         
-        print(f"Hit {len(collisions)} aliens.")
-        for alien in collisions:
-            alien.hp -= self.game.ship.fire_power
-            print(f"\tCurrent alien hp: {alien.hp}",
-                  f"(-{self.game.ship.fire_power})")
-            if alien.hp <= 0:
-                alien.destroy()
+        alien = collisions[0]
+        alien.take_damage(self.game.ship.fire_power)
         
         self.destroy()
         return True
@@ -71,10 +66,9 @@ class Bullet(Entity):
         bounds["bottom"] = self.screen_rect.bottom
         bounds["left"] = self.screen_rect.left
 
-        return bounds
+        self.bounds = bounds
 
     def destroy(self):
         """Destroy the bullet."""
 
         self.game.bullets.remove(self)
-        print("Bullet removed.")

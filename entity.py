@@ -23,7 +23,7 @@ class Entity(Sprite):
         self.rect.center = self.screen_rect.center
 
         # set the entity's bounds
-        self.bounds = self._calculate_bounds()
+        self._calculate_bounds()
 
         # set the entity's position
         self.x = float(self.rect.x)
@@ -32,7 +32,7 @@ class Entity(Sprite):
         # set the entity's speed
         self.base_speed_x = 0
         self.base_speed_y = 0
-        self.speed_x, self.speed_y = self._calculate_relative_speed()
+        self._calculate_relative_speed()
 
         # set default as not moving
         self.destination = None
@@ -53,13 +53,13 @@ class Entity(Sprite):
         dx = self.destination[0] - self.x
         dy = self.destination[1] - self.y
         
-        if dx <= -move_x: # if destination is more than one step left
+        if dx < -move_x: # if destination is more than one step left
             move_x = -move_x
-        elif -move_x < dx < move_x: # if destination is within one step
+        elif -move_x <= dx <= move_x: # if destination is within one step
             move_x = dx
-        if dy <= -move_y:
+        if dy < -move_y:
             move_y = -move_y
-        elif -move_y < dy < move_y:
+        elif -move_y <= dy <= move_y:
             move_y = dy
 
         self.x += move_x
@@ -90,10 +90,10 @@ class Entity(Sprite):
         old_rect = self.screen_rect
         self.screen_rect = self.game_screen.get_rect()
 
-        self.bounds = self._calculate_bounds()
+        self._calculate_bounds()
 
-        self.speed_x, self.speed_y = self._calculate_relative_speed()
-        self.x, self.y = self._calculate_relative_position(old_rect)
+        self._calculate_relative_speed()
+        self._calculate_relative_position(old_rect)
     
     def _calculate_bounds(self):
         """Calculate the bounds within which the entity can be."""
@@ -104,7 +104,7 @@ class Entity(Sprite):
         bounds["bottom"] = self.screen_rect.bottom - self.rect.height
         bounds["left"] = self.screen_rect.left
 
-        return bounds
+        self.bounds = bounds
         
     def _calculate_relative_speed(self):
         """
@@ -114,7 +114,8 @@ class Entity(Sprite):
         x_mult = self.screen_rect.width / 100
         y_mult = self.screen_rect.height / 100
 
-        return self.base_speed_x * x_mult, self.base_speed_y * y_mult
+        self.speed_x = self.base_speed_x * x_mult
+        self.speed_y = self.base_speed_y * y_mult
 
     def _calculate_relative_position(self, old_screen_rect):
         """
@@ -139,4 +140,5 @@ class Entity(Sprite):
         else:
             y = float(self.screen_rect.height * rel_y)
         
-        return x, y
+        self.x = x
+        self.y = y

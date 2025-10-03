@@ -7,6 +7,7 @@ from touch import Touch
 from config import Config
 from settings import Settings, Controls
 from state import State
+from ui import ControlPanel
 
 class Game:
     """Class that represents the game object."""
@@ -38,10 +39,11 @@ class Game:
         self.clock = pygame.time.Clock()
         self.dt = 0
 
-
         # create the player ship
         self.ship = Ship(self)
         # TODO: add ship to group, after adding image loading
+
+        self.control_panel = ControlPanel(self)
 
         self.bullets = pygame.sprite.Group()
         self.aliens = pygame.sprite.Group()
@@ -272,7 +274,7 @@ class Game:
         # first, clear the screen/ fill with background color
         self.screen.fill("black")
 
-        # handle the rest of the drawing
+        # draw the entities on the screen
         # TODO: use the group to draw the ship?
         self.ship.draw()
 
@@ -287,6 +289,9 @@ class Game:
         # TODO: use the group to draw aliens
         for alien in self.aliens:
             alien.draw()
+        
+        # draw the UI
+        self.control_panel.draw()
 
         # draw everything to the screen
         pygame.display.flip()

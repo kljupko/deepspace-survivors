@@ -57,6 +57,7 @@ class Ship(Entity):
         """Update the ship."""
 
         self._steer()
+        # TODO: use thrust for speed
         self._move(dt)
         self._fire_active_abilities()
         self._fire_passive_abilities()
@@ -88,10 +89,10 @@ class Ship(Entity):
         if not collisions:
             return False
         
-        print(f"We're hit! {len(collisions)} aliens hit the ship.")
         for alien in collisions:
             self.hp -= alien.damage
-            print(f"\tCurrent hp: {self.hp} (-{alien.damage})")
+            ui_elem = self.game.control_panel.elements["hit_points"]
+            ui_elem.update(str(self.hp))
             alien.destroy()
         
         return True
@@ -107,6 +108,9 @@ class Ship(Entity):
         
         for powerup in collisions:
             powerup.apply()
+        
+        # TODO: figure out a way to change ui on powerup pickup
+        #   probably in the powerup.apply method
         
         return True
     

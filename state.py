@@ -8,7 +8,8 @@ class State():
 
         self.running = False
         self.session_duration = 0 # in miliseconds
-        self.credits = 0
+        self.last_second_tracked = -1
+        self.credits_earned = 0
     
     def track_duration(self):
         """Track the session duration."""

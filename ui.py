@@ -14,7 +14,10 @@ class UIElement():
         self.position = position
         self.size = None
 
+        # TODO: add element anchor (similar to Rect virtual attributes)
+
         # TODO: use images for symbols instead of rectangles w. colors
+        # TODO: implement solution for elements without symbols
         self.symbol = pygame.Rect(0, 0, 10, 10)
         self.color = 'yellow'
 
@@ -30,7 +33,7 @@ class UIElement():
         self.calculate_positions(self.position)
         self.calculate_size()
     
-    def calculate_positions(self, position=None, symbol_is_left=True):
+    def calculate_positions(self, position=None, is_symbol_left=True):
         """Calculate the position of the symbol and the text."""
 
         if position is None:
@@ -41,11 +44,10 @@ class UIElement():
         self.symbol.topleft = self.position
         self.text_rect.topleft = self.position
 
-        if symbol_is_left:
+        if is_symbol_left:
             self.text_rect.x += self.symbol.width + 3
         else:
             self.symbol.x += self.text_rect.width + 3
-
     
     def calculate_size(self):
         """Calculate the size of the UI element."""
@@ -56,8 +58,37 @@ class UIElement():
             height = self.text_rect.height
         
         self.size = (width, height)
-        print(self.size)
     
+    def update(self, text=None, symbol=None, is_symbol_left=True):
+        """
+        Update the UI element. For better performance, this method should
+        not run in the game's main loop, but only when called by an event
+        that triggers it, such as when the player ship loses HP.
+        """
+
+        old_size = self.size
+
+        if text is None:
+            text = self.text
+        self.text_image = self.game.config.font_normal.render(
+            text, False, 'white', 'black'
+        )
+        self.text_rect = self.text_image.get_rect()
+
+        if symbol is None:
+            symbol = self.symbol
+        # TODO: handle replacing the image
+
+        self.calculate_size()
+
+        # TODO: handle repositioning based on element anchor
+        if is_symbol_left:
+            x_diff = 0
+        else:
+            x_diff = old_size[0] - self.size[0]
+        new_pos = (self.position[0] + x_diff, self.position[1])
+        self.calculate_positions(new_pos, is_symbol_left)
+
     def draw(self):
         """Draw the UI element."""
 
@@ -79,13 +110,44 @@ class ControlPanel():
 
         text = str(self.game.ship.fire_power)
         self.elements["fire_power"] = UIElement(self.game, text)
-        self.elements["fire_power"].calculate_positions((1, 1))
+        element = self.elements["fire_power"]
+        element.calculate_positions((1, 1))
 
         text = str(self.game.ship.fire_rate)
         self.elements["fire_rate"] = UIElement(self.game, text)
-        x = self.game.screen.width - self.elements["fire_rate"].size[0] - 1
+        element = self.elements["fire_rate"]
+        x = self.game.screen.width - element.size[0] - 1
         y = 1
-        self.elements["fire_rate"].calculate_positions((x, y), False)
+        element.calculate_positions((x, y), False)
+
+        text = "00:00"
+        self.elements["session_duration"] = UIElement(self.game, text)
+        element = self.elements["session_duration"]
+        x = self.game.screen.get_rect().centerx - element.size[0] // 2
+        y = 1
+        element.calculate_positions((x, y))
+
+        text = str(self.game.state.credits_earned)
+        self.elements["credits_earned"] = UIElement(self.game, text)
+        element = self.elements["credits_earned"]
+        x = self.game.screen.get_rect().centerx - element.size[0] // 2
+        y = 13
+        element.calculate_positions((x, y))
+
+        text = str(self.game.ship.hp)
+        self.elements["hit_points"] = UIElement(self.game, text)
+        element = self.elements["hit_points"]
+        x = 1
+        y = self.game.screen.height - element.size[1] - 1
+        element.calculate_positions((x, y))
+
+        text = str(self.game.ship.thrust)
+        self.elements["thrust"] = UIElement(self.game, text)
+        element = self.elements["thrust"]
+        x = self.game.screen.width - element.size[0] - 1
+        y = self.game.screen.height - element.size[1] - 1
+        element.calculate_positions((x, y), False)
+
     
     def draw(self):
         """Draw the control panel."""

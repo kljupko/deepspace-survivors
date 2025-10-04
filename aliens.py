@@ -87,6 +87,9 @@ class Alien(Entity):
                 abilities.Spear(self.game)
             )
         )
+        self.game.state.credits_earned += self.credits
+        ui_elem = self.game.control_panel.elements["credits_earned"]
+        ui_elem.update(str(self.game.state.credits_earned))
 
         self.destroy()
         return True

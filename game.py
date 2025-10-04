@@ -177,6 +177,10 @@ class Game:
 
         if event.key == self.controls.active_1:
             self.ship.active_abilities[0].toggle()
+            self.ship.thrust += 1
+            self.control_panel.elements["thrust"].update(
+                str(self.ship.thrust), None, False
+            )
         if event.key == self.controls.active_2:
             self.ship.active_abilities[1].toggle()
         if event.key == self.controls.active_3:
@@ -258,6 +262,16 @@ class Game:
         """Update the game objects."""
 
         self.state.track_duration()
+        # TODO: find a better place for the code below?...
+        mins, secs = divmod(self.state.session_duration // 1000, 60)
+        hours, mins = divmod(mins, 60)
+        time = f"{mins:02d}:{secs:02d}"
+        if hours > 0:
+            time = f"{hours:02d}:" + time
+        if self.state.last_second_tracked < self.state.session_duration // 1000:
+            # TODO: update the session duration UI element
+            self.control_panel.elements["session_duration"].update(time)
+            self.state.last_second_tracked = self.state.session_duration // 1000
 
         if self.touch:
             self.touch.track_touch_duration()

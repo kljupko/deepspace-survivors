@@ -91,8 +91,8 @@ class Ship(Entity):
         
         for alien in collisions:
             self.hp -= alien.damage
-            ui_elem = self.game.control_panel.elements["hit_points"]
-            ui_elem.update(str(self.hp))
+            ui_elem = self.game.control_panel.elements["ship_hp"]
+            ui_elem.update(self.hp)
             alien.destroy()
         
         return True

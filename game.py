@@ -177,10 +177,6 @@ class Game:
 
         if event.key == self.controls.active_1:
             self.ship.active_abilities[0].toggle()
-            self.ship.thrust += 1
-            self.control_panel.elements["thrust"].update(
-                str(self.ship.thrust), None, False
-            )
         if event.key == self.controls.active_2:
             self.ship.active_abilities[1].toggle()
         if event.key == self.controls.active_3:

@@ -52,9 +52,10 @@ class Alien(Entity):
             return False
         
         self.game.ship.hp -= self.damage
+        ui_elem = self.game.control_panel.elements["ship_hp"]
+        ui_elem.update(self.game.ship.hp)
+        
         self.destroy()
-        print(f"Alien moved past ship! HP reduced to {self.game.ship.hp}",
-                f"(-{self.damage})")
         return True
     
     # override Entity bounds

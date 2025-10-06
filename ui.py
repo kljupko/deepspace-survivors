@@ -173,15 +173,69 @@ class ControlPanel():
 
         self.elements["ship_hp"] = UIElement(
             self.game, self.game.ship.hp, position=(
-                1, self.game.screen.height - 1
+                1, self.game.screen.height - 39
             ),
             anchor="bottomleft"
         )
 
         self.elements["ship_thrust"] = UIElement(
             self.game, self.game.ship.thrust, symbol_is_left=False, position=(
-                self.game.screen.width - 1, self.game.screen.height - 1
+                self.game.screen.width - 1, self.game.screen.height - 39
             ), anchor="bottomright"
+        )
+
+        # temporary image for the abilities
+        # TODO: replace with real image
+        surf = pygame.Surface((18, 18))
+        pygame.draw.rect(surf, "gray", (0, 0, 18, 18))
+
+        self.elements["active_1"] = UIElement(
+            self.game, "", surf, position=(
+                self.game.screen.width // 4 * 1,
+                self.game.screen.height - 20
+            ), anchor="midbottom"
+        )
+
+        self.elements["active_2"] = UIElement(
+            self.game, "", surf, position=(
+                self.game.screen.width // 4 * 2,
+                self.game.screen.height - 20
+            ), anchor="midbottom"
+        )
+
+        self.elements["active_3"] = UIElement(
+            self.game, "", surf, position=(
+                self.game.screen.width // 4 * 3,
+                self.game.screen.height - 20
+            ), anchor="midbottom"
+        )
+
+        self.elements["passive_1"] = UIElement(
+            self.game, "", surf, position=(
+                self.game.screen.width // 5 * 1,
+                self.game.screen.height - 1
+            ), anchor="midbottom"
+        )
+
+        self.elements["passive_2"] = UIElement(
+            self.game, "", surf, position=(
+                self.game.screen.width // 5 * 2,
+                self.game.screen.height - 1
+            ), anchor="midbottom"
+        )
+
+        self.elements["passive_3"] = UIElement(
+            self.game, "", surf, position=(
+                self.game.screen.width // 5 * 3,
+                self.game.screen.height - 1
+            ), anchor="midbottom"
+        )
+
+        self.elements["passive_4"] = UIElement(
+            self.game, "", surf, position=(
+                self.game.screen.width // 5 * 4,
+                self.game.screen.height - 1
+            ), anchor="midbottom"
         )
 
     

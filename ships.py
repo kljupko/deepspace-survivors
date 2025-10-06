@@ -19,7 +19,7 @@ class Ship(Entity):
         self.color = "green"
 
         # overwrite Entity's center position
-        self.rect.midbottom = self.screen_rect.midbottom
+        self.rect.midtop = self.screen_rect.centerx, self.bounds["bottom"]
         self.x = float(self.rect.x)
         self.y = float(self.rect.y)
 

@@ -101,7 +101,9 @@ class Entity(Sprite):
         bounds = {}
         bounds["top"] = self.screen_rect.top
         bounds["right"] = self.screen_rect.right - self.rect.width
-        bounds["bottom"] = self.screen_rect.bottom - self.rect.height
+        # TODO: ensure the bottom bound is above the bottom panel
+        #   probably use a variable of some kind
+        bounds["bottom"] = self.screen_rect.bottom - self.rect.height - 39
         bounds["left"] = self.screen_rect.left
 
         self.bounds = bounds

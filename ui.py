@@ -212,28 +212,28 @@ class ControlPanel():
 
         self.elements["passive_1"] = UIElement(
             self.game, "", surf, position=(
-                self.game.screen.width // 5 * 1,
+                self.game.screen.width // 8 * 1,
                 self.game.screen.height - 1
             ), anchor="midbottom"
         )
 
         self.elements["passive_2"] = UIElement(
             self.game, "", surf, position=(
-                self.game.screen.width // 5 * 2,
+                self.game.screen.width // 8 * 3,
                 self.game.screen.height - 1
             ), anchor="midbottom"
         )
 
         self.elements["passive_3"] = UIElement(
             self.game, "", surf, position=(
-                self.game.screen.width // 5 * 3,
+                self.game.screen.width // 8 * 5,
                 self.game.screen.height - 1
             ), anchor="midbottom"
         )
 
         self.elements["passive_4"] = UIElement(
             self.game, "", surf, position=(
-                self.game.screen.width // 5 * 4,
+                self.game.screen.width // 8 * 7,
                 self.game.screen.height - 1
             ), anchor="midbottom"
         )

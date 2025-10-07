@@ -22,7 +22,11 @@ class UIElement():
         self._calculate_size()
         self._calculate_draw_position()
         self._calculate_rect_positions()
-    
+        self.rect = pygame.Rect(
+            self.draw_position[0], self.draw_position[1],
+            self.size[0], self.size[1]
+        )
+
     def _load_content(self, content):
         """Load the text content to display."""
 

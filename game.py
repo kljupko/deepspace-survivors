@@ -2,7 +2,6 @@ import pygame
 
 from ships import Ship
 from aliens import Alien
-import abilities
 from touch import Touch
 from config import Config
 from settings import Settings, Controls
@@ -220,13 +219,49 @@ class Game:
         """
 
         self.touch.register_mousedown_event(event)
-        if self.touch.touch_start_ts:
-            self.ship.fire_bullet()
-            self.ship.start_ability_charge()
-            self.ship.destination = (
-                self.touch.current_pos[0] - self.ship.rect.width/2,
-                self.ship.y
-            )
+        pos = self.touch.current_pos
+        c_panel = self.control_panel
+
+        if self.touch.touch_start_ts is None:
+            return False
+        
+        if c_panel.top_tray_rect.collidepoint(pos):
+            # do nothing when clicking the top tray
+            return False
+        
+        # TODO: find a better way to organize this; a better place
+        if c_panel.bot_tray_rect.collidepoint(pos):
+            done = False
+            if c_panel.elements["active_1"].rect.collidepoint(pos):
+                self.ship.active_abilities[0].toggle()
+                done = True
+            elif c_panel.elements["active_2"].rect.collidepoint(pos):
+                self.ship.active_abilities[1].toggle()
+                done = True
+            elif c_panel.elements["active_3"].rect.collidepoint(pos):
+                self.ship.active_abilities[2].toggle()
+                done = True
+            elif c_panel.elements["passive_1"].rect.collidepoint(pos):
+                self.ship.passive_abilities[0].toggle()
+                done = True
+            elif c_panel.elements["passive_2"].rect.collidepoint(pos):
+                self.ship.passive_abilities[1].toggle()
+                done = True
+            elif c_panel.elements["passive_3"].rect.collidepoint(pos):
+                self.ship.passive_abilities[2].toggle()
+                done = True
+            elif c_panel.elements["passive_4"].rect.collidepoint(pos):
+                self.ship.passive_abilities[3].toggle()
+                done = True
+            return done
+        
+        # control the ship if nothing else is clicked
+        self.ship.fire_bullet()
+        self.ship.start_ability_charge()
+        self.ship.destination = (
+            self.touch.current_pos[0] - self.ship.rect.width/2,
+            self.ship.y
+        )
     
     def _handle_mouseup_event(self, event):
         """
@@ -245,11 +280,25 @@ class Game:
         """
 
         self.touch.register_mousemove_event(event)
-        if self.touch.touch_start_ts:
-            self.ship.destination = (
-                self.touch.current_pos[0] - self.ship.rect.width/2,
-                self.ship.y
-            )
+        pos = self.touch.current_pos
+
+        if self.touch.touch_start_ts is None:
+            return False
+        
+        # TODO: make the play area a separate surface to avoid the
+        #   nonsense below
+        if self.control_panel.top_tray_rect.collidepoint(pos):
+            # do nothing when moving around the top tray
+            return False
+        if self.control_panel.bot_tray_rect.collidepoint(pos):
+            # do nothing when moving around the bottom tray
+            return False
+
+        # move the ship
+        self.ship.destination = (
+            pos[0] - self.ship.rect.width/2,
+            self.ship.y
+        )
 
     # -------------------------------------------------------------------
     # endregion
@@ -265,7 +314,6 @@ class Game:
         if hours > 0:
             time = f"{hours:02d}:" + time
         if self.state.last_second_tracked < self.state.session_duration // 1000:
-            # TODO: update the session duration UI element
             self.control_panel.elements["session_duration"].update(time)
             self.state.last_second_tracked = self.state.session_duration // 1000
 

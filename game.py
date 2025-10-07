@@ -6,7 +6,7 @@ from touch import Touch
 from config import Config
 from settings import Settings, Controls
 from state import State
-from ui import ControlPanel
+from ui import ControlPanel, MainMenu
 
 class Game:
     """Class that represents the game object."""
@@ -37,6 +37,8 @@ class Game:
 
         self.clock = pygame.time.Clock()
         self.dt = 0
+
+        self.main_menu = MainMenu(self)
 
         # create the player ship
         self.ship = Ship(self)
@@ -255,6 +257,15 @@ class Game:
                 done = True
             return done
         
+        if self.main_menu.visible and self.main_menu.focused:
+            done = False
+            for element in self.main_menu.elements.values():
+                if element.rect.collidepoint(pos):
+                    element.trigger()
+                    done = True
+                    break
+            return done
+        
         # control the ship if nothing else is clicked
         self.ship.fire_bullet()
         self.ship.start_ability_charge()
@@ -350,6 +361,8 @@ class Game:
         
         # draw the UI
         self.control_panel.draw()
+        # TODO: enable the menus when you refactor the entire ui.py
+        #self.main_menu.draw()
 
         # draw everything to the screen
         pygame.display.flip()

@@ -103,6 +103,10 @@ class UIElement():
         else:
             self.symbol_rect.x += self.content_rect.width + padding
     
+    def trigger(self):
+        """Hook for doing something when the element is activated."""
+        print("You clicked me!")
+    
     def update(self, content=None, symbol=None, symbol_is_left=None,
                  position=None, anchor=None):
         """
@@ -134,6 +138,8 @@ class UIElement():
 
     def draw(self):
         """Draw the UI element."""
+
+        # TODO: blit them to the panel/ menu, not the game screen
         
         self.game.screen.blit(self.symbol, self.symbol_rect)
         self.game.screen.blit(self.content, self.content_rect)
@@ -289,8 +295,6 @@ class ControlPanel():
         self.bot_tray_rect = self.bot_tray_img.get_rect()
         self.bot_tray_rect.y = self.game.screen.height-self.bot_tray_rect.height
         
-
-    
     def draw(self):
         """Draw the control panel."""
 
@@ -299,3 +303,80 @@ class ControlPanel():
 
         for element in self.elements.values():
             element.draw()
+
+class Menu():
+    """A base class representing a menu."""
+
+    def __init__(self, game):
+        """Initialize the menu."""
+
+        self.game = game
+        self.visible = False # determines if menu is shown
+        self.focused = False # determines if menu can be interacted with
+        self.surface = pygame.Surface((
+            self.game.screen.width, self.game.screen.height
+        ))
+        self.rect = self.surface.get_rect()
+        self.elements = {}
+    
+    def show(self):
+        """Make the menu visible and interactive."""
+
+        self.visible = True
+        self.focused = True
+
+    def hide(self):
+        """Make the menu hidden and non-interactive."""
+
+        self.visible = False
+        self.focused = False
+    
+    def focus(self):
+        """Make only this menu interactive."""
+
+        if not self.visible:
+            return False
+        
+        self.focused = True
+
+        # TODO: unfocus all other menus
+    
+    def unfocus(self):
+        """Make the menu non-interactive."""
+
+        self.focused = False
+    
+    def trigger(self, element_name):
+        """Interact with an element in the menu."""
+
+        if element_name not in self.elements:
+            return False
+        
+        self.elements[element_name].trigger()
+        return True
+    
+    def draw(self):
+        """Draw the menu to the screen."""
+
+        if not self.visible:
+            return False
+        
+        for element in self.elements.values():
+            self.surface.blit(element.symbol, element.symbol_rect)
+            self.surface.blit(element.content, element.content_rect)
+        
+        self.game.screen.blit(self.surface, self.rect)
+
+class MainMenu(Menu):
+    """A class which represents the game's main menu."""
+
+    def __init__(self, game):
+        """Initialize the main menu."""
+
+        super().__init__(game)
+
+        self.visible = True
+        self.focused = True
+        self.elements["play_button"] = UIElement(
+            self.game, "Play", position=self.rect.center, anchor="center"
+        )

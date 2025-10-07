@@ -65,7 +65,7 @@ class Alien(Entity):
         bounds = {}
         bounds["top"] = self.screen_rect.top - self.rect.height
         bounds["right"] = self.screen_rect.right - self.rect.width
-        bounds["bottom"] = self.screen_rect.bottom
+        bounds["bottom"] = self.screen_rect.bottom - 39
         bounds["left"] = self.screen_rect.left
 
         self.bounds = bounds

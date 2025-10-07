@@ -238,9 +238,60 @@ class ControlPanel():
             ), anchor="midbottom"
         )
 
+        # trays
+        # TODO: use images for the trays
+        # TODO: add slopes to trays (image)
+        self.top_tray_img = pygame.Surface((
+            self.game.screen.width,
+            self.elements["fire_power"].size[1] +
+            self.elements["session_duration"].size[1] + 3 # for padding
+        ))
+        self.top_tray_img.set_colorkey("black")
+        tt_subrect_1 = pygame.Rect(
+            0, 0, self.game.screen.width,
+            self.elements["fire_power"].size[1] + 2
+        )
+        tt_subrect_2 = pygame.Rect(
+            self.elements["fire_power"].size[0], tt_subrect_1.height,
+            self.game.screen.width - self.elements["fire_power"].size[0] * 2,
+            self.elements["session_duration"].size[1] + 1
+        )
+        pygame.draw.rect(self.top_tray_img, "white", tt_subrect_1)
+        pygame.draw.rect(self.top_tray_img, "white", tt_subrect_2)
+        self.top_tray_rect = self.top_tray_img.get_rect()
+
+        self.bot_tray_img = pygame.Surface((
+            self.game.screen.width,
+            self.elements["active_1"].size[1] * 2 +
+            self.elements["ship_hp"].size[1] + 4 # for padding
+        ))
+        self.bot_tray_img.set_colorkey("black")
+        bt_subrect_1 = pygame.Rect(
+            0, 0, self.elements["ship_hp"].size[0] + 2,
+            self.elements["ship_hp"].size[1] + 1
+        )
+        bt_subrect_2 = pygame.Rect(
+            self.game.screen.width - self.elements["ship_thrust"].size[0] - 2,
+            0, self.elements["ship_thrust"].size[0] + 2,
+            self.elements["ship_thrust"].size[1] + 1
+        )
+        bt_subrect_3 = pygame.Rect(
+            0, bt_subrect_1.height, self.game.screen.width,
+            self.elements["active_1"].size[1] * 2 + 3
+        )
+        pygame.draw.rect(self.bot_tray_img, "white", bt_subrect_1)
+        pygame.draw.rect(self.bot_tray_img, "white", bt_subrect_2)
+        pygame.draw.rect(self.bot_tray_img, "white", bt_subrect_3)
+        self.bot_tray_rect = self.bot_tray_img.get_rect()
+        self.bot_tray_rect.y = self.game.screen.height-self.bot_tray_rect.height
+        
+
     
     def draw(self):
         """Draw the control panel."""
+
+        self.game.screen.blit(self.top_tray_img, self.top_tray_rect)
+        self.game.screen.blit(self.bot_tray_img, self.bot_tray_rect)
 
         for element in self.elements.values():
             element.draw()

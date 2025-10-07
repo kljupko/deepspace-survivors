@@ -6,7 +6,7 @@ from touch import Touch
 from config import Config
 from settings import Settings, Controls
 from state import State
-from ui import ControlPanel, MainMenu
+from ui import TopTray, BottomTray, Menu
 
 class Game:
     """Class that represents the game object."""
@@ -38,13 +38,14 @@ class Game:
         self.clock = pygame.time.Clock()
         self.dt = 0
 
-        self.main_menu = MainMenu(self)
+        #self.main_menu = MainMenu(self)
 
         # create the player ship
         self.ship = Ship(self)
         # TODO: add ship to group, after adding image loading
 
-        self.control_panel = ControlPanel(self)
+        self.top_tray = TopTray(self, self.screen.width, 23)
+        self.bottom_tray = BottomTray(self, self.screen.width, 50)
 
         self.bullets = pygame.sprite.Group()
         self.aliens = pygame.sprite.Group()
@@ -222,49 +223,36 @@ class Game:
 
         self.touch.register_mousedown_event(event)
         pos = self.touch.current_pos
-        c_panel = self.control_panel
 
         if self.touch.touch_start_ts is None:
             return False
         
-        if c_panel.top_tray_rect.collidepoint(pos):
+        if self.top_tray.rect.collidepoint(pos):
             # do nothing when clicking the top tray
             return False
         
         # TODO: find a better way to organize this; a better place
-        if c_panel.bot_tray_rect.collidepoint(pos):
+        if self.bottom_tray.rect.collidepoint(pos):
+            inner_pos = (
+                pos[0],
+                pos[1] - self.screen.height + self.bottom_tray.rect.height
+            )
             done = False
-            if c_panel.elements["active_1"].rect.collidepoint(pos):
-                self.ship.active_abilities[0].toggle()
-                done = True
-            elif c_panel.elements["active_2"].rect.collidepoint(pos):
-                self.ship.active_abilities[1].toggle()
-                done = True
-            elif c_panel.elements["active_3"].rect.collidepoint(pos):
-                self.ship.active_abilities[2].toggle()
-                done = True
-            elif c_panel.elements["passive_1"].rect.collidepoint(pos):
-                self.ship.passive_abilities[0].toggle()
-                done = True
-            elif c_panel.elements["passive_2"].rect.collidepoint(pos):
-                self.ship.passive_abilities[1].toggle()
-                done = True
-            elif c_panel.elements["passive_3"].rect.collidepoint(pos):
-                self.ship.passive_abilities[2].toggle()
-                done = True
-            elif c_panel.elements["passive_4"].rect.collidepoint(pos):
-                self.ship.passive_abilities[3].toggle()
-                done = True
+            for element in self.bottom_tray.elements.values():
+                if element.rect.collidepoint(inner_pos):
+                    element.trigger()
+                    done = True
+                    break
             return done
         
-        if self.main_menu.visible and self.main_menu.focused:
+        """ if self.main_menu.visible and self.main_menu.focused:
             done = False
             for element in self.main_menu.elements.values():
                 if element.rect.collidepoint(pos):
                     element.trigger()
                     done = True
                     break
-            return done
+            return done """
         
         # control the ship if nothing else is clicked
         self.ship.fire_bullet()
@@ -298,10 +286,10 @@ class Game:
         
         # TODO: make the play area a separate surface to avoid the
         #   nonsense below
-        if self.control_panel.top_tray_rect.collidepoint(pos):
+        if self.top_tray.rect.collidepoint(pos):
             # do nothing when moving around the top tray
             return False
-        if self.control_panel.bot_tray_rect.collidepoint(pos):
+        if self.bottom_tray.rect.collidepoint(pos):
             # do nothing when moving around the bottom tray
             return False
 
@@ -325,7 +313,7 @@ class Game:
         if hours > 0:
             time = f"{hours:02d}:" + time
         if self.state.last_second_tracked < self.state.session_duration // 1000:
-            self.control_panel.elements["session_duration"].update(time)
+            self.top_tray.elements["session_duration"].update(time)
             self.state.last_second_tracked = self.state.session_duration // 1000
 
         if self.touch:
@@ -360,7 +348,8 @@ class Game:
             alien.draw()
         
         # draw the UI
-        self.control_panel.draw()
+        self.top_tray.draw()
+        self.bottom_tray.draw()
         # TODO: enable the menus when you refactor the entire ui.py
         #self.main_menu.draw()
 

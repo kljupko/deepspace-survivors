@@ -7,30 +7,36 @@ import pygame
 class UIElement():
     """A class that represents a single element of the user interface."""
 
-    def __init__(self, game, content, symbol=None, symbol_is_left=True,
-                 position=(0, 0), anchor="topleft"):
+    def __init__(
+            self, game, name, parent_surface, content="", symbol=None,
+            symbol_is_left=True, position=(0, 0), anchor="topleft", font=None
+    ):
         """Initialize the UI element."""
 
         self.game = game
+        self.name = name
+        self.parent_surface = parent_surface
 
-        self._load_content(content)
+        self._load_content(content, font)
         self._load_symbol(symbol, symbol_is_left)
 
-        self.position = position
+        self.anchor_position = position
         self.anchor = anchor
+        self.rect = pygame.Rect(0, 0 ,0, 0)
 
         self._calculate_size()
         self._calculate_draw_position()
         self._calculate_rect_positions()
-        self.rect = pygame.Rect(
-            self.draw_position[0], self.draw_position[1],
-            self.size[0], self.size[1]
-        )
 
-    def _load_content(self, content):
+        self.draw()
+
+    def _load_content(self, content, font):
         """Load the text content to display."""
 
-        self.content = self.game.config.font_normal.render(
+        if font is None:
+            font = self.game.config.font_normal
+
+        self.content = font.render(
             str(content), False, 'white', 'black'
         )
         self.content_rect = self.content.get_rect()
@@ -65,7 +71,8 @@ class UIElement():
         if self.symbol_rect.height > self.content_rect.height:
             height = self.symbol_rect.height
         
-        self.size = (width, height)
+        self.rect.width = width
+        self.rect.height = height
     
     def _calculate_draw_position(self):
         """
@@ -73,25 +80,26 @@ class UIElement():
         based on the anchor and whether there is a symbol.
         """
 
-        draw_x = self.position[0]
+        draw_x = self.anchor_position[0]
         if self.anchor in ["midtop", "center", "midbottom"]:
-            draw_x -= self.size[0] // 2
+            draw_x -= self.rect.width // 2
         elif self.anchor in ["topright", "midright", "bottomright"]:
-            draw_x -= self.size[0]
+            draw_x -= self.rect.width
         
-        draw_y = self.position[1]
+        draw_y = self.anchor_position[1]
         if self.anchor in ["midleft", "center", "midright"]:
-            draw_y -= self.size[1] // 2
+            draw_y -= self.rect.height // 2
         elif self.anchor in ["bottomleft", "midbottom", "bottomright"]:
-            draw_y -= self.size[1]
+            draw_y -= self.rect.height
         
-        self.draw_position = (draw_x, draw_y)
+        self.rect.x = draw_x
+        self.rect.y = draw_y
     
     def _calculate_rect_positions(self):
         """Calculate the positions of the symbol and the text rects."""
 
-        self.content_rect.x, self.content_rect.y = self.draw_position
-        self.symbol_rect.x, self.symbol_rect.y = self.draw_position
+        self.content_rect.x, self.content_rect.y = self.rect.topleft
+        self.symbol_rect.x, self.symbol_rect.y = self.rect.topleft
 
         if self.symbol_rect.width > 0:
             padding = 3 # px
@@ -105,10 +113,10 @@ class UIElement():
     
     def trigger(self):
         """Hook for doing something when the element is activated."""
-        print("You clicked me!")
+        print(f"You clicked {self.name}!")
     
     def update(self, content=None, symbol=None, symbol_is_left=None,
-                 position=None, anchor=None):
+                 position=None, anchor=None, font=None):
         """
         Update the UI element. For better performance, this method should
         not run in the game's main loop, but only when called by an event
@@ -122,187 +130,152 @@ class UIElement():
         if symbol_is_left is None:
             symbol_is_left = self.symbol_is_left
         if position is None:
-            position = self.position
+            position = self.anchor_position
         if anchor is None:
             anchor = self.anchor
 
-        self._load_content(content)
+        self._load_content(content, font)
         self._load_symbol(symbol, symbol_is_left)
 
-        self.position = position
         self.anchor = anchor
 
         self._calculate_size()
         self._calculate_draw_position()
         self._calculate_rect_positions()
 
+        pygame.draw.rect(self.parent_surface, "white", self.rect)
+        self.draw()
+    
     def draw(self):
-        """Draw the UI element."""
+        """Draw the element to the parent surface."""
 
-        # TODO: blit them to the panel/ menu, not the game screen
-        
-        self.game.screen.blit(self.symbol, self.symbol_rect)
-        self.game.screen.blit(self.content, self.content_rect)
+        self.parent_surface.blit(self.symbol, self.symbol_rect)
+        self.parent_surface.blit(self.content, self.content_rect)
 
-class ControlPanel():
-    """
-    A class for the control panel which displays the game state
-    and buttons for touch controls (abilities).
-    """
+class Tray():
+    """A base class for the top and bottom trays."""
 
-    def __init__(self, game):
-        """Initialize the control panel."""
+    def __init__(self, game, width, height):
+        """Initialize the tray with a surface."""
 
         self.game = game
+        self.surface = pygame.Surface((width, height))
+        self.rect = self.surface.get_rect()
         self.elements = {}
 
-        self.elements["fire_power"] = UIElement(
-            self.game, self.game.ship.fire_power, position=(1, 1)
+        pygame.draw.rect(self.surface, "white", self.rect)
+    
+    def draw(self):
+        """Draw the tray to the game screen."""
+
+        self.game.screen.blit(self.surface, self.rect)
+
+class TopTray(Tray):
+    """A class representing the top tray."""
+
+    def __init__(self, game, width, height):
+        """Initialize the top tray."""
+
+        super().__init__(game, width, height)
+
+        el_name = "fire_power"
+        self.elements[el_name] = UIElement(
+            self.game, el_name, self.surface, self.game.ship.fire_power,
+            position=(1, 1)
         )
 
-        self.elements["fire_rate"] = UIElement(
-            self.game, self.game.ship.fire_rate, position=(
-                self.game.screen.width - 1, 1
-            ), symbol_is_left=False, anchor="topright"
+        el_name = "fire_rate"
+        self.elements[el_name] = UIElement(
+            self.game, el_name, self.surface, self.game.ship.fire_rate,
+            position=(self.rect.width - 1, 1), symbol_is_left=False,
+            anchor="topright"
         )
 
-        self.elements["session_duration"] = UIElement(
-            self.game, "00:00", False, position=(
-                self.game.screen.get_rect().centerx, 1
-            ),
-            anchor="midtop"
+        el_name = "session_duration"
+        self.elements[el_name] = UIElement(
+            self.game, el_name, self.surface, "00:00", False,
+            position=(self.rect.centerx, 1), anchor="midtop"
         )
 
-        self.elements["credits_earned"] = UIElement(
-            self.game, self.game.state.credits_earned, position=(
-                self.game.screen.get_rect().centerx,
-                self.elements["session_duration"].draw_position[1] +
-                self.elements["session_duration"].size[1] + 1
-            ), anchor="midtop"
+        el_name = "credits_earned"
+        self.elements[el_name] = UIElement(
+            self.game, el_name, self.surface,
+            self.game.state.credits_earned,
+            position=(self.rect.centerx, 12), anchor="midtop"
         )
 
-        self.elements["ship_hp"] = UIElement(
-            self.game, self.game.ship.hp, position=(
-                1, self.game.screen.height - 39
-            ),
-            anchor="bottomleft"
+class BottomTray(Tray):
+    """A class representing the bottom tray."""
+
+    def __init__(self, game, width, height):
+        """Initialize the bottom tray."""
+
+        super().__init__(game, width, height)
+        self.rect.y = self.game.screen.height - self.rect.height
+
+        el_name = "ship_hp"
+        self.elements[el_name] = UIElement(
+            self.game, el_name, self.surface, self.game.ship.hp,
+            position=(1, 1)
         )
 
-        self.elements["ship_thrust"] = UIElement(
-            self.game, self.game.ship.thrust, symbol_is_left=False, position=(
-                self.game.screen.width - 1, self.game.screen.height - 39
-            ), anchor="bottomright"
+        el_name = "ship_thrust"
+        self.elements[el_name] = UIElement(
+            self.game, el_name, self.surface, self.game.ship.thrust,
+            symbol_is_left=False, position=(self.rect.width - 1, 1),
+            anchor="topright"
         )
 
         # temporary image for the abilities
         # TODO: replace with real image
-        surf = pygame.Surface((18, 18))
-        pygame.draw.rect(surf, "gray", (0, 0, 18, 18))
+        image = pygame.Surface((18, 18))
+        pygame.draw.rect(image, "gray", (0, 0, 18, 18))
 
-        self.elements["active_1"] = UIElement(
-            self.game, "", surf, position=(
-                self.game.screen.width // 4 * 1,
-                self.game.screen.height - 20
-            ), anchor="midbottom"
-        )
-
-        self.elements["active_2"] = UIElement(
-            self.game, "", surf, position=(
-                self.game.screen.width // 4 * 2,
-                self.game.screen.height - 20
-            ), anchor="midbottom"
+        el_name = "active_1"
+        self.elements[el_name] = UIElement(
+            self.game, el_name, self.surface, symbol=image,
+            position=(self.rect.width // 4 * 1, 12), anchor="midtop"
         )
 
-        self.elements["active_3"] = UIElement(
-            self.game, "", surf, position=(
-                self.game.screen.width // 4 * 3,
-                self.game.screen.height - 20
-            ), anchor="midbottom"
+        el_name = "active_2"
+        self.elements[el_name] = UIElement(
+            self.game, el_name, self.surface, symbol=image,
+            position=(self.rect.width // 4 * 2, 12), anchor="midtop"
         )
 
-        self.elements["passive_1"] = UIElement(
-            self.game, "", surf, position=(
-                self.game.screen.width // 8 * 1,
-                self.game.screen.height - 1
-            ), anchor="midbottom"
+        el_name = "active_3"
+        self.elements[el_name] = UIElement(
+            self.game, el_name, self.surface, symbol=image,
+            position=(self.rect.width // 4 * 3, 12), anchor="midtop"
         )
 
-        self.elements["passive_2"] = UIElement(
-            self.game, "", surf, position=(
-                self.game.screen.width // 8 * 3,
-                self.game.screen.height - 1
-            ), anchor="midbottom"
+        el_name = "passive_1"
+        self.elements[el_name] = UIElement(
+            self.game, el_name, self.surface, symbol=image,
+            position=(self.rect.width // 8 * 1, self.rect.height - 1),
+            anchor="midbottom"
         )
 
-        self.elements["passive_3"] = UIElement(
-            self.game, "", surf, position=(
-                self.game.screen.width // 8 * 5,
-                self.game.screen.height - 1
-            ), anchor="midbottom"
+        el_name = "passive_2"
+        self.elements[el_name] = UIElement(
+            self.game, el_name, self.surface, symbol=image,
+            position=(self.rect.width // 8 * 3, self.rect.height - 1),
+            anchor="midbottom"
         )
 
-        self.elements["passive_4"] = UIElement(
-            self.game, "", surf, position=(
-                self.game.screen.width // 8 * 7,
-                self.game.screen.height - 1
-            ), anchor="midbottom"
+        el_name = "passive_3"
+        self.elements[el_name] = UIElement(
+            self.game, el_name, self.surface, symbol=image,
+            position=(self.rect.width // 8 * 5, self.rect.height - 1),
+            anchor="midbottom"
         )
 
-        # trays
-        # TODO: use images for the trays
-        # TODO: add slopes to trays (image)
-        self.top_tray_img = pygame.Surface((
-            self.game.screen.width,
-            self.elements["fire_power"].size[1] +
-            self.elements["session_duration"].size[1] + 3 # for padding
-        ))
-        self.top_tray_img.set_colorkey("black")
-        tt_subrect_1 = pygame.Rect(
-            0, 0, self.game.screen.width,
-            self.elements["fire_power"].size[1] + 2
+        el_name = "passive_4"
+        self.elements[el_name] = UIElement(
+            self.game, el_name, self.surface, symbol=image,
+            position=(self.rect.width // 8 * 7, self.rect.height - 1),
+            anchor="midbottom"
         )
-        tt_subrect_2 = pygame.Rect(
-            self.elements["fire_power"].size[0], tt_subrect_1.height,
-            self.game.screen.width - self.elements["fire_power"].size[0] * 2,
-            self.elements["session_duration"].size[1] + 1
-        )
-        pygame.draw.rect(self.top_tray_img, "white", tt_subrect_1)
-        pygame.draw.rect(self.top_tray_img, "white", tt_subrect_2)
-        self.top_tray_rect = self.top_tray_img.get_rect()
-
-        self.bot_tray_img = pygame.Surface((
-            self.game.screen.width,
-            self.elements["active_1"].size[1] * 2 +
-            self.elements["ship_hp"].size[1] + 4 # for padding
-        ))
-        self.bot_tray_img.set_colorkey("black")
-        bt_subrect_1 = pygame.Rect(
-            0, 0, self.elements["ship_hp"].size[0] + 2,
-            self.elements["ship_hp"].size[1] + 1
-        )
-        bt_subrect_2 = pygame.Rect(
-            self.game.screen.width - self.elements["ship_thrust"].size[0] - 2,
-            0, self.elements["ship_thrust"].size[0] + 2,
-            self.elements["ship_thrust"].size[1] + 1
-        )
-        bt_subrect_3 = pygame.Rect(
-            0, bt_subrect_1.height, self.game.screen.width,
-            self.elements["active_1"].size[1] * 2 + 3
-        )
-        pygame.draw.rect(self.bot_tray_img, "white", bt_subrect_1)
-        pygame.draw.rect(self.bot_tray_img, "white", bt_subrect_2)
-        pygame.draw.rect(self.bot_tray_img, "white", bt_subrect_3)
-        self.bot_tray_rect = self.bot_tray_img.get_rect()
-        self.bot_tray_rect.y = self.game.screen.height-self.bot_tray_rect.height
-        
-    def draw(self):
-        """Draw the control panel."""
-
-        self.game.screen.blit(self.top_tray_img, self.top_tray_rect)
-        self.game.screen.blit(self.bot_tray_img, self.bot_tray_rect)
-
-        for element in self.elements.values():
-            element.draw()
 
 class Menu():
     """A base class representing a menu."""

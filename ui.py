@@ -9,13 +9,15 @@ class UIElement():
 
     def __init__(
             self, game, name, parent_surface, content="", symbol=None,
-            symbol_is_left=True, position=(0, 0), anchor="topleft", font=None
+            symbol_is_left=True, position=(0, 0), anchor="topleft", font=None,
+            action=None
     ):
         """Initialize the UI element."""
 
         self.game = game
         self.name = name
         self.parent_surface = parent_surface
+        self.action = action
 
         self._load_content(content, font)
         self._load_symbol(symbol, symbol_is_left)
@@ -113,7 +115,12 @@ class UIElement():
     
     def trigger(self):
         """Hook for doing something when the element is activated."""
-        print(f"You clicked {self.name}!")
+
+        if self.action is None:
+            return False
+        
+        self.action()
+        return True
     
     def update(self, content=None, symbol=None, symbol_is_left=None,
                  position=None, anchor=None, font=None):
@@ -234,47 +241,54 @@ class BottomTray(Tray):
         el_name = "active_1"
         self.elements[el_name] = UIElement(
             self.game, el_name, self.surface, symbol=image,
-            position=(self.rect.width // 4 * 1, 12), anchor="midtop"
+            position=(self.rect.width // 4 * 1, 12), anchor="midtop",
+            action=self.game.ship.active_abilities[0].toggle
         )
 
         el_name = "active_2"
         self.elements[el_name] = UIElement(
             self.game, el_name, self.surface, symbol=image,
-            position=(self.rect.width // 4 * 2, 12), anchor="midtop"
+            position=(self.rect.width // 4 * 2, 12), anchor="midtop",
+            action=self.game.ship.active_abilities[1].toggle
         )
 
         el_name = "active_3"
         self.elements[el_name] = UIElement(
             self.game, el_name, self.surface, symbol=image,
-            position=(self.rect.width // 4 * 3, 12), anchor="midtop"
+            position=(self.rect.width // 4 * 3, 12), anchor="midtop",
+            action=self.game.ship.active_abilities[2].toggle
         )
 
         el_name = "passive_1"
         self.elements[el_name] = UIElement(
             self.game, el_name, self.surface, symbol=image,
             position=(self.rect.width // 8 * 1, self.rect.height - 1),
-            anchor="midbottom"
+            anchor="midbottom",
+            action=self.game.ship.passive_abilities[0].toggle
         )
 
         el_name = "passive_2"
         self.elements[el_name] = UIElement(
             self.game, el_name, self.surface, symbol=image,
             position=(self.rect.width // 8 * 3, self.rect.height - 1),
-            anchor="midbottom"
+            anchor="midbottom",
+            action=self.game.ship.passive_abilities[1].toggle
         )
 
         el_name = "passive_3"
         self.elements[el_name] = UIElement(
             self.game, el_name, self.surface, symbol=image,
             position=(self.rect.width // 8 * 5, self.rect.height - 1),
-            anchor="midbottom"
+            anchor="midbottom",
+            action=self.game.ship.passive_abilities[2].toggle
         )
 
         el_name = "passive_4"
         self.elements[el_name] = UIElement(
             self.game, el_name, self.surface, symbol=image,
             position=(self.rect.width // 8 * 7, self.rect.height - 1),
-            anchor="midbottom"
+            anchor="midbottom",
+            action=self.game.ship.passive_abilities[3].toggle
         )
 
 class Menu():

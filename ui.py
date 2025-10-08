@@ -30,8 +30,6 @@ class UIElement():
         self._calculate_draw_position()
         self._calculate_rect_positions()
 
-        self.draw()
-
     def _load_content(self, content, font):
         """Load the text content to display."""
 
@@ -120,12 +118,6 @@ class UIElement():
             return False
         
         self.action()
-        print("\n\n")
-        for ab in self.game.ship.active_abilities:
-            print(ab.enabled, ab.name)
-        print("---")
-        for ab in self.game.ship.passive_abilities:
-            print(ab.enabled, ab.name)
         return True
     
     def update(self, content=None, symbol=None, symbol_is_left=None,
@@ -155,9 +147,6 @@ class UIElement():
         self._calculate_size()
         self._calculate_draw_position()
         self._calculate_rect_positions()
-
-        pygame.draw.rect(self.parent_surface, "white", self.rect)
-        self.draw()
     
     def draw(self):
         """Draw the element to the parent surface."""
@@ -165,31 +154,161 @@ class UIElement():
         self.parent_surface.blit(self.symbol, self.symbol_rect)
         self.parent_surface.blit(self.content, self.content_rect)
 
-class Tray():
-    """A base class for the top and bottom trays."""
+class Menu():
+    """A base class representing a menu."""
 
-    def __init__(self, game, width, height):
-        """Initialize the tray with a surface."""
+    def __init__(self, game, width=None, height=None, background=None):
+        """Initialize the menu."""
 
         self.game = game
+        self.visible = False # determines if menu is shown
+        self.focused = False # determines if menu can be interacted with
+
+        if width is None:
+            width = self.game.screen.width
+        if height is None:
+            height = self.game.screen.height
+
         self.surface = pygame.Surface((width, height))
         self.rect = self.surface.get_rect()
-        self.elements = {}
 
-        pygame.draw.rect(self.surface, "white", self.rect)
+        if background is None:
+            background = pygame.Surface((width, height))
+            pygame.draw.rect(background, "black", background.get_rect())
+        self.background = background
+
+        self.elements = {}
+    
+    def show(self):
+        """Make the menu visible and interactive."""
+
+        self.visible = True
+        self.focused = True
+
+    def hide(self):
+        """Make the menu hidden and non-interactive."""
+
+        self.visible = False
+        self.focused = False
+    
+    def focus(self):
+        """Make only this menu interactive."""
+
+        if not self.visible:
+            return False
+        
+        self.focused = True
+
+        # TODO: unfocus all other menus
+    
+    def unfocus(self):
+        """Make the menu non-interactive."""
+
+        self.focused = False
+    
+    def trigger(self, element_name):
+        """Interact with an element in the menu."""
+
+        if element_name not in self.elements:
+            return False
+        
+        self.elements[element_name].trigger()
+        return True
     
     def draw(self):
-        """Draw the tray to the game screen."""
+        """Draw the menu to the screen."""
 
+        if not self.visible:
+            return False
+        
+        self.surface.blit(self.background, self.background.get_rect())
+
+        for element in self.elements.values():
+            element.draw()
+        
         self.game.screen.blit(self.surface, self.rect)
+
+class MainMenu(Menu):
+    """A class which represents the game's main menu."""
+
+    def __init__(self, game, width=None, height=None, background=None):
+        """Initialize the main menu."""
+
+        super().__init__(game, width, height, background)
+
+        self.visible = True
+        self.focused = True
+
+        el_name = "play_btn"
+        self.elements[el_name] = UIElement(
+            self.game, el_name, self.surface, "Play", position=(
+                self.rect.width * 1/3,
+                self.rect.height * 1/3
+            ), anchor="topleft"
+        )
+        el_name = "upgrade_btn"
+        self.elements[el_name] = UIElement(
+            self.game, el_name, self.surface, "Upgrade", position=(
+                self.rect.width * 1/3,
+                self.elements["play_btn"].rect.y +
+                (self.elements["play_btn"].rect.height + 5) * 1
+            ), anchor="topleft"
+        )
+        el_name = "unlock_btn"
+        self.elements[el_name] = UIElement(
+            self.game, el_name, self.surface, "Unlock",position=(
+                self.rect.width * 1/3,
+                self.elements["play_btn"].rect.y +
+                (self.elements["play_btn"].rect.height + 5) * 2
+            ), anchor="topleft"
+        )
+        el_name = "settings_btn"
+        self.elements[el_name] = UIElement(
+            self.game, el_name, self.surface, "Settings", position=(
+                self.rect.width * 1/3,
+                self.elements["play_btn"].rect.y +
+                (self.elements["play_btn"].rect.height + 5) * 3
+            ), anchor="topleft"
+        )
+        el_name = "info_btn"
+        self.elements[el_name] = UIElement(
+            self.game, el_name, self.surface, "Info", position=(
+                self.rect.width * 1/3,
+                self.elements["play_btn"].rect.y +
+                (self.elements["play_btn"].rect.height + 5) * 4
+            ), anchor="topleft"
+        )
+        el_name = "quit_btn"
+        self.elements[el_name] = UIElement(
+            self.game, el_name, self.surface, "Quit", position=(
+                self.rect.width * 1/3,
+                self.elements["play_btn"].rect.y +
+                (self.elements["play_btn"].rect.height + 5) * 5
+            ), anchor="topleft"
+        )
+
+
+class Tray(Menu):
+    """A base class for the top and bottom trays."""
+
+    def __init__(self, game, width=None, height=None, background=None):
+        """Initialize the tray with a surface."""
+
+        super().__init__(game, width, height, background)
+
+        pygame.draw.rect(self.background, "white", self.background.get_rect())
+
+        self.visible = True
+        self.focused = True
+
 
 class TopTray(Tray):
     """A class representing the top tray."""
 
-    def __init__(self, game, width, height):
+    def __init__(self, game, width=None, height=None, background=None):
         """Initialize the top tray."""
 
-        super().__init__(game, width, height)
+        super().__init__(game, width, height, background)
 
         el_name = "fire_power"
         self.elements[el_name] = UIElement(
@@ -220,10 +339,10 @@ class TopTray(Tray):
 class BottomTray(Tray):
     """A class representing the bottom tray."""
 
-    def __init__(self, game, width, height):
+    def __init__(self, game, width=None, height=None, background=None):
         """Initialize the bottom tray."""
 
-        super().__init__(game, width, height)
+        super().__init__(game, width, height, background)
         self.rect.y = self.game.screen.height - self.rect.height
 
         el_name = "ship_hp"
@@ -295,81 +414,4 @@ class BottomTray(Tray):
             position=(self.rect.width // 8 * 7, self.rect.height - 1),
             anchor="midbottom",
             action=self.game.ship.passive_abilities[3].toggle
-        )
-
-class Menu():
-    """A base class representing a menu."""
-
-    def __init__(self, game):
-        """Initialize the menu."""
-
-        self.game = game
-        self.visible = False # determines if menu is shown
-        self.focused = False # determines if menu can be interacted with
-        self.surface = pygame.Surface((
-            self.game.screen.width, self.game.screen.height
-        ))
-        self.rect = self.surface.get_rect()
-        self.elements = {}
-    
-    def show(self):
-        """Make the menu visible and interactive."""
-
-        self.visible = True
-        self.focused = True
-
-    def hide(self):
-        """Make the menu hidden and non-interactive."""
-
-        self.visible = False
-        self.focused = False
-    
-    def focus(self):
-        """Make only this menu interactive."""
-
-        if not self.visible:
-            return False
-        
-        self.focused = True
-
-        # TODO: unfocus all other menus
-    
-    def unfocus(self):
-        """Make the menu non-interactive."""
-
-        self.focused = False
-    
-    def trigger(self, element_name):
-        """Interact with an element in the menu."""
-
-        if element_name not in self.elements:
-            return False
-        
-        self.elements[element_name].trigger()
-        return True
-    
-    def draw(self):
-        """Draw the menu to the screen."""
-
-        if not self.visible:
-            return False
-        
-        for element in self.elements.values():
-            self.surface.blit(element.symbol, element.symbol_rect)
-            self.surface.blit(element.content, element.content_rect)
-        
-        self.game.screen.blit(self.surface, self.rect)
-
-class MainMenu(Menu):
-    """A class which represents the game's main menu."""
-
-    def __init__(self, game):
-        """Initialize the main menu."""
-
-        super().__init__(game)
-
-        self.visible = True
-        self.focused = True
-        self.elements["play_button"] = UIElement(
-            self.game, "Play", position=self.rect.center, anchor="center"
         )

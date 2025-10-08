@@ -6,7 +6,7 @@ from touch import Touch
 from config import Config
 from settings import Settings, Controls
 from state import State
-from ui import TopTray, BottomTray, Menu
+from ui import TopTray, BottomTray, MainMenu
 
 class Game:
     """Class that represents the game object."""
@@ -38,7 +38,7 @@ class Game:
         self.clock = pygame.time.Clock()
         self.dt = 0
 
-        #self.main_menu = MainMenu(self)
+        self.main_menu = MainMenu(self)
 
         # create the player ship
         self.ship = Ship(self)

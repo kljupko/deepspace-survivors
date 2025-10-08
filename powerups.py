@@ -24,30 +24,37 @@ class PowerUp(Entity):
         self.x = float(self.rect.x)
         self.y = float(self.rect.y)
 
-        self._calculate_bounds()
+        self._calculate_bounds(pad_bot=-self.rect.height)
 
         self.base_speed_y = self.game.config.base_speed * 0.15
         self._calculate_relative_speed()
         self.destination = (self.x, self.bounds["bottom"])
+
+    # override Entity update method
+    def update(self, dt):
+        """Update the powerup."""
+
+        self._move(dt)
+        self._check_bottom()
     
-    # override Entity bounds
-    def _calculate_bounds(self):
-        """Calculate the bounds within which the alien can be."""
+    def _check_bottom(self):
+        """
+        Check if the powerup is past the bottom of the screen.
+        If so, destroy it.
+        """
 
-        bounds = {}
-        bounds["top"] = self.screen_rect.top - self.rect.height
-        bounds["right"] = self.screen_rect.right - self.rect.width
-        bounds["bottom"] = self.screen_rect.bottom
-        bounds["left"] = self.screen_rect.left
-
-        self.bounds = bounds
+        if self.y < self.bounds["bottom"]:
+            return False
+        
+        self.destroy()
+        return True
     
     def apply(self):
         """Apply the powerup on pickup."""
 
         print(f"Hook for picking up the {self.name} powerup.")
         print(self.description)
-        self.game.powerups.remove(self)
+        self.destroy()
     
 class BonusHP(PowerUp):
     """A class representing a powerup that increases the ship's HP."""

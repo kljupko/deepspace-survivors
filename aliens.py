@@ -18,11 +18,11 @@ class Alien(Entity):
         self.color = "red"
 
         # spawn enemy above the screen
-        self.rect.midbottom = self.screen_rect.midtop
+        self.rect.midbottom = self.game.play_rect.midtop
         self.x = float(self.rect.x)
         self.y = float(self.rect.y)
 
-        self._calculate_bounds()
+        self._calculate_bounds(pad_bot=-self.rect.height)
 
         # allow the alien to move downwards
         self.base_speed_y = self.game.config.base_speed * 0.25
@@ -58,18 +58,6 @@ class Alien(Entity):
         self.destroy()
         return True
     
-    # override Entity bounds
-    def _calculate_bounds(self):
-        """Calculate the bounds within which the alien can be."""
-
-        bounds = {}
-        bounds["top"] = self.screen_rect.top - self.rect.height
-        bounds["right"] = self.screen_rect.right - self.rect.width
-        bounds["bottom"] = self.screen_rect.bottom - 39
-        bounds["left"] = self.screen_rect.left
-
-        self.bounds = bounds
-    
     def take_damage(self, damage):
         """
         Reduce the alien's HP by the given amount.
@@ -99,4 +87,4 @@ class Alien(Entity):
         """Destroy the alien. Handle sounds, animations, etc."""
 
         # TODO: play sounds and animations
-        self.kill() # remove from all sprite groups
+        self.kill()

@@ -19,7 +19,7 @@ class Ship(Entity):
         self.color = "green"
 
         # overwrite Entity's center position
-        self.rect.midtop = self.screen_rect.centerx, self.bounds["bottom"]
+        self.rect.midtop = self.game.play_rect.centerx, self.bounds["bottom"]
         self.x = float(self.rect.x)
         self.y = float(self.rect.y)
 
@@ -93,6 +93,7 @@ class Ship(Entity):
             self.hp -= alien.damage
             ui_elem = self.game.bottom_tray.elements["ship_hp"]
             ui_elem.update(self.hp)
+            self.game.bottom_tray.draw()
             alien.destroy()
         
         return True
@@ -148,6 +149,7 @@ class Ship(Entity):
                 abils[idx] = new_ability
                 ui_element = self.game.bottom_tray.elements[f"passive_{idx+1}"]
                 ui_element.action = abils[idx].toggle
+                self.game.bottom_tray.draw()
                 return True
         
         return False
@@ -182,6 +184,7 @@ class Ship(Entity):
             if ability.enabled:
                 ability.fire()
         self.cancel_ability_charge()
+        self.game.bottom_tray.draw()
         return True
     
     # -------------------------------------------------------------------
@@ -211,6 +214,7 @@ class Ship(Entity):
                 abils[idx] = new_ability
                 ui_element = self.game.bottom_tray.elements[f"passive_{idx+1}"]
                 ui_element.action = abils[idx].toggle
+                self.game.bottom_tray.draw()
                 return True
         
         return False

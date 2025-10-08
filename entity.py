@@ -12,15 +12,13 @@ class Entity(Sprite):
         
         super().__init__()
         self.game = game
-        self.game_screen = game.screen
-        self.screen_rect = game.screen.get_rect()
 
         # show the entity as a rectangle
         self.rect = pygame.Rect(0, 0, 24, 24)
         self.color = "pink"
 
         # start at the center of the screen
-        self.rect.center = self.screen_rect.center
+        self.rect.center = self.game.play_rect.center
 
         # set the entity's bounds
         self._calculate_bounds()
@@ -82,29 +80,37 @@ class Entity(Sprite):
     def draw(self):
         """Draw the entity to the screen."""
 
-        pygame.draw.rect(self.game_screen, self.color, self.rect)
+        pygame.draw.rect(self.game.play_surf, self.color, self.rect)
+    
+    def destroy(self):
+        """
+        Destroy the entity.
+        Entities with sounds and animations should overwrite this.
+        """
+
+        self.kill() # remove from all sprite groups
     
     def handle_resize(self):
         """Handle what happens when the game window is resized."""
 
-        old_rect = self.screen_rect
-        self.screen_rect = self.game_screen.get_rect()
+        old_rect = self.game.play_rect
+        self.game.play_rect = self.game.play_surf.get_rect()
 
         self._calculate_bounds()
 
         self._calculate_relative_speed()
         self._calculate_relative_position(old_rect)
     
-    def _calculate_bounds(self):
+    def _calculate_bounds(self, pad_top=0, pad_right=0, pad_bot=0, pad_left=0):
         """Calculate the bounds within which the entity can be."""
 
         bounds = {}
-        bounds["top"] = self.screen_rect.top
-        bounds["right"] = self.screen_rect.right - self.rect.width
+        bounds["top"] = self.game.play_rect.top + pad_top
+        bounds["right"] = self.game.play_rect.right - self.rect.width -pad_right
         # TODO: ensure the bottom bound is above the bottom panel
         #   probably use a variable of some kind
-        bounds["bottom"] = self.screen_rect.bottom - self.rect.height - 39
-        bounds["left"] = self.screen_rect.left
+        bounds["bottom"] = self.game.play_rect.bottom - self.rect.height-pad_bot
+        bounds["left"] = self.game.play_rect.left + pad_left
 
         self.bounds = bounds
         
@@ -113,8 +119,8 @@ class Entity(Sprite):
         Calculate entity's relative speed, regardless of aspect ratio.
         """
 
-        x_mult = self.screen_rect.width / 100
-        y_mult = self.screen_rect.height / 100
+        x_mult = self.game.play_rect.width / 100
+        y_mult = self.game.play_rect.height / 100
 
         self.speed_x = self.base_speed_x * x_mult
         self.speed_y = self.base_speed_y * y_mult
@@ -131,16 +137,16 @@ class Entity(Sprite):
         if self.rect.x == 0:
             x = 0
         elif self.rect.right == old_screen_rect.right:
-            x = self.screen_rect.right
+            x = self.game.play_rect.right
         else:
-            x = float(self.screen_rect.width * rel_x)
+            x = float(self.game.play_rect.width * rel_x)
 
         if self.rect.y == 0:
             y = 0
         elif self.rect.bottom == old_screen_rect.bottom:
-            y = self.screen_rect.bottom
+            y = self.game.play_rect.bottom
         else:
-            y = float(self.screen_rect.height * rel_y)
+            y = float(self.game.play_rect.height * rel_y)
         
         self.x = x
         self.y = y

@@ -14,7 +14,7 @@ class Bullet(Entity):
         self.rect = pygame.Rect(0, 0, 4, 4)
 
         # spawn bullet on top of the ship
-        self._calculate_bounds()
+        self._calculate_bounds(pad_top=-self.rect.height)
         self.rect.midtop = self.game.ship.rect.midtop
         self.x = float(self.rect.x)
         self.y = float(self.rect.y)
@@ -55,20 +55,3 @@ class Bullet(Entity):
         
         self.destroy()
         return True
-    
-    # override Entity bounds
-    def _calculate_bounds(self):
-        """Calculate the bounds within which the bullet can be."""
-
-        bounds = {}
-        bounds["top"] = self.screen_rect.top - self.rect.height
-        bounds["right"] = self.screen_rect.right - self.rect.width
-        bounds["bottom"] = self.screen_rect.bottom
-        bounds["left"] = self.screen_rect.left
-
-        self.bounds = bounds
-
-    def destroy(self):
-        """Destroy the bullet."""
-
-        self.game.bullets.remove(self)

@@ -28,30 +28,44 @@ class Game:
         # ---
 
         self._configure_display()
+
         self.touch = Touch()
         self.config = Config()
         self.settings = Settings()
         self.controls = Controls()
+        
+        self.main_menu = MainMenu(self)
+
+        #region: start the game
         self.state = State()
         self.state.running = True
-
         self.clock = pygame.time.Clock()
         self.dt = 0
 
-        self.main_menu = MainMenu(self)
+        self.top_tray = TopTray(self, self.screen.width, 23)
+        self.bottom_tray = BottomTray(self, self.screen.width, 50)
+
+        self.play_surf = pygame.Surface((
+            self.screen.width,
+            self.screen.height - self.bottom_tray.rect.height + 11
+        ))
+        self.play_rect = self.play_surf.get_rect()
 
         # create the player ship
         self.ship = Ship(self)
         # TODO: add ship to group, after adding image loading
 
-        self.top_tray = TopTray(self, self.screen.width, 23)
-        self.bottom_tray = BottomTray(self, self.screen.width, 50)
+        # finish setting up the trays
+        self.top_tray.complete_init()
+        self.top_tray.draw()
+        self.bottom_tray.complete_init()
+        self.bottom_tray.draw()
 
         self.bullets = pygame.sprite.Group()
         self.aliens = pygame.sprite.Group()
         self.aliens.add(Alien(self))
-        self.aliens.add(Alien(self))
         self.powerups = pygame.sprite.Group()
+        #endregion
     
     def run(self):
         """Run the game loop."""
@@ -241,6 +255,7 @@ class Game:
             for element in self.bottom_tray.elements.values():
                 if element.rect.collidepoint(inner_pos):
                     element.trigger()
+                    self.bottom_tray.draw() # update
                     done = True
                     break
             return done
@@ -315,6 +330,7 @@ class Game:
         if self.state.last_second_tracked < self.state.session_duration // 1000:
             self.top_tray.elements["session_duration"].update(time)
             self.state.last_second_tracked = self.state.session_duration // 1000
+            self.top_tray.draw()
 
         if self.touch:
             self.touch.track_touch_duration()
@@ -328,10 +344,11 @@ class Game:
     def _draw(self):
         """Draw to the screen."""
         
-        # first, clear the screen/ fill with background color
-        self.screen.fill("black")
+        # first, clear the play surface by drawing the background
+        pygame.draw.rect(self.play_surf, "black", self.play_rect)
 
-        # draw the entities on the screen
+
+        # draw the entities to the play surface
         # TODO: use the group to draw the ship?
         self.ship.draw()
 
@@ -347,10 +364,17 @@ class Game:
         for alien in self.aliens:
             alien.draw()
         
-        # draw the UI
-        self.top_tray.draw()
-        self.bottom_tray.draw()
-        # TODO: enable the menus when you refactor the entire ui.py
+        # draw the top and part of bottom tray to the play surface
+        self.play_surf.blit(self.top_tray.surface, self.top_tray.rect)
+        self.play_surf.blit(self.bottom_tray.surface, (
+            0, self.play_rect.height - 11,
+            self.bottom_tray.rect.width, self.bottom_tray.rect.height
+        ))
+
+        # draw the play surface
+        self.screen.blit(self.play_surf)
+
+        # TODO: enable the menus when you handle the game start
         #self.main_menu.draw()
 
         # draw everything to the screen

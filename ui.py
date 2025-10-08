@@ -309,6 +309,12 @@ class TopTray(Tray):
         """Initialize the top tray."""
 
         super().__init__(game, width, height, background)
+    
+    def complete_init(self):
+        """
+        Completes the initialization.
+        Called after the ship is initialized.
+        """
 
         el_name = "fire_power"
         self.elements[el_name] = UIElement(
@@ -344,6 +350,12 @@ class BottomTray(Tray):
 
         super().__init__(game, width, height, background)
         self.rect.y = self.game.screen.height - self.rect.height
+    
+    def complete_init(self):
+        """
+        Completes the initialization.
+        Called after the ship is initialized.
+        """
 
         el_name = "ship_hp"
         self.elements[el_name] = UIElement(

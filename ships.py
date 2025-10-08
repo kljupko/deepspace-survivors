@@ -146,6 +146,8 @@ class Ship(Entity):
 
             if abil.name == abilities.Blank(self.game).name:
                 abils[idx] = new_ability
+                ui_element = self.game.bottom_tray.elements[f"passive_{idx+1}"]
+                ui_element.action = abils[idx].toggle
                 return True
         
         return False
@@ -205,12 +207,10 @@ class Ship(Entity):
                 # TODO: level up the ability
                 return True
             
-            if abil.name == abilities.Blank(self.game).name:
+            if abil.name == abilities.Blank(self.game).name or not abil.enabled:
                 abils[idx] = new_ability
-                return True
-            
-            if not abil.enabled:
-                abils[idx] = new_ability
+                ui_element = self.game.bottom_tray.elements[f"passive_{idx+1}"]
+                ui_element.action = abils[idx].toggle
                 return True
         
         return False

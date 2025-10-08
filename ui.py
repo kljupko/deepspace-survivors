@@ -120,6 +120,12 @@ class UIElement():
             return False
         
         self.action()
+        print("\n\n")
+        for ab in self.game.ship.active_abilities:
+            print(ab.enabled, ab.name)
+        print("---")
+        for ab in self.game.ship.passive_abilities:
+            print(ab.enabled, ab.name)
         return True
     
     def update(self, content=None, symbol=None, symbol_is_left=None,

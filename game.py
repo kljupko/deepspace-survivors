@@ -16,6 +16,8 @@ class Game:
         
         pygame.init()
 
+        self.game_running = True
+
         # --- use in the final version ---
         """ self.native_resolution = (
             pygame.display.Info().current_w,
@@ -33,15 +35,30 @@ class Game:
         self.config = Config()
         self.settings = Settings()
         self.controls = Controls()
-        
-        self.main_menu = MainMenu(self)
-
-        #region: start the game
-        self.state = State()
-        self.state.running = True
         self.clock = pygame.time.Clock()
         self.dt = 0
+        self.state = State()
 
+        self.main_menu = MainMenu(self)
+    
+    def run(self):
+        """Run the game loop."""
+
+        while self.game_running:
+            self._handle_events()
+            self._update()
+            self._draw()
+
+            # control the framerate and timing
+            self.dt = self.clock.tick(self.settings.fps) / 1000
+        
+        pygame.quit()
+    
+    def start_session(self):
+        """Start the session."""
+
+        # TODO: reset the state
+        self.state.session_running = True
         self.top_tray = TopTray(self, self.screen.width, 23)
         self.bottom_tray = BottomTray(self, self.screen.width, 50)
 
@@ -65,21 +82,16 @@ class Game:
         self.aliens = pygame.sprite.Group()
         self.aliens.add(Alien(self))
         self.powerups = pygame.sprite.Group()
-        #endregion
-    
-    def run(self):
-        """Run the game loop."""
 
-        while self.state.running:
-            self._handle_events()
-            self._update()
-            self._draw()
-
-            # control the framerate and timing
-            self.dt = self.clock.tick(self.settings.fps) / 1000
-        
-        pygame.quit()
+        self.main_menu.hide()
     
+    def quit_session(self):
+        """Quit the session and return to the main menu."""
+
+        self.state.session_running = False
+        # TODO: clear the game objects
+        self.main_menu.show()
+
     # region DISPLAY HELPER FUNCTIONS
     # -------------------------------------------------------------------
 
@@ -160,7 +172,8 @@ class Game:
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                self.state.running = False
+                # TODO: prepare the game for quitting
+                self.game_running = False
 
             elif event.type == pygame.KEYDOWN:
                 self._handle_keydown_events(event)
@@ -182,6 +195,12 @@ class Game:
                 
     def _handle_keydown_events(self, event):
         """Handle what happens when certain keys are pressed."""
+
+        if event.key == pygame.K_ESCAPE:
+            self.quit_session()
+
+        if not self.state.session_running:
+            return False
 
         if event.key == self.controls.move_left:
             self.ship.moving_left = True
@@ -209,6 +228,9 @@ class Game:
     def _handle_keyup_events(self, event):
         """Handle what happens when certain keys are released."""
 
+        if not self.state.session_running:
+            return False
+
         if event.key == self.controls.move_left:
             self.ship.moving_left = False
         if event.key == self.controls.move_right:
@@ -223,6 +245,8 @@ class Game:
         if self.screen.size != new_res:
             self._configure_display(new_res)
         
+        if not self.state.session_running:
+            return False
         # TODO: recalculate speed of all game entities
         # TODO: move all game entities to appropriate positions
         self.ship.handle_resize()
@@ -239,6 +263,18 @@ class Game:
         pos = self.touch.current_pos
 
         if self.touch.touch_start_ts is None:
+            return False
+        
+        if self.main_menu.visible and self.main_menu.focused:
+            done = False
+            for element in self.main_menu.elements.values():
+                if element.rect.collidepoint(pos):
+                    element.trigger()
+                    done = True
+                    break
+            return done
+        
+        if not self.state.session_running:
             return False
         
         if self.top_tray.rect.collidepoint(pos):
@@ -260,15 +296,6 @@ class Game:
                     break
             return done
         
-        """ if self.main_menu.visible and self.main_menu.focused:
-            done = False
-            for element in self.main_menu.elements.values():
-                if element.rect.collidepoint(pos):
-                    element.trigger()
-                    done = True
-                    break
-            return done """
-        
         # control the ship if nothing else is clicked
         self.ship.fire_bullet()
         self.ship.start_ability_charge()
@@ -284,6 +311,10 @@ class Game:
         """
 
         self.touch.register_mouseup_event()
+
+        if not self.state.session_running:
+            return False
+        
         self.ship.cancel_ability_charge()
         self.ship.destination = None
 
@@ -299,6 +330,9 @@ class Game:
         if self.touch.touch_start_ts is None:
             return False
         
+        if not self.state.session_running:
+            return False
+
         # TODO: make the play area a separate surface to avoid the
         #   nonsense below
         if self.top_tray.rect.collidepoint(pos):
@@ -320,6 +354,13 @@ class Game:
     def _update(self):
         """Update the game objects."""
 
+        if self.touch:
+            self.touch.track_touch_duration()
+
+        if not self.state.session_running:
+            return False
+        
+        # TODO: move this sessio update logic to a better place (func?)
         self.state.track_duration()
         # TODO: find a better place for the code below?...
         mins, secs = divmod(self.state.session_duration // 1000, 60)
@@ -332,9 +373,6 @@ class Game:
             self.state.last_second_tracked = self.state.session_duration // 1000
             self.top_tray.draw()
 
-        if self.touch:
-            self.touch.track_touch_duration()
-
         # TODO: use the group to update the ship maybe
         self.ship.update(self.dt)
         self.bullets.update(self.dt)
@@ -343,39 +381,32 @@ class Game:
     
     def _draw(self):
         """Draw to the screen."""
-        
-        # first, clear the play surface by drawing the background
-        pygame.draw.rect(self.play_surf, "black", self.play_rect)
 
+        # TODO: organize the session drawing better (func?)
+        if self.state.session_running:        
+            # first, clear the play surface by drawing the background
+            pygame.draw.rect(self.play_surf, "black", self.play_rect)
 
-        # draw the entities to the play surface
-        # TODO: use the group to draw the ship?
-        self.ship.draw()
+            # TODO: use an entities group to draw the entities
+            self.ship.draw()
+            for bullet in self.bullets:
+                bullet.draw()
+            for powerup in self.powerups:
+                powerup.draw()
+            for alien in self.aliens:
+                alien.draw()
+            
+            # draw the top and part of bottom tray to the play surface
+            self.play_surf.blit(self.top_tray.surface, self.top_tray.rect)
+            self.play_surf.blit(self.bottom_tray.surface, (
+                0, self.play_rect.height - 11,
+                self.bottom_tray.rect.width, self.bottom_tray.rect.height
+            ))
 
-        # TODO: use the group to draw bullets
-        for bullet in self.bullets:
-            bullet.draw()
-        
-        # TODO: use the group to draw powerups
-        for powerup in self.powerups:
-            powerup.draw()
+            # draw the play surface
+            self.screen.blit(self.play_surf)
 
-        # TODO: use the group to draw aliens
-        for alien in self.aliens:
-            alien.draw()
-        
-        # draw the top and part of bottom tray to the play surface
-        self.play_surf.blit(self.top_tray.surface, self.top_tray.rect)
-        self.play_surf.blit(self.bottom_tray.surface, (
-            0, self.play_rect.height - 11,
-            self.bottom_tray.rect.width, self.bottom_tray.rect.height
-        ))
-
-        # draw the play surface
-        self.screen.blit(self.play_surf)
-
-        # TODO: enable the menus when you handle the game start
-        #self.main_menu.draw()
+        self.main_menu.draw()
 
         # draw everything to the screen
         pygame.display.flip()

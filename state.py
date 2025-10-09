@@ -6,7 +6,7 @@ class State():
     def __init__(self):
         """Initialize the game state object."""
 
-        self.running = False
+        self.session_running = False
         self.session_duration = 0 # in miliseconds
         self.last_second_tracked = -1
         self.credits_earned = 0

@@ -244,7 +244,7 @@ class MainMenu(Menu):
             self.game, el_name, self.surface, "Play", position=(
                 self.rect.width * 1/3,
                 self.rect.height * 1/3
-            ), anchor="topleft"
+            ), anchor="topleft", action=self.game.start_session
         )
         el_name = "upgrade_btn"
         self.elements[el_name] = UIElement(

@@ -57,7 +57,7 @@ class Game:
     def start_session(self):
         """Start the session."""
 
-        # TODO: reset the state
+        self.state = State()
         self.state.session_running = True
         self.top_tray = TopTray(self, self.screen.width, 23)
         self.bottom_tray = BottomTray(self, self.screen.width, 50)
@@ -91,6 +91,12 @@ class Game:
         self.state.session_running = False
         # TODO: clear the game objects
         self.main_menu.show()
+    
+    def quit(self):
+        """Handle quitting the game."""
+
+        # TODO: prepare the game for quitting
+        self.game_running = False
 
     # region DISPLAY HELPER FUNCTIONS
     # -------------------------------------------------------------------
@@ -172,8 +178,7 @@ class Game:
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                # TODO: prepare the game for quitting
-                self.game_running = False
+                self.quit_game()
 
             elif event.type == pygame.KEYDOWN:
                 self._handle_keydown_events(event)

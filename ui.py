@@ -284,7 +284,7 @@ class MainMenu(Menu):
                 self.rect.width * 1/3,
                 self.elements["play_btn"].rect.y +
                 (self.elements["play_btn"].rect.height + 5) * 5
-            ), anchor="topleft"
+            ), anchor="topleft", action=self.game.quit
         )
 
 

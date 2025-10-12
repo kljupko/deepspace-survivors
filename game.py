@@ -6,6 +6,7 @@ from touch import Touch
 from config import Config
 from settings import Settings, Controls
 from state import State
+from progress import Progress
 from ui import TopTray, BottomTray, MainMenu
 
 class Game:
@@ -38,6 +39,7 @@ class Game:
         self.clock = pygame.time.Clock()
         self.dt = 0
         self.state = State()
+        self.progress = Progress(self)
 
         self.main_menu = MainMenu(self)
     
@@ -89,6 +91,19 @@ class Game:
         """Quit the session and return to the main menu."""
 
         self.state.session_running = False
+
+        # update the progress
+        self.progress.data['credits'] += self.state.credits_earned
+        if self.progress.data['credits'] > self.progress.data['max_credits_owned']:
+            self.progress.data['max_credits_owned'] = self.progress.data['credits']
+        if self.state.credits_earned > self.progress.data['max_credits_session']:
+            self.progress.data['max_credits_session'] = self.state.credits_earned
+        self.progress.data['num_of_sessions'] += 1
+        if self.state.session_duration > self.progress.data['longest_session']:
+            self.progress.data['longest_session'] = self.state.session_duration
+        self.progress.data['total_session_duration'] += self.state.session_duration
+        self.progress.save_data()
+
         # TODO: clear the game objects
         self.main_menu.show()
     
@@ -96,6 +111,9 @@ class Game:
         """Handle quitting the game."""
 
         # TODO: prepare the game for quitting
+        if self.state.session_running:
+            self.quit_session()
+        
         self.game_running = False
 
     # region DISPLAY HELPER FUNCTIONS
@@ -178,7 +196,7 @@ class Game:
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                self.quit_game()
+                self.quit()
 
             elif event.type == pygame.KEYDOWN:
                 self._handle_keydown_events(event)
@@ -365,7 +383,7 @@ class Game:
         if not self.state.session_running:
             return False
         
-        # TODO: move this sessio update logic to a better place (func?)
+        # TODO: move this session update logic to a better place (func?)
         self.state.track_duration()
         # TODO: find a better place for the code below?...
         mins, secs = divmod(self.state.session_duration // 1000, 60)

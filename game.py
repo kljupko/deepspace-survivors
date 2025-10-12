@@ -225,36 +225,26 @@ class Game:
             return False
 
         if event.key == self.settings.data["key_move_left"]:
-            print("moving left")
             self.ship.moving_left = True
         if event.key == self.settings.data["key_move_right"]:
-            print("moving right")
             self.ship.moving_right = True
         if event.key == self.settings.data["key_fire"]:
-            print("firing")
             self.ship.fire_bullet()
             self.ship.start_ability_charge()
 
         if event.key == self.settings.data["key_active_1"]:
-            print("active 1")
             self.ship.active_abilities[0].toggle()
         if event.key == self.settings.data["key_active_2"]:
-            print("active 2")
             self.ship.active_abilities[1].toggle()
         if event.key == self.settings.data["key_active_3"]:
-            print("active 3")
             self.ship.active_abilities[2].toggle()
         if event.key == self.settings.data["key_passive_1"]:
-            print("passive 1")
             self.ship.passive_abilities[0].toggle()
         if event.key == self.settings.data["key_passive_2"]:
-            print("passive 2")
             self.ship.passive_abilities[1].toggle()
         if event.key == self.settings.data["key_passive_3"]:
-            print("passive 3")
             self.ship.passive_abilities[2].toggle()
         if event.key == self.settings.data["key_passive_4"]:
-            print("passive 4")
             self.ship.passive_abilities[3].toggle()
                 
     def _handle_keyup_events(self, event):

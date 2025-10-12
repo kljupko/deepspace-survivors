@@ -207,4 +207,4 @@ marimo/_lsp/
 __marimo__/
 
 # My custom files
-data/saves
+data/

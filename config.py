@@ -9,6 +9,7 @@ class Config():
         self.base_speed = 100
         self.required_ability_charge = 2000 # in miliseconds
 
+        self.settings_path = "data/settings.json"
         self.main_save_path = "data/saves/main_save.json"
         self.back_save_path = "data/saves/backup_save.json"
         # TODO: add other file paths

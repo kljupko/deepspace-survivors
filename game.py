@@ -4,7 +4,7 @@ from ships import Ship
 from aliens import Alien
 from touch import Touch
 from config import Config
-from settings import Settings, Controls
+from settings import Settings
 from state import State
 from progress import Progress
 from ui import TopTray, BottomTray, MainMenu
@@ -34,8 +34,7 @@ class Game:
 
         self.touch = Touch()
         self.config = Config()
-        self.settings = Settings()
-        self.controls = Controls()
+        self.settings = Settings(self)
         self.clock = pygame.time.Clock()
         self.dt = 0
         self.state = State()
@@ -52,7 +51,7 @@ class Game:
             self._draw()
 
             # control the framerate and timing
-            self.dt = self.clock.tick(self.settings.fps) / 1000
+            self.dt = self.clock.tick(self.settings.data["fps"]) / 1000
         
         pygame.quit()
     
@@ -219,33 +218,43 @@ class Game:
     def _handle_keydown_events(self, event):
         """Handle what happens when certain keys are pressed."""
 
-        if event.key == pygame.K_ESCAPE:
+        if event.key == self.settings.data["key_cancel"]:
             self.quit_session()
 
         if not self.state.session_running:
             return False
 
-        if event.key == self.controls.move_left:
+        if event.key == self.settings.data["key_move_left"]:
+            print("moving left")
             self.ship.moving_left = True
-        if event.key == self.controls.move_right:
+        if event.key == self.settings.data["key_move_right"]:
+            print("moving right")
             self.ship.moving_right = True
-        if event.key == self.controls.fire:
+        if event.key == self.settings.data["key_fire"]:
+            print("firing")
             self.ship.fire_bullet()
             self.ship.start_ability_charge()
 
-        if event.key == self.controls.active_1:
+        if event.key == self.settings.data["key_active_1"]:
+            print("active 1")
             self.ship.active_abilities[0].toggle()
-        if event.key == self.controls.active_2:
+        if event.key == self.settings.data["key_active_2"]:
+            print("active 2")
             self.ship.active_abilities[1].toggle()
-        if event.key == self.controls.active_3:
+        if event.key == self.settings.data["key_active_3"]:
+            print("active 3")
             self.ship.active_abilities[2].toggle()
-        if event.key == self.controls.passive_1:
+        if event.key == self.settings.data["key_passive_1"]:
+            print("passive 1")
             self.ship.passive_abilities[0].toggle()
-        if event.key == self.controls.passive_2:
+        if event.key == self.settings.data["key_passive_2"]:
+            print("passive 2")
             self.ship.passive_abilities[1].toggle()
-        if event.key == self.controls.passive_3:
+        if event.key == self.settings.data["key_passive_3"]:
+            print("passive 3")
             self.ship.passive_abilities[2].toggle()
-        if event.key == self.controls.passive_4:
+        if event.key == self.settings.data["key_passive_4"]:
+            print("passive 4")
             self.ship.passive_abilities[3].toggle()
                 
     def _handle_keyup_events(self, event):
@@ -254,11 +263,11 @@ class Game:
         if not self.state.session_running:
             return False
 
-        if event.key == self.controls.move_left:
+        if event.key == self.settings.data["key_move_left"]:
             self.ship.moving_left = False
-        if event.key == self.controls.move_right:
+        if event.key == self.settings.data["key_move_right"]:
             self.ship.moving_right = False
-        if event.key == self.controls.fire:
+        if event.key == self.settings.data["key_fire"]:
             self.ship.cancel_ability_charge()
     
     def _handle_resize_event(self):

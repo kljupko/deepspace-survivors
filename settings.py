@@ -1,37 +1,76 @@
-"""
-A module containing the classes for user-defined controls and settings.
-"""
-
+from pathlib import Path
+import json
 import pygame
 
 class Settings():
-    """A class representing the user settings."""
+    """A class representing the user settings and controls."""
 
-    def __init__(self):
+    def __init__(self, game):
         """Initialize the user settings object."""
 
-        # TODO: determine how to load user settings
-        self.fps = 60
-        # TODO: determine how to load user controls
-        self.controls = Controls()
+        self.game = game
 
-class Controls():
-    """A class representing the user controls."""
+        self.data = self._load_data(self.game.config.settings_path)
 
-    def __init__(self):
-        """Initialize the user controls object."""
+        if self.data:
+            return
+        
+        # otherwise, loading saved settings failed
+        print("Applying default settings.")
+        self.data = self._defaults()
+    
+    def _defaults(self):
+        """Return a dictionary containing the default settings data."""
 
-        self.move_left = pygame.K_LEFT
-        self.move_right = pygame.K_RIGHT
+        data = {
+            'fps' : 60,
 
-        self.fire = pygame.K_SPACE
+            # keybinds
+            'key_confirm' : pygame.K_RETURN,
+            'key_cancel' : pygame.K_ESCAPE,
 
-        # TODO: change the defaults for a QWERTY layout
-        self.active_1 = pygame.K_w
-        self.active_2 = pygame.K_f
-        self.active_3 = pygame.K_p
-        self.passive_1 = pygame.K_a
-        self.passive_2 = pygame.K_r
-        self.passive_3 = pygame.K_s
-        self.passive_4 = pygame.K_t
+            'key_move_left' : pygame.K_LEFT,
+            'key_move_right' : pygame.K_RIGHT,
+            'key_fire' : pygame.K_SPACE,
 
+            'key_active_1' : pygame.K_w,
+            'key_active_2' : pygame.K_e,
+            'key_active_3' : pygame.K_r,
+            'key_passive_1' : pygame.K_a,
+            'key_passive_2' : pygame.K_s,
+            'key_passive_3' : pygame.K_d,
+            'key_passive_4' : pygame.K_f,
+        }
+        return data
+    
+    def _load_data(self, path):
+        """Load the settings and controls from a .json file."""
+
+        path = Path(path)
+        if not path.exists():
+            print(f"\t\tSettings not found at: {path}.")
+            return False
+        
+        data = self._defaults()
+        try:
+            loaded_data = json.loads(path.read_text())
+            for key in data:
+                if key in loaded_data:
+                    data[key] = loaded_data[key]
+        except Exception as e:
+            print(f"\t\tEncountered an error while loading settings data: {e}")
+            return False
+        
+        return data
+    
+    def save_data(self):
+        "Save the current settings to a .json file."
+
+        path = Path(self.game.config.settings_path)
+
+        try:
+            data = json.dumps(self.data)
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text(data)
+        except Exception as e:
+            print(f"Encountered an error while saving settings: {e}.")

@@ -40,7 +40,9 @@ class Game:
         self.state = State()
         self.progress = Progress(self)
 
-        self.main_menu = MainMenu(self)
+        self.menus = {
+            'main_menu' : MainMenu(self)
+        }
     
     def run(self):
         """Run the game loop."""
@@ -84,7 +86,7 @@ class Game:
         self.aliens.add(Alien(self))
         self.powerups = pygame.sprite.Group()
 
-        self.main_menu.hide()
+        self.menus["main_menu"].close()
     
     def quit_session(self):
         """Quit the session and return to the main menu."""
@@ -104,7 +106,7 @@ class Game:
         self.progress.save_data()
 
         # TODO: clear the game objects
-        self.main_menu.show()
+        self.menus["main_menu"].open()
     
     def quit(self):
         """Handle quitting the game."""
@@ -284,17 +286,11 @@ class Game:
         self.touch.register_mousedown_event(event)
         pos = self.touch.current_pos
 
+        for menu in self.menus.values():
+            menu.start_touch(pos)
+
         if self.touch.touch_start_ts is None:
             return False
-        
-        if self.main_menu.visible and self.main_menu.focused:
-            done = False
-            for element in self.main_menu.elements.values():
-                if element.rect.collidepoint(pos):
-                    element.trigger()
-                    done = True
-                    break
-            return done
         
         if not self.state.session_running:
             return False
@@ -305,10 +301,8 @@ class Game:
         
         # TODO: find a better way to organize this; a better place
         if self.bottom_tray.rect.collidepoint(pos):
-            inner_pos = (
-                pos[0],
-                pos[1] - self.screen.height + self.bottom_tray.rect.height
-            )
+            self.bottom_tray.start_touch(pos)
+            inner_pos = self.bottom_tray.inner_pos
             done = False
             for element in self.bottom_tray.elements.values():
                 if element.rect.collidepoint(inner_pos):
@@ -334,6 +328,10 @@ class Game:
 
         self.touch.register_mouseup_event()
 
+        for menu in self.menus.values():
+            menu.handle_touch()
+            menu.end_touch()
+
         if not self.state.session_running:
             return False
         
@@ -348,6 +346,9 @@ class Game:
 
         self.touch.register_mousemove_event(event)
         pos = self.touch.current_pos
+
+        for menu in self.menus.values():
+            menu.scroll(pos)
 
         if self.touch.touch_start_ts is None:
             return False
@@ -428,7 +429,8 @@ class Game:
             # draw the play surface
             self.screen.blit(self.play_surf)
 
-        self.main_menu.draw()
+        for menu in self.menus.values():
+            menu.draw()
 
         # draw everything to the screen
         pygame.display.flip()

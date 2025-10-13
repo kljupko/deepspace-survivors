@@ -157,12 +157,15 @@ class UIElement():
 class Menu():
     """A base class representing a menu."""
 
-    def __init__(self, game, width=None, height=None, background=None):
+    def __init__(self, game, width=None, height=None,background=None):
         """Initialize the menu."""
 
         self.game = game
         self.visible = False # determines if menu is shown
         self.focused = False # determines if menu can be interacted with
+
+        self.inner_pos = None # inner coordinates where the user clicked
+        self.scrolled = False
 
         if width is None:
             width = self.game.screen.width
@@ -179,13 +182,13 @@ class Menu():
 
         self.elements = {}
     
-    def show(self):
+    def open(self):
         """Make the menu visible and interactive."""
 
         self.visible = True
         self.focused = True
 
-    def hide(self):
+    def close(self):
         """Make the menu hidden and non-interactive."""
 
         self.visible = False
@@ -206,14 +209,72 @@ class Menu():
 
         self.focused = False
     
-    def trigger(self, element_name):
-        """Interact with an element in the menu."""
+    def start_touch(self, position):
+        """Register a touch on the menu."""
 
-        if element_name not in self.elements:
+        if not self.focus:
+            return False
+
+        self.inner_pos = (
+            position[0] - self.rect.x,
+            position[1] - self.rect.y
+        )
+        self.scrolled = False
+    
+    def handle_touch(self):
+        """
+        Triggers any elements touched/ clicked if the menu is in focus.
+        Can be called on touch/ mouse down or up.
+        """
+
+        if not self.focused:
             return False
         
-        self.elements[element_name].trigger()
+        if self.scrolled:
+            return False
+        
+        done = False
+        for element in self.elements.values():
+            if element.rect.collidepoint(self.inner_pos):
+                element.trigger()
+                done = True
+                break
+        return done
+    
+    def end_touch(self):
+        """Stop registering the touch/ mouse on the menu."""
+
+        self.inner_pos = None
+    
+    def scroll(self, position):
+        """Scroll the menu."""
+
+        if not self.focused:
+            return False
+
+        if not self.inner_pos:
+            return False
+        
+        if self.rect.height <= self.game.screen.height:
+            return False
+
+        destination = position[1] - self.inner_pos[1]
+        top_limit = 0
+        bottom_limit = self.game.screen.height - self.rect.height
+
+        self.rect.y = destination
+        self.scrolled = True
+
+        if self.rect.y > top_limit:
+            self.rect.y = top_limit
+            return True
+        
+        if self.rect.y < bottom_limit:
+            self.rect.y = bottom_limit
+            return True
+        
         return True
+        
     
     def draw(self):
         """Draw the menu to the screen."""
@@ -286,7 +347,6 @@ class MainMenu(Menu):
                 (self.elements["play_btn"].rect.height + 5) * 5
             ), anchor="topleft", action=self.game.quit
         )
-
 
 class Tray(Menu):
     """A base class for the top and bottom trays."""

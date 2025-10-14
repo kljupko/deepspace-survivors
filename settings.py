@@ -74,3 +74,8 @@ class Settings():
             path.write_text(data)
         except Exception as e:
             print(f"Encountered an error while saving settings: {e}.")
+    
+    def restore_to_defaults(self):
+        """Restore the settings to default values."""
+
+        self.data = self._defaults()

@@ -157,10 +157,11 @@ class UIElement():
 class Menu():
     """A base class representing a menu."""
 
-    def __init__(self, game, width=None, height=None,background=None):
+    def __init__(self, game, name, width=None, height=None,background=None):
         """Initialize the menu."""
 
         self.game = game
+        self.name = name
         self.visible = False # determines if menu is shown
 
         self.inner_pos = None # inner coordinates where the user clicked
@@ -184,18 +185,24 @@ class Menu():
     def open(self):
         """Make the menu visible and interactive."""
 
+        if self.visible:
+            return False
+
         for menu in self.game.menus.values():
-            menu.close(False)
+            menu.close()
 
         self.visible = True
 
-    def close(self, open_main_menu=True):
+    def close(self, next_menu=None):
         """Make the menu hidden and non-interactive."""
+
+        if not self.visible:
+            return False
 
         self.visible = False
 
-        if open_main_menu:
-            self.game.menus['main_menu'].open()
+        if next_menu:
+            self.game.menus[next_menu].open()
     
     def start_touch(self, position):
         """Register a touch on the menu."""
@@ -283,10 +290,11 @@ class Menu():
 class MainMenu(Menu):
     """A class which represents the game's main menu."""
 
-    def __init__(self, game, width=None, height=None, background=None):
+    def __init__(self, game, name="main_menu",
+                 width=None, height=None, background=None):
         """Initialize the main menu."""
 
-        super().__init__(game, width, height, background)
+        super().__init__(game, name, width, height, background)
 
         self.visible = True
 
@@ -341,40 +349,233 @@ class MainMenu(Menu):
 class SettingsMenu(Menu):
     """A class representing the game's settings menu."""
 
-    def __init__(self, game, width=None, height=None, background=None):
+    def __init__(self, game, name="settings_menu",
+                 width=None, height=None, background=None):
         """Initialize the settings menu."""
 
-        super().__init__(game, width, height, background)
+        super().__init__(game, name, width, height, background)
 
-        height = 1
+        self._populate_values()
+                
+    
+    def _populate_values(self):
+        """Populate the menu with the values from the settings."""
+
+        data = self.game.settings.data
+
+        # TODO: find a way to do this programatically,
+        # with the same amount of control
 
         el_name = "back_button"
+        height = 1
         self.elements[el_name] = UIElement(
-            self.game, el_name, self.surface, "< BACK", False,
-            position=(self.rect.width // 10, height), action=self.close
+            self.game, el_name, self.surface, "< BACK",
+            position=(self.rect.width // 2, height), anchor="midtop",
+            action=self.close
         )
-        height += 11
 
-        for setting, value in self.game.settings.data.items():
-            el_name = setting
-            self.elements[el_name] = UIElement(
-                self.game, el_name, self.surface, el_name.capitalize(), False,
-                position=(self.rect.width // 10, height)
-            )
-            el_name = str(value)
-            self.elements[el_name] = UIElement(
-                self.game, el_name, self.surface, el_name, False,
-                position=(self.rect.width // 10 * 9, height), anchor="topright"
-            )
-            height += 11
+        el_name = "fps_label"
+        height += 22
+        self.elements[el_name] = UIElement(
+            self.game, el_name, self.surface, "FPS Target", False,
+            position=(self.rect.width // 10, height)
+        )
+        el_name = "fps_value"
+        self.elements[el_name] = UIElement(
+            self.game, el_name, self.surface, str(data['fps']), False,
+            position=(self.rect.width // 10*9, height), anchor="topright"
+        )
+
+        el_name = "keybinds_header"
+        height += 22
+        self.elements[el_name] = UIElement(
+            self.game, el_name, self.surface, "Keybinds", False,
+            position=(self.rect.width // 10, height),
+            font=self.game.config.font_large
+        )
+
+        el_name = "key_confirm_label"
+        height += 22
+        self.elements[el_name] = UIElement(
+            self.game, el_name, self.surface, "Confirm", False,
+            position=(self.rect.width // 10, height)
+        )
+        el_name = "key_confirm"
+        self.elements[el_name] = UIElement(
+            self.game, el_name, self.surface,
+            pygame.key.name(data['key_confirm']), False,
+            position=(self.rect.width // 10*9, height), anchor="topright"
+        )
+
+        el_name = "key_cancel_label"
+        height += 11
+        self.elements[el_name] = UIElement(
+            self.game, el_name, self.surface, "Cancel", False,
+            position=(self.rect.width // 10, height)
+        )
+        el_name = "key_cancel"
+        self.elements[el_name] = UIElement(
+            self.game, el_name, self.surface,
+            pygame.key.name(data['key_cancel']), False,
+            position=(self.rect.width // 10*9, height), anchor="topright"
+        )
+
+        el_name = "key_move_left_label"
+        height += 11
+        self.elements[el_name] = UIElement(
+            self.game, el_name, self.surface, "Move Left", False,
+            position=(self.rect.width // 10, height)
+        )
+        el_name = "key_move_left"
+        self.elements[el_name] = UIElement(
+            self.game, el_name, self.surface,
+            pygame.key.name(data['key_move_left']), False,
+            position=(self.rect.width // 10*9, height), anchor="topright"
+        )
+
+        el_name = "key_move_right_label"
+        height += 11
+        self.elements[el_name] = UIElement(
+            self.game, el_name, self.surface, "Move Right", False,
+            position=(self.rect.width // 10, height)
+        )
+        el_name = "key_move_right"
+        self.elements[el_name] = UIElement(
+            self.game, el_name, self.surface,
+            pygame.key.name(data['key_move_right']), False,
+            position=(self.rect.width // 10*9, height), anchor="topright"
+        )
+
+        el_name = "key_fire_label"
+        height += 11
+        self.elements[el_name] = UIElement(
+            self.game, el_name, self.surface, "Fire", False,
+            position=(self.rect.width // 10, height)
+        )
+        el_name = "key_fire"
+        self.elements[el_name] = UIElement(
+            self.game, el_name, self.surface,
+            pygame.key.name(data['key_fire']), False,
+            position=(self.rect.width // 10*9, height), anchor="topright"
+        )
+
+        el_name = "key_active_1_label"
+        height += 11
+        self.elements[el_name] = UIElement(
+            self.game, el_name, self.surface, "On/Off Active 1", False,
+            position=(self.rect.width // 10, height)
+        )
+        el_name = "key_active_1"
+        self.elements[el_name] = UIElement(
+            self.game, el_name, self.surface,
+            pygame.key.name(data['key_active_1']), False,
+            position=(self.rect.width // 10*9, height), anchor="topright"
+        )
+
+        el_name = "key_active_2_label"
+        height += 11
+        self.elements[el_name] = UIElement(
+            self.game, el_name, self.surface, "On/Off Active 2", False,
+            position=(self.rect.width // 10, height)
+        )
+        el_name = "key_active_2"
+        self.elements[el_name] = UIElement(
+            self.game, el_name, self.surface,
+            pygame.key.name(data['key_active_2']), False,
+            position=(self.rect.width // 10*9, height), anchor="topright"
+        )
+
+        el_name = "key_active_3_label"
+        height += 11
+        self.elements[el_name] = UIElement(
+            self.game, el_name, self.surface, "On/Off Active 3", False,
+            position=(self.rect.width // 10, height)
+        )
+        el_name = "key_active_3"
+        self.elements[el_name] = UIElement(
+            self.game, el_name, self.surface,
+            pygame.key.name(data['key_active_3']), False,
+            position=(self.rect.width // 10*9, height), anchor="topright"
+        )
+
+        el_name = "key_passive_1_label"
+        height += 11
+        self.elements[el_name] = UIElement(
+            self.game, el_name, self.surface, "On/Off Passive 1", False,
+            position=(self.rect.width // 10, height)
+        )
+        el_name = "key_passive_1"
+        self.elements[el_name] = UIElement(
+            self.game, el_name, self.surface,
+            pygame.key.name(data['key_passive_1']), False,
+            position=(self.rect.width // 10*9, height), anchor="topright"
+        )
+
+        el_name = "key_passive_2_label"
+        height += 11
+        self.elements[el_name] = UIElement(
+            self.game, el_name, self.surface, "On/Off Passive 2", False,
+            position=(self.rect.width // 10, height)
+        )
+        el_name = "key_passive_2"
+        self.elements[el_name] = UIElement(
+            self.game, el_name, self.surface,
+            pygame.key.name(data['key_passive_2']), False,
+            position=(self.rect.width // 10*9, height), anchor="topright"
+        )
+
+        el_name = "key_passive_3_label"
+        height += 11
+        self.elements[el_name] = UIElement(
+            self.game, el_name, self.surface, "On/Off Passive 3", False,
+            position=(self.rect.width // 10, height)
+        )
+        el_name = "key_passive_3"
+        self.elements[el_name] = UIElement(
+            self.game, el_name, self.surface,
+            pygame.key.name(data['key_passive_3']), False,
+            position=(self.rect.width // 10*9, height), anchor="topright"
+        )
+
+        el_name = "key_passive_4_label"
+        height += 11
+        self.elements[el_name] = UIElement(
+            self.game, el_name, self.surface, "On/Off Passive 4", False,
+            position=(self.rect.width // 10, height)
+        )
+        el_name = "key_passive_4"
+        self.elements[el_name] = UIElement(
+            self.game, el_name, self.surface,
+            pygame.key.name(data['key_passive_4']), False,
+            position=(self.rect.width // 10*9, height), anchor="topright"
+        )
+
+        el_name = "default"
+        height += 22
+        self.elements[el_name] = UIElement(
+            self.game, el_name, self.surface, "Default",
+            position=(self.rect.width // 2, height), anchor="midtop",
+            action=self.trigger_restore_defaults
+        )
+    
+    def close(self, next_menu="main_menu"):
+        return super().close(next_menu)
+    
+    def trigger_restore_defaults(self):
+        """Restore default settings and rewrite the menu."""
+
+        self.game.settings.restore_to_defaults()
+        self._populate_values()
+    
+
 
 class Tray(Menu):
     """A base class for the top and bottom trays."""
 
-    def __init__(self, game, width=None, height=None, background=None):
+    def __init__(self, game, name, width=None, height=None, background=None):
         """Initialize the tray with a surface."""
 
-        super().__init__(game, width, height, background)
+        super().__init__(game, name, width, height, background)
 
         pygame.draw.rect(self.background, "white", self.background.get_rect())
 
@@ -384,10 +585,10 @@ class Tray(Menu):
 class TopTray(Tray):
     """A class representing the top tray."""
 
-    def __init__(self, game, width=None, height=None, background=None):
+    def __init__(self, game, name, width=None, height=None, background=None):
         """Initialize the top tray."""
 
-        super().__init__(game, width, height, background)
+        super().__init__(game, name, width, height, background)
     
     def complete_init(self):
         """
@@ -424,10 +625,10 @@ class TopTray(Tray):
 class BottomTray(Tray):
     """A class representing the bottom tray."""
 
-    def __init__(self, game, width=None, height=None, background=None):
+    def __init__(self, game, name, width=None, height=None, background=None):
         """Initialize the bottom tray."""
 
-        super().__init__(game, width, height, background)
+        super().__init__(game, name, width, height, background)
         self.rect.y = self.game.screen.height - self.rect.height
     
     def complete_init(self):

@@ -91,9 +91,9 @@ class Ship(Entity):
         
         for alien in collisions:
             self.hp -= alien.damage
-            ui_elem = self.game.bottom_tray.elements["ship_hp"]
+            ui_elem = self.game.bot_tray.elements["ship_hp"]
             ui_elem.update(self.hp)
-            self.game.bottom_tray.draw()
+            self.game.bot_tray.draw()
             alien.destroy()
         
         return True
@@ -147,9 +147,9 @@ class Ship(Entity):
 
             if abil.name == abilities.Blank(self.game).name:
                 abils[idx] = new_ability
-                ui_element = self.game.bottom_tray.elements[f"passive_{idx+1}"]
+                ui_element = self.game.bot_tray.elements[f"passive_{idx+1}"]
                 ui_element.action = abils[idx].toggle
-                self.game.bottom_tray.draw()
+                self.game.bot_tray.draw()
                 return True
         
         return False
@@ -184,7 +184,7 @@ class Ship(Entity):
             if ability.enabled:
                 ability.fire()
         self.cancel_ability_charge()
-        self.game.bottom_tray.draw()
+        self.game.bot_tray.draw()
         return True
     
     # -------------------------------------------------------------------
@@ -212,9 +212,9 @@ class Ship(Entity):
             
             if abil.name == abilities.Blank(self.game).name or not abil.enabled:
                 abils[idx] = new_ability
-                ui_element = self.game.bottom_tray.elements[f"passive_{idx+1}"]
+                ui_element = self.game.bot_tray.elements[f"passive_{idx+1}"]
                 ui_element.action = abils[idx].toggle
-                self.game.bottom_tray.draw()
+                self.game.bot_tray.draw()
                 return True
         
         return False

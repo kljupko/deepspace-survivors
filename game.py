@@ -63,12 +63,12 @@ class Game:
 
         self.state = State()
         self.state.session_running = True
-        self.top_tray = ui.TopTray(self, self.screen.width, 23)
-        self.bottom_tray = ui.BottomTray(self, self.screen.width, 50)
+        self.top_tray = ui.TopTray(self, "top_tray", self.screen.width, 23)
+        self.bot_tray = ui.BottomTray(self, "bot_tray", self.screen.width, 50)
 
         self.play_surf = pygame.Surface((
             self.screen.width,
-            self.screen.height - self.bottom_tray.rect.height + 11
+            self.screen.height - self.bot_tray.rect.height + 11
         ))
         self.play_rect = self.play_surf.get_rect()
 
@@ -79,15 +79,15 @@ class Game:
         # finish setting up the trays
         self.top_tray.complete_init()
         self.top_tray.draw()
-        self.bottom_tray.complete_init()
-        self.bottom_tray.draw()
+        self.bot_tray.complete_init()
+        self.bot_tray.draw()
 
         self.bullets = pygame.sprite.Group()
         self.aliens = pygame.sprite.Group()
         self.aliens.add(Alien(self))
         self.powerups = pygame.sprite.Group()
 
-        self.menus["main_menu"].close(False)
+        self.menus["main_menu"].close()
     
     def quit_session(self):
         """Quit the session and return to the main menu."""
@@ -301,14 +301,14 @@ class Game:
             return False
         
         # TODO: find a better way to organize this; a better place
-        if self.bottom_tray.rect.collidepoint(pos):
-            self.bottom_tray.start_touch(pos)
-            inner_pos = self.bottom_tray.inner_pos
+        if self.bot_tray.rect.collidepoint(pos):
+            self.bot_tray.start_touch(pos)
+            inner_pos = self.bot_tray.inner_pos
             done = False
-            for element in self.bottom_tray.elements.values():
+            for element in self.bot_tray.elements.values():
                 if element.rect.collidepoint(inner_pos):
                     element.trigger()
-                    self.bottom_tray.draw() # update
+                    self.bot_tray.draw() # update
                     done = True
                     break
             return done
@@ -362,7 +362,7 @@ class Game:
         if self.top_tray.rect.collidepoint(pos):
             # do nothing when moving around the top tray
             return False
-        if self.bottom_tray.rect.collidepoint(pos):
+        if self.bot_tray.rect.collidepoint(pos):
             # do nothing when moving around the bottom tray
             return False
 
@@ -422,9 +422,9 @@ class Game:
             
             # draw the top and part of bottom tray to the play surface
             self.play_surf.blit(self.top_tray.surface, self.top_tray.rect)
-            self.play_surf.blit(self.bottom_tray.surface, (
+            self.play_surf.blit(self.bot_tray.surface, (
                 0, self.play_rect.height - 11,
-                self.bottom_tray.rect.width, self.bottom_tray.rect.height
+                self.bot_tray.rect.width, self.bot_tray.rect.height
             ))
 
             # draw the play surface

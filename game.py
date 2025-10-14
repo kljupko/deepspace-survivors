@@ -7,7 +7,7 @@ from config import Config
 from settings import Settings
 from state import State
 from progress import Progress
-from ui import TopTray, BottomTray, MainMenu
+import ui
 
 class Game:
     """Class that represents the game object."""
@@ -40,9 +40,10 @@ class Game:
         self.state = State()
         self.progress = Progress(self)
 
-        self.menus = {
-            'main_menu' : MainMenu(self)
-        }
+        self.menus = {}
+        self.menus['settings_menu'] = ui.SettingsMenu(self)
+        self.menus['main_menu'] = ui.MainMenu(self) # load this one last?
+        
     
     def run(self):
         """Run the game loop."""
@@ -62,8 +63,8 @@ class Game:
 
         self.state = State()
         self.state.session_running = True
-        self.top_tray = TopTray(self, self.screen.width, 23)
-        self.bottom_tray = BottomTray(self, self.screen.width, 50)
+        self.top_tray = ui.TopTray(self, self.screen.width, 23)
+        self.bottom_tray = ui.BottomTray(self, self.screen.width, 50)
 
         self.play_surf = pygame.Surface((
             self.screen.width,
@@ -86,7 +87,7 @@ class Game:
         self.aliens.add(Alien(self))
         self.powerups = pygame.sprite.Group()
 
-        self.menus["main_menu"].close()
+        self.menus["main_menu"].close(False)
     
     def quit_session(self):
         """Quit the session and return to the main menu."""
@@ -329,7 +330,7 @@ class Game:
         self.touch.register_mouseup_event()
 
         for menu in self.menus.values():
-            menu.handle_touch()
+            menu.interact()
             menu.end_touch()
 
         if not self.state.session_running:

@@ -162,7 +162,6 @@ class Menu():
 
         self.game = game
         self.visible = False # determines if menu is shown
-        self.focused = False # determines if menu can be interacted with
 
         self.inner_pos = None # inner coordinates where the user clicked
         self.scrolled = False
@@ -185,34 +184,23 @@ class Menu():
     def open(self):
         """Make the menu visible and interactive."""
 
-        self.visible = True
-        self.focused = True
+        for menu in self.game.menus.values():
+            menu.close(False)
 
-    def close(self):
+        self.visible = True
+
+    def close(self, open_main_menu=True):
         """Make the menu hidden and non-interactive."""
 
         self.visible = False
-        self.focused = False
-    
-    def focus(self):
-        """Make only this menu interactive."""
 
-        if not self.visible:
-            return False
-        
-        self.focused = True
-
-        # TODO: unfocus all other menus
-    
-    def unfocus(self):
-        """Make the menu non-interactive."""
-
-        self.focused = False
+        if open_main_menu:
+            self.game.menus['main_menu'].open()
     
     def start_touch(self, position):
         """Register a touch on the menu."""
 
-        if not self.focus:
+        if not self.visible:
             return False
 
         self.inner_pos = (
@@ -221,16 +209,19 @@ class Menu():
         )
         self.scrolled = False
     
-    def handle_touch(self):
+    def interact(self):
         """
         Triggers any elements touched/ clicked if the menu is in focus.
         Can be called on touch/ mouse down or up.
         """
 
-        if not self.focused:
+        if not self.visible:
             return False
         
         if self.scrolled:
+            return False
+        
+        if not self.inner_pos:
             return False
         
         done = False
@@ -249,7 +240,7 @@ class Menu():
     def scroll(self, position):
         """Scroll the menu."""
 
-        if not self.focused:
+        if not self.visible:
             return False
 
         if not self.inner_pos:
@@ -298,7 +289,6 @@ class MainMenu(Menu):
         super().__init__(game, width, height, background)
 
         self.visible = True
-        self.focused = True
 
         el_name = "play_btn"
         self.elements[el_name] = UIElement(
@@ -329,7 +319,7 @@ class MainMenu(Menu):
                 self.rect.width * 1/3,
                 self.elements["play_btn"].rect.y +
                 (self.elements["play_btn"].rect.height + 5) * 3
-            ), anchor="topleft"
+            ), anchor="topleft", action=self.game.menus["settings_menu"].open
         )
         el_name = "info_btn"
         self.elements[el_name] = UIElement(
@@ -348,6 +338,36 @@ class MainMenu(Menu):
             ), anchor="topleft", action=self.game.quit
         )
 
+class SettingsMenu(Menu):
+    """A class representing the game's settings menu."""
+
+    def __init__(self, game, width=None, height=None, background=None):
+        """Initialize the settings menu."""
+
+        super().__init__(game, width, height, background)
+
+        height = 1
+
+        el_name = "back_button"
+        self.elements[el_name] = UIElement(
+            self.game, el_name, self.surface, "< BACK", False,
+            position=(self.rect.width // 10, height), action=self.close
+        )
+        height += 11
+
+        for setting, value in self.game.settings.data.items():
+            el_name = setting
+            self.elements[el_name] = UIElement(
+                self.game, el_name, self.surface, el_name.capitalize(), False,
+                position=(self.rect.width // 10, height)
+            )
+            el_name = str(value)
+            self.elements[el_name] = UIElement(
+                self.game, el_name, self.surface, el_name, False,
+                position=(self.rect.width // 10 * 9, height), anchor="topright"
+            )
+            height += 11
+
 class Tray(Menu):
     """A base class for the top and bottom trays."""
 
@@ -359,7 +379,6 @@ class Tray(Menu):
         pygame.draw.rect(self.background, "white", self.background.get_rect())
 
         self.visible = True
-        self.focused = True
 
 
 class TopTray(Tray):

@@ -37,6 +37,7 @@ class Game:
         self.settings = Settings(self)
         self.clock = pygame.time.Clock()
         self.dt = 0
+        self.fps = 0
         self.state = State()
         self.progress = Progress(self)
 
@@ -56,6 +57,7 @@ class Game:
 
             # control the framerate and timing
             self.dt = self.clock.tick(self.settings.data["fps"]) / 1000
+            self.fps = int(self.clock.get_fps())
         
         pygame.quit()
     
@@ -390,6 +392,10 @@ class Game:
         # TODO: move this session update logic to a better place (func?)
         self.state.track_duration()
         # TODO: find a better place for the code below?...
+        fps = ""
+        if self.settings.data["show_fps"]:
+            fps = self.fps
+        self.top_tray.elements["fps"].update(fps)
         mins, secs = divmod(self.state.session_duration // 1000, 60)
         hours, mins = divmod(mins, 60)
         time = f"{mins:02d}:{secs:02d}"

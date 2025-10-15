@@ -367,7 +367,7 @@ class SettingsMenu(Menu):
         height = 1
         self.elements[el_name] = UIElement(
             self.game, el_name, self.surface, "< BACK",
-            position=(self.rect.width // 2, height), anchor="midtop",
+            position=(self.rect.width // 10, height),
             action=self.close
         )
 
@@ -376,13 +376,27 @@ class SettingsMenu(Menu):
         self.elements[el_name] = UIElement(
             self.game, el_name, self.surface, "FPS Target", False,
             position=(self.rect.width // 10, height),
-            action=self._cycle_framerates
+            action=self._cycle_framerates,
         )
         el_name = "fps_value"
         self.elements[el_name] = UIElement(
             self.game, el_name, self.surface, str(data['fps']), False,
             position=(self.rect.width // 10*9, height), anchor="topright"
         )
+
+        el_name = "show_fps_label"
+        height += 11
+        self.elements[el_name] = UIElement(
+            self.game, el_name, self.surface, "Show FPS", False,
+            position=(self.rect.width // 10, height),
+            action=self._toggle_fps_display
+        )
+        el_name = "show_fps_value"
+        self.elements[el_name] = UIElement(
+            self.game, el_name, self.surface, str(data['show_fps']), False,
+            position=(self.rect.width // 10*9, height), anchor="topright"
+        )
+        
 
         el_name = "keybinds_header"
         height += 22
@@ -587,6 +601,14 @@ class SettingsMenu(Menu):
 
         self._populate_values()
     
+    def _toggle_fps_display(self):
+        """Switch between showing and hiding the framerate."""
+
+        data = self.game.settings.data
+
+        data['show_fps'] = not data['show_fps']
+        self._populate_values()
+    
 class RemapKeyMenu(Menu):
     """A class representing the key remapping prompt."""
 
@@ -681,6 +703,12 @@ class TopTray(Tray):
             self.game, el_name, self.surface,
             self.game.state.credits_earned,
             position=(self.rect.centerx, 12), anchor="midtop"
+        )
+
+        el_name = 'fps'
+        self.elements[el_name] = UIElement(
+            self.game, el_name, self.surface, self.game.fps, False,
+            position=(self.rect.width - 1, 12), anchor="topright"
         )
 
 class BottomTray(Tray):

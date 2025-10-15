@@ -18,12 +18,14 @@ class Settings():
         # otherwise, loading saved settings failed
         print("Applying default settings.")
         self.data = self._defaults()
+        self.save_data()
     
     def _defaults(self):
         """Return a dictionary containing the default settings data."""
 
         data = {
             'fps' : 60,
+            'show_fps' : False,
 
             # keybinds
             'key_confirm' : pygame.K_RETURN,

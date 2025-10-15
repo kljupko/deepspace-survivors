@@ -42,6 +42,7 @@ class Game:
 
         self.menus = {}
         self.menus['settings_menu'] = ui.SettingsMenu(self)
+        self.menus['remap'] = ui.RemapKeyMenu(self)
         self.menus['main_menu'] = ui.MainMenu(self) # load this one last?
         
     
@@ -223,6 +224,8 @@ class Game:
 
         if event.key == self.settings.data["key_cancel"]:
             self.quit_session()
+        
+        self.menus['remap'].listen_for_key(event.key)
 
         if not self.state.session_running:
             return False

@@ -353,10 +353,7 @@ class SettingsMenu(Menu):
                  width=None, height=None, background=None):
         """Initialize the settings menu."""
 
-        super().__init__(game, name, width, height, background)
-
-        self._populate_values()
-                
+        super().__init__(game, name, width, height, background)                
     
     def _populate_values(self):
         """Populate the menu with the values from the settings."""
@@ -378,7 +375,8 @@ class SettingsMenu(Menu):
         height += 22
         self.elements[el_name] = UIElement(
             self.game, el_name, self.surface, "FPS Target", False,
-            position=(self.rect.width // 10, height)
+            position=(self.rect.width // 10, height),
+            action=self._cycle_framerates
         )
         el_name = "fps_value"
         self.elements[el_name] = UIElement(
@@ -398,7 +396,8 @@ class SettingsMenu(Menu):
         height += 22
         self.elements[el_name] = UIElement(
             self.game, el_name, self.surface, "Confirm", False,
-            position=(self.rect.width // 10, height)
+            position=(self.rect.width // 10, height),
+            action=lambda : self.game.menus['remap'].open("Confirm", "key_confirm")
         )
         el_name = "key_confirm"
         self.elements[el_name] = UIElement(
@@ -555,19 +554,81 @@ class SettingsMenu(Menu):
         self.elements[el_name] = UIElement(
             self.game, el_name, self.surface, "Default",
             position=(self.rect.width // 2, height), anchor="midtop",
-            action=self.trigger_restore_defaults
+            action=self._trigger_restore_defaults
         )
     
+    def open(self):
+        self._populate_values()
+        return super().open()
+
     def close(self, next_menu="main_menu"):
         return super().close(next_menu)
     
-    def trigger_restore_defaults(self):
+    def _trigger_restore_defaults(self):
         """Restore default settings and rewrite the menu."""
 
         self.game.settings.restore_to_defaults()
         self._populate_values()
     
+    def _cycle_framerates(self):
+        """Cycle through available framerates."""
 
+        id = 0
+        n_options = len(self.game.config.framerates)
+        for i in range(n_options):
+            framerate = self.game.config.framerates[i]
+            if self.game.settings.data['fps'] == framerate:
+                id = i
+                break
+
+        next_id = (n_options + id + 1) % n_options
+        next_framerate = self.game.config.framerates[next_id]
+        self.game.settings.data['fps'] = next_framerate
+
+        self._populate_values()
+    
+class RemapKeyMenu(Menu):
+    """A class representing the key remapping prompt."""
+
+    def __init__(self, game, name="remap",
+                 width=None, height=None, background=None):
+        """Initialize the key remapping menu."""
+
+        super().__init__(game, name, width, height, background)
+
+        self.keybind = None
+        self.control = None
+        self.text = None
+    
+    def open(self, control, keybind):
+        """Show the menu with the correct prompt."""
+
+        self.control = control
+        self.keybind = keybind
+        key_name = pygame.key.name(self.game.settings.data[self.keybind])
+
+        el_name = "prompt"
+        self.text = "Press a key to..."
+        self.text += f'\nremap "{self.control}"'
+        self.text += f"\ncurrently: {key_name}"
+
+        self.elements = {}
+        self.elements[el_name] = UIElement(
+            self.game, el_name, self.surface, self.text, False,
+            position=(self.rect.width // 2, self.rect.height // 2),
+            anchor="center"
+        )
+
+        return super().open()
+    
+    def listen_for_key(self, key):
+        """Listen for a keypress and remap the key."""
+
+        if not self.visible:
+            return False
+        
+        self.game.settings.data[self.keybind] = key
+        self.close(next_menu="settings_menu")
 
 class Tray(Menu):
     """A base class for the top and bottom trays."""

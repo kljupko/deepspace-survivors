@@ -16,3 +16,5 @@ class Config():
 
         self.font_normal = pygame.font.SysFont(None, 14)
         self.font_large = pygame.font.SysFont(None, 21)
+
+        self.framerates = (30, 60, 120, 144, 240)

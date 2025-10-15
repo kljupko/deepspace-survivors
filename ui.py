@@ -182,6 +182,30 @@ class Menu():
 
         self.elements = {}
     
+    def _populate_values(self):
+        """A hook for populating the menu with UI Elements."""
+
+        # this is just a hook to be overwritten by child classes
+        pass
+    
+    def update(self, element_name=None, content=None, symbol=None,
+               symbol_is_left=None, position=None, anchor=None, font=None):
+        """Re-renders the menu with current values."""
+
+        if element_name is not None and content is not None:
+            self.elements[element_name].update(
+                content, symbol, symbol_is_left, position, anchor, font
+            )
+
+        self._populate_values()
+        self.surface.blit(self.background, self.background.get_rect())
+
+        for element in self.elements.values():
+            element.draw()
+        
+        # TODO: decide if you do NOT want to immediately draw the menu
+        self.draw()
+    
     def open(self):
         """Make the menu visible and interactive."""
 
@@ -192,6 +216,7 @@ class Menu():
             menu.close()
 
         self.visible = True
+        self.update()
 
     def close(self, next_menu=None):
         """Make the menu hidden and non-interactive."""
@@ -273,37 +298,35 @@ class Menu():
         
         return True
         
-    
     def draw(self):
         """Draw the menu to the screen."""
 
         if not self.visible:
             return False
         
-        self.surface.blit(self.background, self.background.get_rect())
-
-        for element in self.elements.values():
-            element.draw()
-        
         self.game.screen.blit(self.surface, self.rect)
 
 class MainMenu(Menu):
     """A class which represents the game's main menu."""
 
-    def __init__(self, game, name="main_menu",
+    def __init__(self, game, name="main",
                  width=None, height=None, background=None):
         """Initialize the main menu."""
 
         super().__init__(game, name, width, height, background)
 
         self.visible = True
+        self.update()
+    
+    def _populate_values(self):
+        """Populate menu with UI Elements."""
 
         el_name = "play_btn"
         self.elements[el_name] = UIElement(
             self.game, el_name, self.surface, "Play", position=(
                 self.rect.width * 1/3,
                 self.rect.height * 1/3
-            ), anchor="topleft", action=self.game.start_session
+            ), action=self.game.start_session
         )
         el_name = "upgrade_btn"
         self.elements[el_name] = UIElement(
@@ -311,7 +334,7 @@ class MainMenu(Menu):
                 self.rect.width * 1/3,
                 self.elements["play_btn"].rect.y +
                 (self.elements["play_btn"].rect.height + 5) * 1
-            ), anchor="topleft"
+            )
         )
         el_name = "unlock_btn"
         self.elements[el_name] = UIElement(
@@ -319,7 +342,7 @@ class MainMenu(Menu):
                 self.rect.width * 1/3,
                 self.elements["play_btn"].rect.y +
                 (self.elements["play_btn"].rect.height + 5) * 2
-            ), anchor="topleft"
+            )
         )
         el_name = "settings_btn"
         self.elements[el_name] = UIElement(
@@ -327,7 +350,7 @@ class MainMenu(Menu):
                 self.rect.width * 1/3,
                 self.elements["play_btn"].rect.y +
                 (self.elements["play_btn"].rect.height + 5) * 3
-            ), anchor="topleft", action=self.game.menus["settings_menu"].open
+            ), action=lambda: self.game.menus["settings"].open()
         )
         el_name = "info_btn"
         self.elements[el_name] = UIElement(
@@ -335,7 +358,7 @@ class MainMenu(Menu):
                 self.rect.width * 1/3,
                 self.elements["play_btn"].rect.y +
                 (self.elements["play_btn"].rect.height + 5) * 4
-            ), anchor="topleft"
+            )
         )
         el_name = "quit_btn"
         self.elements[el_name] = UIElement(
@@ -343,17 +366,19 @@ class MainMenu(Menu):
                 self.rect.width * 1/3,
                 self.elements["play_btn"].rect.y +
                 (self.elements["play_btn"].rect.height + 5) * 5
-            ), anchor="topleft", action=self.game.quit
+            ), action=self.game.quit
         )
 
 class SettingsMenu(Menu):
     """A class representing the game's settings menu."""
 
-    def __init__(self, game, name="settings_menu",
+    def __init__(self, game, name="settings",
                  width=None, height=None, background=None):
         """Initialize the settings menu."""
 
-        super().__init__(game, name, width, height, background)                
+        super().__init__(game, name, width, height, background)
+
+        self.update()
     
     def _populate_values(self):
         """Populate the menu with the values from the settings."""
@@ -368,7 +393,7 @@ class SettingsMenu(Menu):
         self.elements[el_name] = UIElement(
             self.game, el_name, self.surface, "< BACK",
             position=(self.rect.width // 10, height),
-            action=self.close
+            action=lambda: self.close("main")
         )
 
         el_name = "fps_label"
@@ -376,7 +401,7 @@ class SettingsMenu(Menu):
         self.elements[el_name] = UIElement(
             self.game, el_name, self.surface, "FPS Target", False,
             position=(self.rect.width // 10, height),
-            action=self._cycle_framerates,
+            action=self._cycle_framerates
         )
         el_name = "fps_value"
         self.elements[el_name] = UIElement(
@@ -397,7 +422,6 @@ class SettingsMenu(Menu):
             position=(self.rect.width // 10*9, height), anchor="topright"
         )
         
-
         el_name = "keybinds_header"
         height += 22
         self.elements[el_name] = UIElement(
@@ -424,7 +448,8 @@ class SettingsMenu(Menu):
         height += 11
         self.elements[el_name] = UIElement(
             self.game, el_name, self.surface, "Cancel", False,
-            position=(self.rect.width // 10, height)
+            position=(self.rect.width // 10, height),
+            action=lambda : self.game.menus['remap'].open("Cancel", "key_cancel")
         )
         el_name = "key_cancel"
         self.elements[el_name] = UIElement(
@@ -437,7 +462,8 @@ class SettingsMenu(Menu):
         height += 11
         self.elements[el_name] = UIElement(
             self.game, el_name, self.surface, "Move Left", False,
-            position=(self.rect.width // 10, height)
+            position=(self.rect.width // 10, height),
+            action=lambda : self.game.menus['remap'].open("Move Left", "key_move_left")
         )
         el_name = "key_move_left"
         self.elements[el_name] = UIElement(
@@ -450,7 +476,8 @@ class SettingsMenu(Menu):
         height += 11
         self.elements[el_name] = UIElement(
             self.game, el_name, self.surface, "Move Right", False,
-            position=(self.rect.width // 10, height)
+            position=(self.rect.width // 10, height),
+            action=lambda : self.game.menus['remap'].open("Move Right", "key_move_right")
         )
         el_name = "key_move_right"
         self.elements[el_name] = UIElement(
@@ -463,7 +490,8 @@ class SettingsMenu(Menu):
         height += 11
         self.elements[el_name] = UIElement(
             self.game, el_name, self.surface, "Fire", False,
-            position=(self.rect.width // 10, height)
+            position=(self.rect.width // 10, height),
+            action=lambda : self.game.menus['remap'].open("Fire", "key_fire")
         )
         el_name = "key_fire"
         self.elements[el_name] = UIElement(
@@ -476,7 +504,8 @@ class SettingsMenu(Menu):
         height += 11
         self.elements[el_name] = UIElement(
             self.game, el_name, self.surface, "On/Off Active 1", False,
-            position=(self.rect.width // 10, height)
+            position=(self.rect.width // 10, height),
+            action=lambda : self.game.menus['remap'].open("Toggle Active 1", "key_active_1")
         )
         el_name = "key_active_1"
         self.elements[el_name] = UIElement(
@@ -489,7 +518,8 @@ class SettingsMenu(Menu):
         height += 11
         self.elements[el_name] = UIElement(
             self.game, el_name, self.surface, "On/Off Active 2", False,
-            position=(self.rect.width // 10, height)
+            position=(self.rect.width // 10, height),
+            action=lambda : self.game.menus['remap'].open("Toggle Active 2", "key_active_2")
         )
         el_name = "key_active_2"
         self.elements[el_name] = UIElement(
@@ -502,7 +532,8 @@ class SettingsMenu(Menu):
         height += 11
         self.elements[el_name] = UIElement(
             self.game, el_name, self.surface, "On/Off Active 3", False,
-            position=(self.rect.width // 10, height)
+            position=(self.rect.width // 10, height),
+            action=lambda : self.game.menus['remap'].open("Toggle Active 3", "key_active_3")
         )
         el_name = "key_active_3"
         self.elements[el_name] = UIElement(
@@ -515,7 +546,8 @@ class SettingsMenu(Menu):
         height += 11
         self.elements[el_name] = UIElement(
             self.game, el_name, self.surface, "On/Off Passive 1", False,
-            position=(self.rect.width // 10, height)
+            position=(self.rect.width // 10, height),
+            action=lambda : self.game.menus['remap'].open("Toggle Passive 1", "key_passive_1")
         )
         el_name = "key_passive_1"
         self.elements[el_name] = UIElement(
@@ -528,7 +560,8 @@ class SettingsMenu(Menu):
         height += 11
         self.elements[el_name] = UIElement(
             self.game, el_name, self.surface, "On/Off Passive 2", False,
-            position=(self.rect.width // 10, height)
+            position=(self.rect.width // 10, height),
+            action=lambda : self.game.menus['remap'].open("Toggle Passive 2", "key_passive_2")
         )
         el_name = "key_passive_2"
         self.elements[el_name] = UIElement(
@@ -541,7 +574,8 @@ class SettingsMenu(Menu):
         height += 11
         self.elements[el_name] = UIElement(
             self.game, el_name, self.surface, "On/Off Passive 3", False,
-            position=(self.rect.width // 10, height)
+            position=(self.rect.width // 10, height),
+            action=lambda : self.game.menus['remap'].open("Toggle Passive 3", "key_passive_3")
         )
         el_name = "key_passive_3"
         self.elements[el_name] = UIElement(
@@ -554,7 +588,8 @@ class SettingsMenu(Menu):
         height += 11
         self.elements[el_name] = UIElement(
             self.game, el_name, self.surface, "On/Off Passive 4", False,
-            position=(self.rect.width // 10, height)
+            position=(self.rect.width // 10, height),
+            action=lambda : self.game.menus['remap'].open("Toggle Passive 4", "key_passive_4")
         )
         el_name = "key_passive_4"
         self.elements[el_name] = UIElement(
@@ -571,18 +606,12 @@ class SettingsMenu(Menu):
             action=self._trigger_restore_defaults
         )
     
-    def open(self):
-        self._populate_values()
-        return super().open()
-
-    def close(self, next_menu="main_menu"):
-        return super().close(next_menu)
-    
     def _trigger_restore_defaults(self):
         """Restore default settings and rewrite the menu."""
 
         self.game.settings.restore_to_defaults()
-        self._populate_values()
+        self.game.settings.save_data()
+        self.update()
     
     def _cycle_framerates(self):
         """Cycle through available framerates."""
@@ -598,8 +627,8 @@ class SettingsMenu(Menu):
         next_id = (n_options + id + 1) % n_options
         next_framerate = self.game.config.framerates[next_id]
         self.game.settings.data['fps'] = next_framerate
-
-        self._populate_values()
+        self.game.settings.save_data()
+        self.update()
     
     def _toggle_fps_display(self):
         """Switch between showing and hiding the framerate."""
@@ -607,7 +636,8 @@ class SettingsMenu(Menu):
         data = self.game.settings.data
 
         data['show_fps'] = not data['show_fps']
-        self._populate_values()
+        self.game.settings.save_data()
+        self.update()
     
 class RemapKeyMenu(Menu):
     """A class representing the key remapping prompt."""
@@ -629,18 +659,18 @@ class RemapKeyMenu(Menu):
         self.keybind = keybind
         key_name = pygame.key.name(self.game.settings.data[self.keybind])
 
-        el_name = "prompt"
         self.text = "Press a key to..."
         self.text += f'\nremap "{self.control}"'
         self.text += f"\ncurrently: {key_name}"
 
         self.elements = {}
+        el_name = "prompt"
         self.elements[el_name] = UIElement(
             self.game, el_name, self.surface, self.text, False,
             position=(self.rect.width // 2, self.rect.height // 2),
             anchor="center"
         )
-
+        self.update()
         return super().open()
     
     def listen_for_key(self, key):
@@ -650,7 +680,9 @@ class RemapKeyMenu(Menu):
             return False
         
         self.game.settings.data[self.keybind] = key
-        self.close(next_menu="settings_menu")
+        self.game.menus['settings'].update()
+        self.game.settings.save_data()
+        self.close(next_menu="settings")
 
 class Tray(Menu):
     """A base class for the top and bottom trays."""
@@ -673,11 +705,8 @@ class TopTray(Tray):
 
         super().__init__(game, name, width, height, background)
     
-    def complete_init(self):
-        """
-        Completes the initialization.
-        Called after the ship is initialized.
-        """
+    def _populate_values(self):
+        """Populate the tray with UI Elements."""
 
         el_name = "fire_power"
         self.elements[el_name] = UIElement(
@@ -694,8 +723,8 @@ class TopTray(Tray):
 
         el_name = "session_duration"
         self.elements[el_name] = UIElement(
-            self.game, el_name, self.surface, "00:00", False,
-            position=(self.rect.centerx, 1), anchor="midtop"
+            self.game, el_name, self.surface, self._get_session_duration(),
+            False, position=(self.rect.centerx, 1), anchor="midtop"
         )
 
         el_name = "credits_earned"
@@ -707,9 +736,27 @@ class TopTray(Tray):
 
         el_name = 'fps'
         self.elements[el_name] = UIElement(
-            self.game, el_name, self.surface, self.game.fps, False,
+            self.game, el_name, self.surface, self._get_fps(), False,
             position=(self.rect.width - 1, 12), anchor="topright"
         )
+    
+    def _get_session_duration(self):
+        """Return the duration of the current session."""
+
+        duration = self.game.state.session_duration
+
+        mins, secs = divmod(duration // 1000, 60)
+        hours, mins = divmod(mins, 60)
+        time = f"{mins:02d}:{secs:02d}"
+        if hours > 0:
+            time = f"{hours:02d}:" + time
+        
+        return time
+
+    def _get_fps(self):
+        """Return the fps if 'show_fps' setting is True. Else blank."""
+        
+        return "" if not self.game.settings.data['show_fps'] else self.game.fps
 
 class BottomTray(Tray):
     """A class representing the bottom tray."""
@@ -720,11 +767,8 @@ class BottomTray(Tray):
         super().__init__(game, name, width, height, background)
         self.rect.y = self.game.screen.height - self.rect.height
     
-    def complete_init(self):
-        """
-        Completes the initialization.
-        Called after the ship is initialized.
-        """
+    def _populate_values(self):
+        """Populate the tray with UI Elements"""
 
         el_name = "ship_hp"
         self.elements[el_name] = UIElement(

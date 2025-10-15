@@ -52,8 +52,7 @@ class Alien(Entity):
             return False
         
         self.game.ship.hp -= self.damage
-        ui_elem = self.game.bottom_tray.elements["ship_hp"]
-        ui_elem.update(self.game.ship.hp)
+        self.game.bot_tray.update("ship_hp", self.game.ship.hp)
         
         self.destroy()
         return True
@@ -77,8 +76,9 @@ class Alien(Entity):
             )
         )
         self.game.state.credits_earned += self.credits
-        ui_elem = self.game.top_tray.elements["credits_earned"]
-        ui_elem.update(str(self.game.state.credits_earned))
+        self.game.top_tray.update(
+            "credits_earned", self.game.state.credits_earned
+        )
 
         self.destroy()
         return True

@@ -42,13 +42,15 @@ class Game:
         self.progress = Progress(self)
 
         self.menus = {}
-        self.menus['settings_menu'] = ui.SettingsMenu(self)
+        self.menus['main'] = ui.MainMenu(self)
+        self.menus['settings'] = ui.SettingsMenu(self)
         self.menus['remap'] = ui.RemapKeyMenu(self)
-        self.menus['main_menu'] = ui.MainMenu(self) # load this one last?
         
     
     def run(self):
         """Run the game loop."""
+
+        self.menus['main'].open()
 
         while self.game_running:
             self._handle_events()
@@ -80,9 +82,9 @@ class Game:
         # TODO: add ship to group, after adding image loading
 
         # finish setting up the trays
-        self.top_tray.complete_init()
+        self.top_tray.update()
         self.top_tray.draw()
-        self.bot_tray.complete_init()
+        self.bot_tray.update()
         self.bot_tray.draw()
 
         self.bullets = pygame.sprite.Group()
@@ -90,7 +92,7 @@ class Game:
         self.aliens.add(Alien(self))
         self.powerups = pygame.sprite.Group()
 
-        self.menus["main_menu"].close()
+        self.menus["main"].close()
     
     def quit_session(self):
         """Quit the session and return to the main menu."""
@@ -110,7 +112,7 @@ class Game:
         self.progress.save_data()
 
         # TODO: clear the game objects
-        self.menus["main_menu"].open()
+        self.menus["main"].open()
     
     def quit(self):
         """Handle quitting the game."""
@@ -389,22 +391,12 @@ class Game:
         if not self.state.session_running:
             return False
         
-        # TODO: move this session update logic to a better place (func?)
         self.state.track_duration()
-        # TODO: find a better place for the code below?...
-        fps = ""
-        if self.settings.data["show_fps"]:
-            fps = self.fps
-        self.top_tray.elements["fps"].update(fps)
-        mins, secs = divmod(self.state.session_duration // 1000, 60)
-        hours, mins = divmod(mins, 60)
-        time = f"{mins:02d}:{secs:02d}"
-        if hours > 0:
-            time = f"{hours:02d}:" + time
-        if self.state.last_second_tracked < self.state.session_duration // 1000:
-            self.top_tray.elements["session_duration"].update(time)
+       
+        # update top tray each second
+        if self.state.session_duration // 1000 > self.state.last_second_tracked:
+            self.top_tray.update()
             self.state.last_second_tracked = self.state.session_duration // 1000
-            self.top_tray.draw()
 
         # TODO: use the group to update the ship maybe
         self.ship.update(self.dt)
@@ -438,9 +430,6 @@ class Game:
 
             # draw the play surface
             self.screen.blit(self.play_surf)
-
-        for menu in self.menus.values():
-            menu.draw()
 
         # draw everything to the screen
         pygame.display.flip()

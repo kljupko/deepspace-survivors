@@ -82,232 +82,110 @@ class SettingsMenu(Menu):
 
         data = self.game.settings.data
 
-        # TODO: find a way to do this programatically,
-        # with the same amount of control
+        # the touple of touples below is used to generate the elements
+        # element name, display name, height increment, action
+        y_pos = 0
+        element_data = (
+            ("back_button", "< BACK", 1, lambda: self.close("main")),
 
-        el_name = "back_button"
-        height = 1
-        self.elements[el_name] = UIElement(
-            self.game, el_name, self.surface, "< BACK",
-            position=(self.rect.width // 10, height),
-            action=lambda: self.close("main")
-        )
+            ("fps_label", "Target FPS", 22, None),
+            ("fps_value", str(data['fps']), 0, None),
+            ("show_fps_label", "Show FPS", 11, None),
+            ("show_fps_value", str(data['show_fps']), 0, None),
 
-        el_name = "fps_label"
-        height += 22
-        self.elements[el_name] = UIElement(
-            self.game, el_name, self.surface, "FPS Target", False,
-            position=(self.rect.width // 10, height)
-        )
-        el_name = "fps_value"
-        self.elements[el_name] = UIElement(
-            self.game, el_name, self.surface, str(data['fps']), False,
-            position=(self.rect.width // 10*9, height), anchor="topright"
-        )
+            ("keybinds_header", "Keybinds", 22, None),
+            ("key_confirm_label", "Confirm", 22, None),
+            ("key_confirm_value", pygame.key.name(data['key_confirm']), 0, None),
+            ("key_cancel_label", "Cancel", 11, None),
+            ("key_cancel_value", pygame.key.name(data['key_cancel']), 0, None),
 
-        el_name = 'fps'
-        self.elements[el_name] = ElemUnion(
-            self.game, el_name,
-            self.elements['fps_label'], self.elements['fps_value'],
-            action=self._cycle_framerates
-        )
+            ("key_move_left_label", "Move Left", 11, None),
+            ("key_move_left_value", pygame.key.name(data['key_move_left']), 0, None),
+            ("key_move_right_label", "Move Right", 11, None),
+            ("key_move_right_value", pygame.key.name(data['key_move_right']), 0, None),
+            ("key_fire_label", "Fire", 11, None),
+            ("key_fire_value", pygame.key.name(data['key_fire']), 0, None),
 
-        el_name = "show_fps_label"
-        height += 11
-        self.elements[el_name] = UIElement(
-            self.game, el_name, self.surface, "Show FPS", False,
-            position=(self.rect.width // 10, height),
-            action=self._toggle_fps_display
-        )
-        el_name = "show_fps_value"
-        self.elements[el_name] = UIElement(
-            self.game, el_name, self.surface, str(data['show_fps']), False,
-            position=(self.rect.width // 10*9, height), anchor="topright"
-        )
-        
-        el_name = "keybinds_header"
-        height += 22
-        self.elements[el_name] = UIElement(
-            self.game, el_name, self.surface, "Keybinds", False,
-            position=(self.rect.width // 10, height),
-            font=self.game.config.font_large
+            ("key_active_1_label", "On/Off Active 1", 11, None),
+            ("key_active_1_value", pygame.key.name(data['key_active_1']), 0, None),
+            ("key_active_2_label", "On/Off Active 2", 11, None),
+            ("key_active_2_value", pygame.key.name(data['key_active_2']), 0, None),
+            ("key_active_3_label", "On/Off Active 3", 11, None),
+            ("key_active_3_value", pygame.key.name(data['key_active_3']), 0, None),
+
+            ("key_passive_1_label", "On/Off Passive 1", 11, None),
+            ("key_passive_1_value", pygame.key.name(data['key_passive_1']), 0, None),
+            ("key_passive_2_label", "On/Off Passive 2", 11, None),
+            ("key_passive_2_value", pygame.key.name(data['key_passive_2']), 0, None),
+            ("key_passive_3_label", "On/Off Passive 3", 11, None),
+            ("key_passive_3_value", pygame.key.name(data['key_passive_3']), 0, None),
+            ("key_passive_4_label", "On/Off Passive 4", 11, None),
+            ("key_passive_4_value", pygame.key.name(data['key_passive_4']), 0, None),
+
+            ("restore_defaults", "Restore Defaults", 22, self._trigger_restore_defaults)
         )
 
-        el_name = "key_confirm_label"
-        height += 22
-        self.elements[el_name] = UIElement(
-            self.game, el_name, self.surface, "Confirm", False,
-            position=(self.rect.width // 10, height),
-            action=lambda : self.game.menus['remap'].open("Confirm", "key_confirm")
-        )
-        el_name = "key_confirm"
-        self.elements[el_name] = UIElement(
-            self.game, el_name, self.surface,
-            pygame.key.name(data['key_confirm']), False,
-            position=(self.rect.width // 10*9, height), anchor="topright"
+        for element in element_data:
+            name = element[0]
+            content = element[1]
+            height_increment = element[2]
+            y_pos += height_increment
+            action = element[3]
+
+            anchor = "topleft" # label, left aligned
+            x_pos = self.rect.width // 10
+            if height_increment == 0:
+                anchor = "topright" # value, right aligned
+                x_pos = self.rect.width // 10 * 9
+
+            self.elements[name] = UIElement(
+                self.game, name, self.surface, content, False,
+                position=(x_pos, y_pos),
+                anchor=anchor, action=action
+            )
+
+        # the touple of touples below is used to generate the unions
+        # name (of the union, shared by the label-value pair), action
+        union_data = (
+            ("fps", self._cycle_framerates),
+            ("show_fps", self._toggle_fps_display),
+            ("key_confirm",
+             lambda: self.game.menus['remap'].open("Confirm", "key_confirm")),
+            ("key_cancel",
+             lambda: self.game.menus['remap'].open("Cancel", "key_cancel")),
+            ("key_move_left",
+             lambda: self.game.menus['remap'].open("Move Left", "key_move_left")),
+            ("key_move_right",
+             lambda: self.game.menus['remap'].open("Move Right", "key_move_right")),
+            ("key_fire",
+             lambda: self.game.menus['remap'].open("Fire", "key_fire")),
+            ("key_active_1",
+             lambda: self.game.menus['remap'].open("Toggle Active 1", "key_active_1")),
+            ("key_active_2",
+             lambda: self.game.menus['remap'].open("Toggle Active 2", "key_active_2")),
+            ("key_active_3",
+             lambda: self.game.menus['remap'].open("Toggle Active 3", "key_active_3")),
+            ("key_passive_1",
+             lambda: self.game.menus['remap'].open("Toggle Passive 1", "key_passive_1")),
+            ("key_passive_2",
+             lambda: self.game.menus['remap'].open("Toggle Passive 2", "key_passive_2")),
+            ("key_passive_3",
+             lambda: self.game.menus['remap'].open("Toggle Passive 3", "key_passive_3")),
+            ("key_passive_4",
+             lambda: self.game.menus['remap'].open("Toggle Passive 4", "key_passive_4")) 
         )
 
-        el_name = "key_cancel_label"
-        height += 11
-        self.elements[el_name] = UIElement(
-            self.game, el_name, self.surface, "Cancel", False,
-            position=(self.rect.width // 10, height),
-            action=lambda : self.game.menus['remap'].open("Cancel", "key_cancel")
-        )
-        el_name = "key_cancel"
-        self.elements[el_name] = UIElement(
-            self.game, el_name, self.surface,
-            pygame.key.name(data['key_cancel']), False,
-            position=(self.rect.width // 10*9, height), anchor="topright"
-        )
+        for union in union_data:
+            name = union[0]
+            label_name = name + "_label"
+            value_name = name + "_value"
+            action = union[1]
 
-        el_name = "key_move_left_label"
-        height += 11
-        self.elements[el_name] = UIElement(
-            self.game, el_name, self.surface, "Move Left", False,
-            position=(self.rect.width // 10, height),
-            action=lambda : self.game.menus['remap'].open("Move Left", "key_move_left")
-        )
-        el_name = "key_move_left"
-        self.elements[el_name] = UIElement(
-            self.game, el_name, self.surface,
-            pygame.key.name(data['key_move_left']), False,
-            position=(self.rect.width // 10*9, height), anchor="topright"
-        )
-
-        el_name = "key_move_right_label"
-        height += 11
-        self.elements[el_name] = UIElement(
-            self.game, el_name, self.surface, "Move Right", False,
-            position=(self.rect.width // 10, height),
-            action=lambda : self.game.menus['remap'].open("Move Right", "key_move_right")
-        )
-        el_name = "key_move_right"
-        self.elements[el_name] = UIElement(
-            self.game, el_name, self.surface,
-            pygame.key.name(data['key_move_right']), False,
-            position=(self.rect.width // 10*9, height), anchor="topright"
-        )
-
-        el_name = "key_fire_label"
-        height += 11
-        self.elements[el_name] = UIElement(
-            self.game, el_name, self.surface, "Fire", False,
-            position=(self.rect.width // 10, height),
-            action=lambda : self.game.menus['remap'].open("Fire", "key_fire")
-        )
-        el_name = "key_fire"
-        self.elements[el_name] = UIElement(
-            self.game, el_name, self.surface,
-            pygame.key.name(data['key_fire']), False,
-            position=(self.rect.width // 10*9, height), anchor="topright"
-        )
-
-        el_name = "key_active_1_label"
-        height += 11
-        self.elements[el_name] = UIElement(
-            self.game, el_name, self.surface, "On/Off Active 1", False,
-            position=(self.rect.width // 10, height),
-            action=lambda : self.game.menus['remap'].open("Toggle Active 1", "key_active_1")
-        )
-        el_name = "key_active_1"
-        self.elements[el_name] = UIElement(
-            self.game, el_name, self.surface,
-            pygame.key.name(data['key_active_1']), False,
-            position=(self.rect.width // 10*9, height), anchor="topright"
-        )
-
-        el_name = "key_active_2_label"
-        height += 11
-        self.elements[el_name] = UIElement(
-            self.game, el_name, self.surface, "On/Off Active 2", False,
-            position=(self.rect.width // 10, height),
-            action=lambda : self.game.menus['remap'].open("Toggle Active 2", "key_active_2")
-        )
-        el_name = "key_active_2"
-        self.elements[el_name] = UIElement(
-            self.game, el_name, self.surface,
-            pygame.key.name(data['key_active_2']), False,
-            position=(self.rect.width // 10*9, height), anchor="topright"
-        )
-
-        el_name = "key_active_3_label"
-        height += 11
-        self.elements[el_name] = UIElement(
-            self.game, el_name, self.surface, "On/Off Active 3", False,
-            position=(self.rect.width // 10, height),
-            action=lambda : self.game.menus['remap'].open("Toggle Active 3", "key_active_3")
-        )
-        el_name = "key_active_3"
-        self.elements[el_name] = UIElement(
-            self.game, el_name, self.surface,
-            pygame.key.name(data['key_active_3']), False,
-            position=(self.rect.width // 10*9, height), anchor="topright"
-        )
-
-        el_name = "key_passive_1_label"
-        height += 11
-        self.elements[el_name] = UIElement(
-            self.game, el_name, self.surface, "On/Off Passive 1", False,
-            position=(self.rect.width // 10, height),
-            action=lambda : self.game.menus['remap'].open("Toggle Passive 1", "key_passive_1")
-        )
-        el_name = "key_passive_1"
-        self.elements[el_name] = UIElement(
-            self.game, el_name, self.surface,
-            pygame.key.name(data['key_passive_1']), False,
-            position=(self.rect.width // 10*9, height), anchor="topright"
-        )
-
-        el_name = "key_passive_2_label"
-        height += 11
-        self.elements[el_name] = UIElement(
-            self.game, el_name, self.surface, "On/Off Passive 2", False,
-            position=(self.rect.width // 10, height),
-            action=lambda : self.game.menus['remap'].open("Toggle Passive 2", "key_passive_2")
-        )
-        el_name = "key_passive_2"
-        self.elements[el_name] = UIElement(
-            self.game, el_name, self.surface,
-            pygame.key.name(data['key_passive_2']), False,
-            position=(self.rect.width // 10*9, height), anchor="topright"
-        )
-
-        el_name = "key_passive_3_label"
-        height += 11
-        self.elements[el_name] = UIElement(
-            self.game, el_name, self.surface, "On/Off Passive 3", False,
-            position=(self.rect.width // 10, height),
-            action=lambda : self.game.menus['remap'].open("Toggle Passive 3", "key_passive_3")
-        )
-        el_name = "key_passive_3"
-        self.elements[el_name] = UIElement(
-            self.game, el_name, self.surface,
-            pygame.key.name(data['key_passive_3']), False,
-            position=(self.rect.width // 10*9, height), anchor="topright"
-        )
-
-        el_name = "key_passive_4_label"
-        height += 11
-        self.elements[el_name] = UIElement(
-            self.game, el_name, self.surface, "On/Off Passive 4", False,
-            position=(self.rect.width // 10, height),
-            action=lambda : self.game.menus['remap'].open("Toggle Passive 4", "key_passive_4")
-        )
-        el_name = "key_passive_4"
-        self.elements[el_name] = UIElement(
-            self.game, el_name, self.surface,
-            pygame.key.name(data['key_passive_4']), False,
-            position=(self.rect.width // 10*9, height), anchor="topright"
-        )
-
-        el_name = "default"
-        height += 22
-        self.elements[el_name] = UIElement(
-            self.game, el_name, self.surface, "Default",
-            position=(self.rect.width // 2, height), anchor="midtop",
-            action=self._trigger_restore_defaults
-        )
+            self.elements[name] = ElemUnion(
+                self.game, name,
+                self.elements[label_name], self.elements[value_name],
+                action=action
+            )
     
     def _trigger_restore_defaults(self):
         """Restore default settings and rewrite the menu."""

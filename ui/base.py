@@ -327,12 +327,15 @@ class Menu():
 
         if self.rect.y > top_limit:
             self.rect.y = top_limit
+            self.draw()
             return True
         
         if self.rect.y < bottom_limit:
             self.rect.y = bottom_limit
+            self.draw()
             return True
         
+        self.draw()
         return True
         
     def draw(self):

@@ -3,7 +3,6 @@
 import pygame
 from .base import UIElement, Tray
 
-
 class TopTray(Tray):
     """A class representing the top tray."""
 

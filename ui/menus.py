@@ -145,34 +145,10 @@ class SettingsMenu(Menu):
             )
 
         # the touple of touples below is used to generate the unions
-        # name (of the union, shared by the label-value pair), action
+        # keybinding/ union name, action
         union_data = (
             ("fps", self._cycle_framerates),
-            ("show_fps", self._toggle_fps_display),
-            ("key_confirm",
-             lambda: self.game.menus['remap'].open("Confirm", "key_confirm")),
-            ("key_cancel",
-             lambda: self.game.menus['remap'].open("Cancel", "key_cancel")),
-            ("key_move_left",
-             lambda: self.game.menus['remap'].open("Move Left", "key_move_left")),
-            ("key_move_right",
-             lambda: self.game.menus['remap'].open("Move Right", "key_move_right")),
-            ("key_fire",
-             lambda: self.game.menus['remap'].open("Fire", "key_fire")),
-            ("key_active_1",
-             lambda: self.game.menus['remap'].open("Toggle Active 1", "key_active_1")),
-            ("key_active_2",
-             lambda: self.game.menus['remap'].open("Toggle Active 2", "key_active_2")),
-            ("key_active_3",
-             lambda: self.game.menus['remap'].open("Toggle Active 3", "key_active_3")),
-            ("key_passive_1",
-             lambda: self.game.menus['remap'].open("Toggle Passive 1", "key_passive_1")),
-            ("key_passive_2",
-             lambda: self.game.menus['remap'].open("Toggle Passive 2", "key_passive_2")),
-            ("key_passive_3",
-             lambda: self.game.menus['remap'].open("Toggle Passive 3", "key_passive_3")),
-            ("key_passive_4",
-             lambda: self.game.menus['remap'].open("Toggle Passive 4", "key_passive_4")) 
+            ("show_fps", self._toggle_fps_display)
         )
 
         for union in union_data:
@@ -180,6 +156,37 @@ class SettingsMenu(Menu):
             label_name = name + "_label"
             value_name = name + "_value"
             action = union[1]
+
+            self.elements[name] = ElemUnion(
+                self.game, name,
+                self.elements[label_name], self.elements[value_name],
+                action=action
+            )
+
+        # similar to above, but for keybinds
+        # keybinding/ union name, control name
+        union_data = (
+            ("key_confirm", "Confirm"),
+            ("key_cancel", "Cancel"),
+            ("key_move_left", "Move Left"),
+            ("key_move_right", "Move Right"),
+            ("key_fire", "Fire"),
+            ("key_active_1", "Toggle Active 1"),
+            ("key_active_2","Toggle Active 2"),
+            ("key_active_3","Toggle Active 3"),
+            ("key_passive_1","Toggle Passive 1"),
+            ("key_passive_2","Toggle Passive 2"),
+            ("key_passive_3","Toggle Passive 3"),
+            ("key_passive_4","Toggle Passive 4") 
+        )
+
+        for union in union_data:
+            name = union[0]
+            label_name = name + "_label"
+            value_name = name + "_value"
+            control_name = union[1]
+            action = (lambda cn=control_name, kbn=name:
+                      self.game.menus['remap'].open(cn, kbn))
 
             self.elements[name] = ElemUnion(
                 self.game, name,

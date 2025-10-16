@@ -152,6 +152,43 @@ class UIElement():
         self.parent_surface.blit(self.symbol, self.symbol_rect)
         self.parent_surface.blit(self.content, self.content_rect)
 
+class ElemUnion():
+    """A class representing a union of multiple UI Elements."""
+
+    def __init__(self, game, name, *elems, action=None):
+        """Initialize the union."""
+
+        self.game = game
+        self.name = name
+        self.elems = elems
+        self.action = action
+
+        self.update()
+
+    
+    def update(self):
+        """Update the rectangle of the union."""
+
+        self.rect = self.elems[0].rect
+        for element in self.elems[1:]:
+            self.rect = pygame.Rect.union(self.rect, element.rect)
+
+    def trigger(self):
+        """Hook for doing something when the element is activated."""
+
+        if self.action is None:
+            return False
+        
+        self.action()
+        return True
+    
+    def draw(self):
+        """Hook for drawing the union. Does nothing currently."""
+
+        # does nothing; exists so the code does not break
+        # may have some other functional use in the future
+        return
+
 class Menu():
     """A base class representing a menu."""
 
@@ -257,6 +294,8 @@ class Menu():
         done = False
         for element in self.elements.values():
             if element.rect.collidepoint(self.inner_pos):
+                if element.action is None:
+                    continue
                 element.trigger()
                 done = True
                 break

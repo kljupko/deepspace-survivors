@@ -1,7 +1,7 @@
 """A module containing all the menus in the game."""
 
 import pygame
-from .base import UIElement, Menu
+from .base import UIElement, ElemUnion, Menu
 
 class MainMenu(Menu):
     """A class which represents the game's main menu."""
@@ -97,13 +97,19 @@ class SettingsMenu(Menu):
         height += 22
         self.elements[el_name] = UIElement(
             self.game, el_name, self.surface, "FPS Target", False,
-            position=(self.rect.width // 10, height),
-            action=self._cycle_framerates
+            position=(self.rect.width // 10, height)
         )
         el_name = "fps_value"
         self.elements[el_name] = UIElement(
             self.game, el_name, self.surface, str(data['fps']), False,
             position=(self.rect.width // 10*9, height), anchor="topright"
+        )
+
+        el_name = 'fps'
+        self.elements[el_name] = ElemUnion(
+            self.game, el_name,
+            self.elements['fps_label'], self.elements['fps_value'],
+            action=self._cycle_framerates
         )
 
         el_name = "show_fps_label"

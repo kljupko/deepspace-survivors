@@ -314,11 +314,13 @@ class Menu():
 
         if not self.inner_pos:
             return False
-        
-        if self.rect.height <= self.game.screen.height:
-            return False
+
 
         destination = position[1] - self.inner_pos[1]
+
+        if self.rect.y == destination:
+            return False
+        
         top_limit = 0
         bottom_limit = self.game.screen.height - self.rect.height
 
@@ -326,14 +328,9 @@ class Menu():
         self.scrolled = True
 
         if self.rect.y > top_limit:
-            self.rect.y = top_limit
-            self.draw()
-            return True
-        
-        if self.rect.y < bottom_limit:
+            self.rect.y = top_limit      
+        elif self.rect.y < bottom_limit:
             self.rect.y = bottom_limit
-            self.draw()
-            return True
         
         self.draw()
         return True

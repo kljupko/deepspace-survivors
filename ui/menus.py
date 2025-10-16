@@ -74,7 +74,7 @@ class SettingsMenu(Menu):
         """Initialize the settings menu."""
 
         super().__init__(game, name, width, height, background)
-
+        
         self.update()
     
     def _populate_values(self):

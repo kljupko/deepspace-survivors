@@ -31,7 +31,8 @@ class TopTray(Tray):
         el_name = "session_duration"
         self.elements[el_name] = UIElement(
             self.game, el_name, self.surface, self._get_session_duration(),
-            False, position=(self.rect.centerx, 1), anchor="midtop"
+            False, position=(self.rect.centerx, 1), anchor="midtop",
+            action=self.game.menus['pause'].open
         )
 
         el_name = "credits_earned"

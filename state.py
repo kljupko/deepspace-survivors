@@ -8,6 +8,7 @@ class State():
 
         self.session_running = False
         self.session_start = pygame.time.get_ticks()
+        self.last_session_tick = pygame.time.get_ticks()
         self.session_duration = 0 # in miliseconds
         self.last_second_tracked = -1
         self.credits_earned = 0
@@ -15,5 +16,8 @@ class State():
     def track_duration(self):
         """Track the session duration."""
 
-        self.session_duration = pygame.time.get_ticks() - self.session_start
+        now = pygame.time.get_ticks()
+        self.session_duration += now - self.last_session_tick
+        self.last_session_tick = now
+        
     

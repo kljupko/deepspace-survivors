@@ -271,3 +271,59 @@ class RemapKeyMenu(Menu):
         self.game.menus['settings'].update()
         self.game.settings.save_data()
         self.close(next_menu="settings")
+
+class PauseMenu(Menu):
+    """A class representing the game's pause menu."""
+
+    def __init__(self, game, name='pause',
+                 width=None, height=None, background=None):
+        """Initialize the pause menu."""
+
+        super().__init__(game, name, width, height, background)
+        self.update()
+    
+    def _populate_values(self):
+        """Populate the menu with buttons."""
+       
+        y_pos_adjustment = -11
+        element_data = (
+            ("continue_button", "Continue", 0, self._continue_session),
+            ("restart_button", "Restart", 11, self._restart_session),
+            ("quit_button", "Quit to Main Menu", 11, self.game.quit_session)
+        )
+
+        self.elements = {}
+        for data in element_data:
+            name = data[0]
+            text = data[1]
+            y_pos_adjustment += data[2]
+            action = data[3]
+
+            self.elements[name] = UIElement(
+                self.game, name, self.surface, text, position=(
+                    self.rect.width // 10,
+                    self.rect.height // 2 + y_pos_adjustment
+                ), action=action
+            )
+
+    def open(self):
+        """Pause the game and open the menu."""
+
+        self.game.state.session_running = False
+        return super().open()
+
+    def _continue_session(self):
+        """Close the menu and continue the session."""
+
+        self.game.state.session_running = True
+        self.game.state.last_session_tick = pygame.time.get_ticks()
+        self.close()
+        # draw the bottom tray just to overwrite the part of the menu
+        self.game.bot_tray.draw()
+    
+    def _restart_session(self):
+        """Close the menu and restart the session."""
+
+        self.game.quit_session()
+        self.game.start_session()
+        self.close()

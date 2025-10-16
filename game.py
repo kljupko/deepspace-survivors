@@ -45,6 +45,7 @@ class Game:
         self.menus['main'] = ui.MainMenu(self)
         self.menus['settings'] = ui.SettingsMenu(self)
         self.menus['remap'] = ui.RemapKeyMenu(self)
+        self.menus['pause'] = ui.PauseMenu(self)
         
     
     def run(self):
@@ -225,14 +226,14 @@ class Game:
                 
     def _handle_keydown_events(self, event):
         """Handle what happens when certain keys are pressed."""
-
-        if event.key == self.settings.data["key_cancel"]:
-            self.quit_session()
         
         self.menus['remap'].listen_for_key(event.key)
 
         if not self.state.session_running:
             return False
+        
+        if event.key == self.settings.data["key_cancel"]:
+            self.menus['pause'].open()
 
         if event.key == self.settings.data["key_move_left"]:
             self.ship.moving_left = True
@@ -292,35 +293,30 @@ class Game:
         """
 
         self.touch.register_mousedown_event(event)
-        pos = self.touch.current_pos
-
-        for menu in self.menus.values():
-            menu.start_touch(pos)
 
         if self.touch.touch_start_ts is None:
             return False
         
+        pos = self.touch.current_pos
+
+        for menu in self.menus.values():
+            menu.start_touch(pos)
+        
         if not self.state.session_running:
             return False
         
-        if self.top_tray.rect.collidepoint(pos):
-            # do nothing when clicking the top tray
-            return False
+        self.top_tray.start_touch(pos)
+        self.top_tray.interact()
         
         # TODO: find a better way to organize this; a better place
-        if self.bot_tray.rect.collidepoint(pos):
-            self.bot_tray.start_touch(pos)
-            inner_pos = self.bot_tray.inner_pos
-            done = False
-            for element in self.bot_tray.elements.values():
-                if element.rect.collidepoint(inner_pos):
-                    element.trigger()
-                    self.bot_tray.draw() # update
-                    done = True
-                    break
-            return done
+        self.bot_tray.start_touch(pos)
+        self.bot_tray.interact()
         
         # control the ship if nothing else is clicked
+        if pygame.Rect.collidepoint(self.top_tray.rect, pos[0], pos[1]):
+            return
+        if pygame.Rect.collidepoint(self.bot_tray.rect, pos[0], pos[1]):
+            return
         self.ship.fire_bullet()
         self.ship.start_ability_charge()
         self.ship.destination = (

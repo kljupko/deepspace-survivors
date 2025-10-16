@@ -94,6 +94,10 @@ class Ship(Entity):
             self.game.bot_tray.update("ship_hp", self.hp)
             alien.destroy()
         
+        if self.hp <= 0:
+            # TODO: replace this with a 'lose_session' menu
+            self.game.quit_session()
+        
         return True
     
     def _check_powerup_collisions(self):

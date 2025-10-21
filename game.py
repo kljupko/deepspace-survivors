@@ -7,6 +7,7 @@ from config import Config
 from settings import Settings
 from state import State
 from progress import Progress
+from music import MusicPlayer
 import ui
 
 class Game:
@@ -40,6 +41,8 @@ class Game:
         self.fps = 0
         self.state = State()
         self.progress = Progress(self)
+
+        self.music_player = MusicPlayer(self)
 
         self.menus = {}
         self.menus['main'] = ui.MainMenu(self)
@@ -228,6 +231,9 @@ class Game:
         """Handle what happens when certain keys are pressed."""
         
         self.menus['remap'].listen_for_key(event.key)
+
+        if event.key == self.settings.data["key_fire"]:
+            self.music_player.update()
 
         if not self.state.session_running:
             return False

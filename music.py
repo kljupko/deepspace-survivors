@@ -1,5 +1,9 @@
 """A module containing classes for playing music."""
 
+from pathlib import Path
+import pygame
+from pygame.mixer import Channel, Sound
+
 class MusicPlayer():
     """A class which handles playing music from a sequence of sounds."""
 
@@ -8,11 +12,12 @@ class MusicPlayer():
 
         self.game = game
 
-        # TODO: assign channels to each track:
-        #   0 = drums
-        #   1 = bass
-        #   2 = chord
-        #   3 = melody
+        pygame.mixer.set_reserved(4)
+
+        self.drum_ch = Channel(0)
+        self.bass_ch = Channel(1)
+        self.chrd_ch = Channel(2)
+        self.mldy_ch = Channel(3)
 
         self.current_step = 0
 
@@ -26,14 +31,24 @@ class MusicPlayer():
         # indices of inner tuple same as channels
         # just strings for testing; drums and bass
         self.sequence = (
-            ("one", "one", "", ""),
-            ("two", "", "", ""),
-            ("three", "", "", ""),
-            ("four", "two", "", ""),
-            ("five", "three", "", ""),
-            ("six", "", "", ""),
-            ("seven", "four", "", ""),
-            ("eight", "", "", ""),
+            ("drumbit.wav", "", "", "mel1.wav"),
+            ("drumbit.wav", "", "", "mel1.wav"),
+            ("drumbit.wav", "", "", "mel2.wav"),
+            ("drumbit.wav", "", "", "mel2.wav"),
+            ("drumbit.wav", "", "", "mel1.wav"),
+            ("drumbit.wav", "", "", "mel1.wav"),
+            ("drumbit.wav", "", "", "mel2.wav"),
+            ("drumbit.wav", "", "", "mel2.wav"),
+        )
+        self.sequence = (
+            ("sine.wav", "", "", ""),
+            ("sine.wav", "", "", ""),
+            ("sine.wav", "", "", ""),
+            ("sine.wav", "", "", ""),
+            ("sine.wav", "", "", ""),
+            ("sine.wav", "", "", ""),
+            ("sine.wav", "", "", ""),
+            ("sine.wav", "", "", ""),
         )
 
         self.max_step = len(self.sequence) - 1
@@ -48,10 +63,15 @@ class MusicPlayer():
         if step > self.max_step:
             return False
         
-        self.drum_snd = self.sequence[step][0]
-        self.bass_snd = self.sequence[step][1]
-        self.chrd_snd = self.sequence[step][2]
-        self.mldy_snd = self.sequence[step][3]
+        dir = self.game.config.sounds_path
+        drum = self.sequence[step][0]
+        bass = self.sequence[step][1]
+        chrd = self.sequence[step][2]
+        mldy = self.sequence[step][3]
+        self.drum_snd = None if drum == "" else Sound(Path(dir, drum))
+        self.bass_snd = None if bass == "" else Sound(Path(dir, bass))
+        self.chrd_snd = None if chrd == "" else Sound(Path(dir, chrd))
+        self.mldy_snd = None if mldy == "" else Sound(Path(dir, mldy))
 
         self._insert_silence()
     
@@ -61,16 +81,9 @@ class MusicPlayer():
         to prevent skipping to the next part before it's time.
         """
 
-        if self.drum_snd is not None:
-            return False
-        if self.bass_snd is not None:
-            return False
-        if self.chrd_snd is not None:
-            return False
-        if self.mldy_snd is not None:
-            return False
-        
-        self.drum_snd = "silence"
+        if self.drum_snd is None:        
+            # TODO: include a silence.waw which lasts the required amount
+            self.drum_snd = "silence"
 
     def _play(self):
         """Play the loaded sounds."""
@@ -80,19 +93,21 @@ class MusicPlayer():
         
         # TODO: replace prints with playing sounds
         if self.drum_snd:
-            print(f"Drums: {self.drum_snd}")
+            self.drum_ch.play(self.drum_snd, fade_ms=0)
+            self.drum_ch.set_endevent(self.game.CH_DONE_PLAYING)
         if self.bass_snd:
-            print(f"Bass: {self.bass_snd}")
+            self.bass_ch.play(self.bass_snd, fade_ms=3)
         if self.chrd_snd:
-            print(f"Chord: {self.chrd_snd}")
+            self.chrd_ch.play(self.chrd_snd, fade_ms=3)
         if self.mldy_snd:
-            print(f"Melody: {self.mldy_snd}")
+            self.mldy_ch.play(self.mldy_snd, fade_ms=3)
     
     def update(self):
         """
         Update the music player. Play step, load next, increment step.
         """
 
+        print(self.current_step)
         self._play()
         self._load_step()
         self.current_step += 1

@@ -42,6 +42,7 @@ class Game:
         self.state = State()
         self.progress = Progress(self)
 
+        self.CH_DONE_PLAYING = pygame.event.custom_type()
         self.music_player = MusicPlayer(self)
 
         self.menus = {}
@@ -97,6 +98,7 @@ class Game:
         self.powerups = pygame.sprite.Group()
 
         self.menus["main"].close()
+        self.music_player.update()
     
     def quit_session(self):
         """Quit the session and return to the main menu."""
@@ -208,6 +210,9 @@ class Game:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.quit()
+            
+            elif event.type == self.CH_DONE_PLAYING:
+                self.music_player.update()
 
             elif event.type == pygame.KEYDOWN:
                 self._handle_keydown_events(event)
@@ -231,9 +236,6 @@ class Game:
         """Handle what happens when certain keys are pressed."""
         
         self.menus['remap'].listen_for_key(event.key)
-
-        if event.key == self.settings.data["key_fire"]:
-            self.music_player.update()
 
         if not self.state.session_running:
             return False

@@ -31,7 +31,7 @@ class MainMenu(Menu):
                 self.rect.width * 1/3,
                 self.elements["play_btn"].rect.y +
                 (self.elements["play_btn"].rect.height + 5) * 1
-            )
+            ), action=lambda: self.game.menus['upgrade'].open()
         )
         el_name = "unlock_btn"
         self.elements[el_name] = UIElement(
@@ -39,7 +39,7 @@ class MainMenu(Menu):
                 self.rect.width * 1/3,
                 self.elements["play_btn"].rect.y +
                 (self.elements["play_btn"].rect.height + 5) * 2
-            )
+            ), action=lambda: self.game.menus['unlock'].open()
         )
         el_name = "settings_btn"
         self.elements[el_name] = UIElement(
@@ -55,7 +55,7 @@ class MainMenu(Menu):
                 self.rect.width * 1/3,
                 self.elements["play_btn"].rect.y +
                 (self.elements["play_btn"].rect.height + 5) * 4
-            )
+            ), action=lambda: self.game.menus['info'].open()
         )
         el_name = "quit_btn"
         self.elements[el_name] = UIElement(
@@ -65,6 +65,78 @@ class MainMenu(Menu):
                 (self.elements["play_btn"].rect.height + 5) * 5
             ), action=self.game.quit
         )
+
+class UpgradeMenu(Menu):
+    """A class representing the upgrade menu."""
+
+    def __init__(self, game, name="upgrade",
+                 width=None, height=None, background=None):
+        """Initialize the upgrade menu."""
+
+        super().__init__(game, name, width, height, background)
+
+        self.update()
+    
+    def _populate_values(self):
+        """Populate the menu with upgrades."""
+
+        y_pos = 0
+        element_data = (
+            ("back_btn", "< BACK", 1, lambda: self.close("main")),
+            ("temp", "Upgrades", 22, None),
+        )
+
+        for element in element_data:
+            name = element[0]
+            content = element[1]
+            height_increment = element[2]
+            y_pos += height_increment
+            action = element[3]
+
+            anchor = "topleft"
+            x_pos = self.rect.width // 10
+
+            self.elements[name] = UIElement(
+                self.game, name, self.surface, content, False,
+                position=(x_pos, y_pos),
+                anchor=anchor, action=action
+            )
+
+class UnlockMenu(Menu):
+    """A class representing the unlock menu."""
+
+    def __init__(self, game, name="unlock",
+                 width=None, height=None, background=None):
+        """Initialize the unlock menu."""
+
+        super().__init__(game, name, width, height, background)
+
+        self.update()
+    
+    def _populate_values(self):
+        """Populate the menu with unlockables."""
+
+        y_pos = 0
+        element_data = (
+            ("back_btn", "< BACK", 1, lambda: self.close("main")),
+            ("temp", "Unlockables", 22, None),
+        )
+
+        for element in element_data:
+            name = element[0]
+            content = element[1]
+            height_increment = element[2]
+            y_pos += height_increment
+            action = element[3]
+
+            anchor = "topleft"
+            x_pos = self.rect.width // 10
+
+            self.elements[name] = UIElement(
+                self.game, name, self.surface, content, False,
+                position=(x_pos, y_pos),
+                anchor=anchor, action=action
+            )   
 
 class SettingsMenu(Menu):
     """A class representing the game's settings menu."""
@@ -226,7 +298,7 @@ class SettingsMenu(Menu):
         data['show_fps'] = not data['show_fps']
         self.game.settings.save_data()
         self.update()
-    
+
 class RemapKeyMenu(Menu):
     """A class representing the key remapping prompt."""
 
@@ -271,6 +343,43 @@ class RemapKeyMenu(Menu):
         self.game.menus['settings'].update()
         self.game.settings.save_data()
         self.close(next_menu="settings")
+
+class InfoMenu(Menu):
+    """A class representing the info page/ menu."""
+
+    def __init__(self, game, name="info",
+                 width=None, height=None, background=None):
+        """Initialize the info menu."""
+
+        super().__init__(game, name, width, height, background)
+
+        self.update()
+    
+    def _populate_values(self):
+        """Populate the menu with information."""
+
+        y_pos = 0
+        element_data = (
+            ("back_btn", "< BACK", 1, lambda: self.close("main")),
+            ("about", "Created by @kljupko in Pygame as a demo project",
+             22, None),
+        )
+
+        for element in element_data:
+            name = element[0]
+            content = element[1]
+            height_increment = element[2]
+            y_pos += height_increment
+            action = element[3]
+
+            anchor = "topleft"
+            x_pos = self.rect.width // 10
+
+            self.elements[name] = UIElement(
+                self.game, name, self.surface, content, False,
+                position=(x_pos, y_pos),
+                anchor=anchor, action=action
+            )   
 
 class PauseMenu(Menu):
     """A class representing the game's pause menu."""

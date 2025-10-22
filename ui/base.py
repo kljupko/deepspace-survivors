@@ -33,9 +33,11 @@ class UIElement():
 
         if font is None:
             font = self.game.config.font_normal
+        
+        wraplength = int(self.parent_surface.width * 0.9)
 
         self.content = font.render(
-            str(content), False, 'white', 'black'
+            str(content), False, 'white', 'black', wraplength
         )
         self.content_rect = self.content.get_rect()
     

@@ -310,6 +310,7 @@ class PauseMenu(Menu):
         """Pause the game and open the menu."""
 
         self.game.state.session_running = False
+        self.game.music_player.pause()
         return super().open()
 
     def _continue_session(self):
@@ -320,6 +321,7 @@ class PauseMenu(Menu):
         self.close()
         # draw the bottom tray just to overwrite the part of the menu
         self.game.bot_tray.draw()
+        self.game.music_player.unpause()
     
     def _restart_session(self):
         """Close the menu and restart the session."""

@@ -112,8 +112,6 @@ class UIElement():
     def trigger(self):
         """Hook for doing something when the element is activated."""
 
-        print("triggered:", self.name)
-
         if self.action is None:
             return False
         

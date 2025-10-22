@@ -98,6 +98,7 @@ class Game:
         self.powerups = pygame.sprite.Group()
 
         self.menus["main"].close()
+        self.music_player.reset_sequence()
         self.music_player.update()
     
     def quit_session(self):
@@ -119,6 +120,7 @@ class Game:
 
         # TODO: clear the game objects
         self.menus["main"].open()
+        # TODO: play menu music
     
     def quit(self):
         """Handle quitting the game."""

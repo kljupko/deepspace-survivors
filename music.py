@@ -19,7 +19,7 @@ class MusicPlayer():
         self.chrd_ch = Channel(2)
         self.mldy_ch = Channel(3)
 
-        self.current_step = 0
+        self.current_step = None
 
         self.drum_snd = None
         self.bass_snd = None
@@ -31,28 +31,15 @@ class MusicPlayer():
         # indices of inner tuple same as channels
         # just strings for testing; drums and bass
         self.sequence = (
-            ("drumbit.wav", "", "", "mel1.wav"),
-            ("drumbit.wav", "", "", "mel1.wav"),
-            ("drumbit.wav", "", "", "mel2.wav"),
-            ("drumbit.wav", "", "", "mel2.wav"),
-            ("drumbit.wav", "", "", "mel1.wav"),
-            ("drumbit.wav", "", "", "mel1.wav"),
-            ("drumbit.wav", "", "", "mel2.wav"),
-            ("drumbit.wav", "", "", "mel2.wav"),
+            ("drums.wav", "", "", "mel1.wav"),
+            ("drums.wav", "", "", "mel1.wav"),
+            ("drums.wav", "", "", "mel2.wav"),
+            ("drums.wav", "", "", "mel2.wav"),
         )
-        self.sequence = (
-            ("sine.wav", "", "", ""),
-            ("sine.wav", "", "", ""),
-            ("sine.wav", "", "", ""),
-            ("sine.wav", "", "", ""),
-            ("sine.wav", "", "", ""),
-            ("sine.wav", "", "", ""),
-            ("sine.wav", "", "", ""),
-            ("sine.wav", "", "", ""),
-        )
+        # TODO: set loop_sequence based on load_sequence method
+        self.loop_sequence = False
 
         self.max_step = len(self.sequence) - 1
-        self._load_step(0)
     
     def _load_step(self, step=None):
         """Load the sounds for the given step."""
@@ -62,7 +49,7 @@ class MusicPlayer():
         
         if step > self.max_step:
             return False
-        
+
         dir = self.game.config.sounds_path
         drum = self.sequence[step][0]
         bass = self.sequence[step][1]
@@ -81,9 +68,9 @@ class MusicPlayer():
         to prevent skipping to the next part before it's time.
         """
 
-        if self.drum_snd is None:        
-            # TODO: include a silence.waw which lasts the required amount
-            self.drum_snd = "silence"
+        if self.drum_snd is None:
+            dir = self.game.config.sounds_path
+            self.drum_snd = Sound(Path(dir, "silence.wav"))
 
     def _play(self):
         """Play the loaded sounds."""
@@ -91,7 +78,6 @@ class MusicPlayer():
         if self.current_step > self.max_step:
             return False
         
-        # TODO: replace prints with playing sounds
         if self.drum_snd:
             self.drum_ch.play(self.drum_snd, fade_ms=0)
             self.drum_ch.set_endevent(self.game.CH_DONE_PLAYING)
@@ -102,12 +88,39 @@ class MusicPlayer():
         if self.mldy_snd:
             self.mldy_ch.play(self.mldy_snd, fade_ms=3)
     
+    def reset_sequence(self):
+        """Set the sequence to step 0."""
+        self.drum_ch.set_endevent()
+        self.current_step = 0
+        self._load_step(0)
+    
+    def pause(self):
+        """Pauses playback on all channels."""
+
+        self.drum_ch.pause()
+        self.bass_ch.pause()
+        self.chrd_ch.pause()
+        self.mldy_ch.pause()
+    
+    def unpause(self):
+        """Resumes playback on all channels."""
+
+        self.drum_ch.unpause()
+        self.bass_ch.unpause()
+        self.chrd_ch.unpause()
+        self.mldy_ch.unpause()
+    
     def update(self):
         """
         Update the music player. Play step, load next, increment step.
         """
 
-        print(self.current_step)
+        if self.loop_sequence and self.current_step > self.max_step:
+            self.reset_sequence()
+        
+        if self.current_step > self.max_step:
+            return False
+
         self._play()
         self._load_step()
         self.current_step += 1

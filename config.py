@@ -13,6 +13,7 @@ class Config():
         self.main_save_path = "data/saves/main_save.json"
         self.back_save_path = "data/saves/backup_save.json"
         self.sounds_path = "audio/sounds/"
+        self.sequences_path = "audio/sequences/"
         # TODO: add other file paths
 
         self.font_normal = pygame.font.SysFont(None, 14)

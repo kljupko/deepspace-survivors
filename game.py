@@ -56,6 +56,8 @@ class Game:
         """Run the game loop."""
 
         self.menus['main'].open()
+        self.music_player.load_sequence("main_menu.json", True)
+        self.music_player.update()
 
         while self.game_running:
             self._handle_events()
@@ -98,7 +100,7 @@ class Game:
         self.powerups = pygame.sprite.Group()
 
         self.menus["main"].close()
-        self.music_player.reset_sequence()
+        self.music_player.load_sequence("test.json", True)
         self.music_player.update()
     
     def quit_session(self):
@@ -120,7 +122,8 @@ class Game:
 
         # TODO: clear the game objects
         self.menus["main"].open()
-        # TODO: play menu music
+        self.music_player.load_sequence("main_menu.json", True)
+        self.music_player.update()
     
     def quit(self):
         """Handle quitting the game."""

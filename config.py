@@ -20,3 +20,4 @@ class Config():
         self.font_large = pygame.font.SysFont(None, 21)
 
         self.framerates = (30, 60, 120, 144, 240)
+        self.music_volumes = range(11)

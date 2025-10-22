@@ -6,7 +6,7 @@ class UIElement():
     """A class that represents a single element of the user interface."""
 
     def __init__(
-            self, game, name, parent_surface, content="", symbol=None,
+            self, game, name, parent, content="", symbol=None,
             symbol_is_left=True, position=(0, 0), anchor="topleft", font=None,
             action=None
     ):
@@ -14,7 +14,7 @@ class UIElement():
 
         self.game = game
         self.name = name
-        self.parent_surface = parent_surface
+        self.parent = parent
         self.action = action
 
         self._load_content(content, font)
@@ -34,7 +34,7 @@ class UIElement():
         if font is None:
             font = self.game.config.font_normal
         
-        wraplength = int(self.parent_surface.width * 0.9)
+        wraplength = int(self.parent.surface.width * 0.9)
 
         self.content = font.render(
             str(content), False, 'white', 'black', wraplength
@@ -151,8 +151,8 @@ class UIElement():
     def draw(self):
         """Draw the element to the parent surface."""
 
-        self.parent_surface.blit(self.symbol, self.symbol_rect)
-        self.parent_surface.blit(self.content, self.content_rect)
+        self.parent.surface.blit(self.symbol, self.symbol_rect)
+        self.parent.surface.blit(self.content, self.content_rect)
 
 class ElemUnion():
     """A class representing a union of multiple UI Elements."""
@@ -229,12 +229,21 @@ class Menu():
                symbol_is_left=None, position=None, anchor=None, font=None):
         """Re-renders the menu with current values."""
 
+        # TODO: is this needed anymore???
         if element_name is not None and content is not None:
             self.elements[element_name].update(
                 content, symbol, symbol_is_left, position, anchor, font
             )
 
         self._populate_values()
+
+        # update the height and surface if elements are below view
+        height = self.rect.height
+        for element in self.elements.values():
+            el_bottom = element.rect.y + element.rect.height
+            height = el_bottom if el_bottom > height else height
+        self.surface = pygame.Surface((self.rect.width, height))
+        self.rect = self.surface.get_rect()
         self.surface.blit(self.background, self.background.get_rect())
 
         for element in self.elements.values():

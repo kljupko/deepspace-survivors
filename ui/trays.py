@@ -16,34 +16,34 @@ class TopTray(Tray):
 
         el_name = "fire_power"
         self.elements[el_name] = UIElement(
-            self.game, el_name, self.surface, self.game.ship.fire_power,
+            self.game, el_name, self, self.game.ship.fire_power,
             position=(1, 1)
         )
 
         el_name = "fire_rate"
         self.elements[el_name] = UIElement(
-            self.game, el_name, self.surface, self.game.ship.fire_rate,
+            self.game, el_name, self, self.game.ship.fire_rate,
             position=(self.rect.width - 1, 1), symbol_is_left=False,
             anchor="topright"
         )
 
         el_name = "session_duration"
         self.elements[el_name] = UIElement(
-            self.game, el_name, self.surface, self._get_session_duration(),
+            self.game, el_name, self, self._get_session_duration(),
             False, position=(self.rect.centerx, 1), anchor="midtop",
             action=self.game.menus['pause'].open
         )
 
         el_name = "credits_earned"
         self.elements[el_name] = UIElement(
-            self.game, el_name, self.surface,
+            self.game, el_name, self,
             self.game.state.credits_earned,
             position=(self.rect.centerx, 12), anchor="midtop"
         )
 
         el_name = 'fps'
         self.elements[el_name] = UIElement(
-            self.game, el_name, self.surface, self._get_fps(), False,
+            self.game, el_name, self, self._get_fps(), False,
             position=(self.rect.width - 1, 12), anchor="topright"
         )
     
@@ -79,13 +79,13 @@ class BottomTray(Tray):
 
         el_name = "ship_hp"
         self.elements[el_name] = UIElement(
-            self.game, el_name, self.surface, self.game.ship.hp,
+            self.game, el_name, self, self.game.ship.hp,
             position=(1, 1)
         )
 
         el_name = "ship_thrust"
         self.elements[el_name] = UIElement(
-            self.game, el_name, self.surface, self.game.ship.thrust,
+            self.game, el_name, self, self.game.ship.thrust,
             symbol_is_left=False, position=(self.rect.width - 1, 1),
             anchor="topright"
         )
@@ -97,28 +97,28 @@ class BottomTray(Tray):
 
         el_name = "active_1"
         self.elements[el_name] = UIElement(
-            self.game, el_name, self.surface, symbol=image,
+            self.game, el_name, self, symbol=image,
             position=(self.rect.width // 4 * 1, 12), anchor="midtop",
             action=self.game.ship.active_abilities[0].toggle
         )
 
         el_name = "active_2"
         self.elements[el_name] = UIElement(
-            self.game, el_name, self.surface, symbol=image,
+            self.game, el_name, self, symbol=image,
             position=(self.rect.width // 4 * 2, 12), anchor="midtop",
             action=self.game.ship.active_abilities[1].toggle
         )
 
         el_name = "active_3"
         self.elements[el_name] = UIElement(
-            self.game, el_name, self.surface, symbol=image,
+            self.game, el_name, self, symbol=image,
             position=(self.rect.width // 4 * 3, 12), anchor="midtop",
             action=self.game.ship.active_abilities[2].toggle
         )
 
         el_name = "passive_1"
         self.elements[el_name] = UIElement(
-            self.game, el_name, self.surface, symbol=image,
+            self.game, el_name, self, symbol=image,
             position=(self.rect.width // 8 * 1, self.rect.height - 1),
             anchor="midbottom",
             action=self.game.ship.passive_abilities[0].toggle
@@ -126,7 +126,7 @@ class BottomTray(Tray):
 
         el_name = "passive_2"
         self.elements[el_name] = UIElement(
-            self.game, el_name, self.surface, symbol=image,
+            self.game, el_name, self, symbol=image,
             position=(self.rect.width // 8 * 3, self.rect.height - 1),
             anchor="midbottom",
             action=self.game.ship.passive_abilities[1].toggle
@@ -134,7 +134,7 @@ class BottomTray(Tray):
 
         el_name = "passive_3"
         self.elements[el_name] = UIElement(
-            self.game, el_name, self.surface, symbol=image,
+            self.game, el_name, self, symbol=image,
             position=(self.rect.width // 8 * 5, self.rect.height - 1),
             anchor="midbottom",
             action=self.game.ship.passive_abilities[2].toggle
@@ -142,7 +142,7 @@ class BottomTray(Tray):
 
         el_name = "passive_4"
         self.elements[el_name] = UIElement(
-            self.game, el_name, self.surface, symbol=image,
+            self.game, el_name, self, symbol=image,
             position=(self.rect.width // 8 * 7, self.rect.height - 1),
             anchor="midbottom",
             action=self.game.ship.passive_abilities[3].toggle

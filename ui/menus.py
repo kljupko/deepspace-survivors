@@ -20,14 +20,14 @@ class MainMenu(Menu):
 
         el_name = "play_btn"
         self.elements[el_name] = UIElement(
-            self.game, el_name, self.surface, "Play", position=(
+            self.game, el_name, self, "Play", position=(
                 self.rect.width * 1/3,
                 self.rect.height * 1/3
             ), action=self.game.start_session
         )
         el_name = "upgrade_btn"
         self.elements[el_name] = UIElement(
-            self.game, el_name, self.surface, "Upgrade", position=(
+            self.game, el_name, self, "Upgrade", position=(
                 self.rect.width * 1/3,
                 self.elements["play_btn"].rect.y +
                 (self.elements["play_btn"].rect.height + 5) * 1
@@ -35,7 +35,7 @@ class MainMenu(Menu):
         )
         el_name = "unlock_btn"
         self.elements[el_name] = UIElement(
-            self.game, el_name, self.surface, "Unlock",position=(
+            self.game, el_name, self, "Unlock",position=(
                 self.rect.width * 1/3,
                 self.elements["play_btn"].rect.y +
                 (self.elements["play_btn"].rect.height + 5) * 2
@@ -43,7 +43,7 @@ class MainMenu(Menu):
         )
         el_name = "settings_btn"
         self.elements[el_name] = UIElement(
-            self.game, el_name, self.surface, "Settings", position=(
+            self.game, el_name, self, "Settings", position=(
                 self.rect.width * 1/3,
                 self.elements["play_btn"].rect.y +
                 (self.elements["play_btn"].rect.height + 5) * 3
@@ -51,7 +51,7 @@ class MainMenu(Menu):
         )
         el_name = "info_btn"
         self.elements[el_name] = UIElement(
-            self.game, el_name, self.surface, "Info", position=(
+            self.game, el_name, self, "Info", position=(
                 self.rect.width * 1/3,
                 self.elements["play_btn"].rect.y +
                 (self.elements["play_btn"].rect.height + 5) * 4
@@ -59,7 +59,7 @@ class MainMenu(Menu):
         )
         el_name = "quit_btn"
         self.elements[el_name] = UIElement(
-            self.game, el_name, self.surface, "Quit", position=(
+            self.game, el_name, self, "Quit", position=(
                 self.rect.width * 1/3,
                 self.elements["play_btn"].rect.y +
                 (self.elements["play_btn"].rect.height + 5) * 5
@@ -97,7 +97,7 @@ class UpgradeMenu(Menu):
             x_pos = self.rect.width // 10
 
             self.elements[name] = UIElement(
-                self.game, name, self.surface, content, False,
+                self.game, name, self, content, False,
                 position=(x_pos, y_pos),
                 anchor=anchor, action=action
             )
@@ -133,7 +133,7 @@ class UnlockMenu(Menu):
             x_pos = self.rect.width // 10
 
             self.elements[name] = UIElement(
-                self.game, name, self.surface, content, False,
+                self.game, name, self, content, False,
                 position=(x_pos, y_pos),
                 anchor=anchor, action=action
             )   
@@ -194,6 +194,10 @@ class SettingsMenu(Menu):
             ("key_passive_4_label", "On/Off Passive 4", 11, None),
             ("key_passive_4_value", pygame.key.name(data['key_passive_4']), 0, None),
 
+            ("audio_header", "Audio", 22, None),
+            ("music_vol_label", "Music Volume", 22, None),
+            ("music_vol_value", str(data['music_volume']), 0, None),
+
             ("restore_defaults", "Restore Defaults", 22, self._trigger_restore_defaults)
         )
 
@@ -211,7 +215,7 @@ class SettingsMenu(Menu):
                 x_pos = self.rect.width // 10 * 9
 
             self.elements[name] = UIElement(
-                self.game, name, self.surface, content, False,
+                self.game, name, self, content, False,
                 position=(x_pos, y_pos),
                 anchor=anchor, action=action
             )
@@ -220,7 +224,8 @@ class SettingsMenu(Menu):
         # keybinding/ union name, action
         union_data = (
             ("fps", self._cycle_framerates),
-            ("show_fps", self._toggle_fps_display)
+            ("show_fps", self._toggle_fps_display),
+            ("music_vol", self._cycle_music_volume)
         )
 
         for union in union_data:
@@ -249,7 +254,7 @@ class SettingsMenu(Menu):
             ("key_passive_1","Toggle Passive 1"),
             ("key_passive_2","Toggle Passive 2"),
             ("key_passive_3","Toggle Passive 3"),
-            ("key_passive_4","Toggle Passive 4") 
+            ("key_passive_4","Toggle Passive 4")
         )
 
         for union in union_data:
@@ -289,6 +294,24 @@ class SettingsMenu(Menu):
         self.game.settings.data['fps'] = next_framerate
         self.game.settings.save_data()
         self.update()
+
+    def _cycle_music_volume(self):
+        """Cycle through available music volume."""
+
+        id = 0
+        n_options = len(self.game.config.music_volumes)
+        for i in range(n_options):
+            volume = self.game.config.music_volumes[i]
+            if self.game.settings.data['music_volume'] == volume:
+                id = i
+                break
+
+        next_id = (n_options + id + 1) % n_options
+        next_volume = self.game.config.music_volumes[next_id]
+        self.game.settings.data['music_volume'] = next_volume
+        self.game.music_player.set_volume()
+        self.game.settings.save_data()
+        self.update()
     
     def _toggle_fps_display(self):
         """Switch between showing and hiding the framerate."""
@@ -326,7 +349,7 @@ class RemapKeyMenu(Menu):
         self.elements = {}
         el_name = "prompt"
         self.elements[el_name] = UIElement(
-            self.game, el_name, self.surface, self.text, False,
+            self.game, el_name, self, self.text, False,
             position=(self.rect.width // 2, self.rect.height // 2),
             anchor="center"
         )
@@ -376,7 +399,7 @@ class InfoMenu(Menu):
             x_pos = self.rect.width // 10
 
             self.elements[name] = UIElement(
-                self.game, name, self.surface, content, False,
+                self.game, name, self, content, False,
                 position=(x_pos, y_pos),
                 anchor=anchor, action=action
             )   
@@ -409,7 +432,7 @@ class PauseMenu(Menu):
             action = data[3]
 
             self.elements[name] = UIElement(
-                self.game, name, self.surface, text, position=(
+                self.game, name, self, text, position=(
                     self.rect.width // 10,
                     self.rect.height // 2 + y_pos_adjustment
                 ), action=action

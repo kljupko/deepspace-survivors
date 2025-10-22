@@ -20,6 +20,8 @@ class MusicPlayer():
         self.chrd_ch = Channel(2)
         self.mldy_ch = Channel(3)
 
+        self.set_volume()
+
         self.current_step = None
 
         self.drum_snd = None
@@ -134,6 +136,22 @@ class MusicPlayer():
         self.bass_ch.stop()
         self.chrd_ch.stop()
         self.mldy_ch.stop()
+    
+    def set_volume(self, volume=None):
+        """Sets the volume for all channels."""
+
+        if volume is None:
+            volume = self.game.settings.data['music_volume']
+        
+        if volume < 0:
+            volume = 0
+        elif volume > 10:
+            volume = 10
+        
+        self.drum_ch.set_volume(volume * 0.1)
+        self.bass_ch.set_volume(volume * 0.1)
+        self.chrd_ch.set_volume(volume * 0.1)
+        self.mldy_ch.set_volume(volume * 0.1)
     
     def update(self):
         """

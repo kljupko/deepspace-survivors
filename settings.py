@@ -42,6 +42,8 @@ class Settings():
             'key_passive_2' : pygame.K_s,
             'key_passive_3' : pygame.K_d,
             'key_passive_4' : pygame.K_f,
+
+            'music_volume' : 5
         }
         return data
     

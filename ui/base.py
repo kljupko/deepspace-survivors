@@ -5,88 +5,43 @@ import pygame
 class UIElement():
     """A class that represents a single element of the user interface."""
 
-    def __init__(
-            self, game, name, parent, content="", symbol=None,
-            symbol_is_left=True, position=(0, 0), anchor="topleft", font=None,
-            action=None
-    ):
+    def __init__(self, container, name, content=None, position=(0, 0),
+                 anchor="topleft", action=None):
         """Initialize the UI element."""
 
-        self.game = game
+        self.container = container
+        self.game = self.container.game
         self.name = name
-        self.parent = parent
+        self.content = content
+
+        self.initial_position = position
+        self.anchor = anchor
+        self._set_rect()
+        self._set_rect_position()
+
+        self.content = content
         self.action = action
 
-        self._load_content(content, font)
-        self._load_symbol(symbol, symbol_is_left)
-
-        self.anchor_position = position
-        self.anchor = anchor
-        self.rect = pygame.Rect(0, 0 ,0, 0)
-
-        self._calculate_size()
-        self._calculate_draw_position()
-        self._calculate_rect_positions()
-
-    def _load_content(self, content, font):
-        """Load the text content to display."""
-
-        if font is None:
-            font = self.game.config.font_normal
-        
-        wraplength = int(self.parent.surface.width * 0.9)
-
-        self.content = font.render(
-            str(content), False, 'white', 'black', wraplength
-        )
-        self.content_rect = self.content.get_rect()
+        self.container.elements[self.name] = self # does this work?
     
-    def _load_symbol(self, symbol, symbol_is_left):
-        """Load the symbol to display."""
+    def _set_rect(self):
+        """Set the rect for the UI Element based on the content."""
 
-        if symbol is None:
-            symbol = pygame.Surface((10, 10))
-            pygame.draw.rect(symbol, "pink", (0, 0, 10, 10))
-        elif symbol is False:
-            # element will be an empty surface with a size of 0
-            symbol = pygame.Surface((0, 0))
-        else:
-            # TODO: load the image of the symbol, assign it to symbol
-            pass
-
-        self.symbol = symbol
-        self.symbol_rect = self.symbol.get_rect()
-        self.symbol_is_left = symbol_is_left
+        self.rect = self.content.get_rect()
     
-    def _calculate_size(self):
-        """Calculate the size of the UI element."""
-
-        padding = 3
-
-        width = self.content_rect.width
-        if self.symbol_rect.width > 0:
-            width += self.symbol_rect.width + padding
-
-        height = self.content_rect.height
-        if self.symbol_rect.height > self.content_rect.height:
-            height = self.symbol_rect.height
-        
-        self.rect.width = width
-        self.rect.height = height
-    
-    def _calculate_draw_position(self):
+    def _set_rect_position(self):
         """
         Calculate the position at which the UI element will be drawn,
-        based on the anchor and whether there is a symbol.
+        based on the anchor.
         """
 
-        draw_x = self.anchor_position[0]
+        draw_x = self.initial_position[0]
         if self.anchor in ["midtop", "center", "midbottom"]:
             draw_x -= self.rect.width // 2
         elif self.anchor in ["topright", "midright", "bottomright"]:
             draw_x -= self.rect.width
         
-        draw_y = self.anchor_position[1]
+        draw_y = self.initial_position[1]
         if self.anchor in ["midleft", "center", "midright"]:
             draw_y -= self.rect.height // 2
         elif self.anchor in ["bottomleft", "midbottom", "bottomright"]:
@@ -94,22 +49,6 @@ class UIElement():
         
         self.rect.x = draw_x
         self.rect.y = draw_y
-    
-    def _calculate_rect_positions(self):
-        """Calculate the positions of the symbol and the text rects."""
-
-        self.content_rect.x, self.content_rect.y = self.rect.topleft
-        self.symbol_rect.x, self.symbol_rect.y = self.rect.topleft
-
-        if self.symbol_rect.width > 0:
-            padding = 3 # px
-        else:
-            padding = 0
-
-        if self.symbol_is_left:
-            self.content_rect.x += self.symbol_rect.width + padding
-        else:
-            self.symbol_rect.x += self.content_rect.width + padding
     
     def trigger(self):
         """Hook for doing something when the element is activated."""
@@ -120,39 +59,63 @@ class UIElement():
         self.action()
         return True
     
-    def update(self, content=None, symbol=None, symbol_is_left=None,
-                 position=None, anchor=None, font=None):
-        """
-        Update the UI element. For better performance, this method should
-        not run in the game's main loop, but only when called by an event
-        that triggers it, such as when the player ship loses HP.
-        """
-
-        if content is None:
-            content = self.content
-        if symbol is None:
-            symbol = self.symbol
-        if symbol_is_left is None:
-            symbol_is_left = self.symbol_is_left
-        if position is None:
-            position = self.anchor_position
-        if anchor is None:
-            anchor = self.anchor
-
-        self._load_content(content, font)
-        self._load_symbol(symbol, symbol_is_left)
-
-        self.anchor = anchor
-
-        self._calculate_size()
-        self._calculate_draw_position()
-        self._calculate_rect_positions()
-    
     def draw(self):
-        """Draw the element to the parent surface."""
+        """Draw the element to the container surface."""
 
-        self.parent.surface.blit(self.symbol, self.symbol_rect)
-        self.parent.surface.blit(self.content, self.content_rect)
+        self.container.surface.blit(self.content, self.rect)
+
+class Icon(UIElement):
+    """A class representing an icon in the UI."""
+
+    def __init__(self, container, name, content=None, position=(0, 0),
+                 anchor="topleft", action=None):
+        """Initialize the icon."""
+
+        content = self._process_image(content)
+        super().__init__(container, name, content, position, anchor, action)
+    
+    def _process_image(self, image):
+        """Process the image provided to be set as the Icon's content."""
+
+        if image is None:
+            image = pygame.Surface((10, 10))
+            pygame.draw.rect(image, "pink", (0, 0, 10, 10))
+        elif image is False:
+            # image will be an empty surface with a size of 0
+            image = pygame.Surface((0, 0))
+        else:
+            # TODO: load the image of the icon
+            pass
+
+        return image
+
+class TextBox(UIElement):
+    """A class representing a text box, with text wrapping."""
+
+    def __init__(self, container, name, content, font=None, wraplength=None,
+                 position=(0, 0), anchor="topleft", action=None):
+        """Initialize the text box."""
+
+        if font is None:
+            font = container.game.config.font_normal
+        
+        if wraplength is None:
+            wraplength = container.padding['right']
+        
+        content = font.render(
+            str(content), False, 'white', 'black', wraplength
+        )
+        
+        super().__init__(container, name, content, position, anchor, action)
+
+class Label(TextBox):
+    """A class representing a label, with no text wrap."""
+
+    def __init__(self, container, name, content, font=None, wraplength=0,
+                 position=(0, 0), anchor="topleft", action=None):
+        """Initialize the label."""
+
+        super().__init__(container, name, content, font, wraplength, position, anchor, action)
 
 class ElemUnion():
     """A class representing a union of multiple UI Elements."""
@@ -194,23 +157,23 @@ class ElemUnion():
 class Menu():
     """A base class representing a menu."""
 
-    def __init__(self, game, name, width=None, height=None,background=None):
+    def __init__(self, game, name, background=None):
         """Initialize the menu."""
 
         self.game = game
         self.name = name
-        self.visible = False # determines if menu is shown
+        self.is_visible = False # determines if menu is shown
 
         self.inner_pos = None # inner coordinates where the user clicked
-        self.scrolled = False
+        self.was_scrolled = False
+        self.needs_redraw = False
 
-        if width is None:
-            width = self.game.screen.width
-        if height is None:
-            height = self.game.screen.height
+        width = self.game.screen.width
+        height = self.game.screen.height
 
         self.surface = pygame.Surface((width, height))
         self.rect = self.surface.get_rect()
+        self.padding = {'top': 10, 'bottom': 10, 'left': 10, 'right': 10}
 
         if background is None:
             background = pygame.Surface((width, height))
@@ -219,25 +182,49 @@ class Menu():
 
         self.elements = {}
     
-    def _populate_values(self):
+    def _load_elements(self):
         """A hook for populating the menu with UI Elements."""
 
         # this is just a hook to be overwritten by child classes
         pass
     
-    def update(self, element_name=None, content=None, symbol=None,
-               symbol_is_left=None, position=None, anchor=None, font=None):
+    def _add_elements_from_dicts(self, dicts,
+                                      x_origin=None, y_origin=None):
+        """
+        To be used in _load_elements.
+        Takes a sequence of dictionaries containing element data, and
+        adds the elements to the menu according to the data provided.
+        """
+
+        if x_origin is None:
+            x_origin = self.padding['left']
+        if y_origin is None:
+            y_origin = self.padding['top']
+        x_pos = x_origin
+        y_pos = y_origin
+
+        for d in dicts:
+            x = x_pos + d['x_offset']
+            y_pos += d['y_offset']
+            y = y_pos
+
+            if d['type'] == 'label':
+                el = Label(self, d['name'], d['content'], d['font'],
+                           d['wraplen'], (x, y), d['anchor'], d['action'])
+            elif d['type'] == 'icon':
+                el = Icon(self, d['name'], d['content'],
+                          (x, y), d['anchor'], d['action'])
+            elif d['type'] == 'textbox':
+                el = TextBox(self, d['name'], d['content'], d['font'],
+                           d['wraplen'], (x, y), d['anchor'], d['action'])
+
+    def update(self):
         """Re-renders the menu with current values."""
 
-        # TODO: is this needed anymore???
-        if element_name is not None and content is not None:
-            self.elements[element_name].update(
-                content, symbol, symbol_is_left, position, anchor, font
-            )
-
-        self._populate_values()
+        self._load_elements()
 
         # update the height and surface if elements are below view
+        # TODO: organize this better
         height = self.rect.height
         for element in self.elements.values():
             el_bottom = element.rect.y + element.rect.height
@@ -251,28 +238,27 @@ class Menu():
         for element in self.elements.values():
             element.draw()
         
-        # TODO: decide if you do NOT want to immediately draw the menu
-        self.draw()
+        self.needs_redraw = True
     
     def open(self):
         """Make the menu visible and interactive."""
 
-        if self.visible:
+        if self.is_visible:
             return False
 
         for menu in self.game.menus.values():
             menu.close()
 
-        self.visible = True
-        self.update()
+        self.is_visible = True
+        self.update() # TODO: remove this?
 
     def close(self, next_menu=None):
         """Make the menu hidden and non-interactive."""
 
-        if not self.visible:
+        if not self.is_visible:
             return False
 
-        self.visible = False
+        self.is_visible = False
 
         if next_menu:
             self.game.menus[next_menu].open()
@@ -280,14 +266,14 @@ class Menu():
     def start_touch(self, position):
         """Register a touch on the menu."""
 
-        if not self.visible:
+        if not self.is_visible:
             return False
 
         self.inner_pos = (
             position[0] - self.rect.x,
             position[1] - self.rect.y
         )
-        self.scrolled = False
+        self.was_scrolled = False
     
     def interact(self):
         """
@@ -295,10 +281,10 @@ class Menu():
         Can be called on touch/ mouse down or up.
         """
 
-        if not self.visible:
+        if not self.is_visible:
             return False
         
-        if self.scrolled:
+        if self.was_scrolled:
             return False
         
         if not self.inner_pos:
@@ -322,7 +308,7 @@ class Menu():
     def scroll(self, position):
         """Scroll the menu."""
 
-        if not self.visible:
+        if not self.is_visible:
             return False
 
         if not self.inner_pos:
@@ -338,23 +324,24 @@ class Menu():
         bottom_limit = self.game.screen.height - self.rect.height
 
         self.rect.y = destination
-        self.scrolled = True
+        self.was_scrolled = True
 
         if self.rect.y > top_limit:
             self.rect.y = top_limit      
         elif self.rect.y < bottom_limit:
             self.rect.y = bottom_limit
         
-        self.draw()
+        self.needs_redraw = True
         return True
         
     def draw(self):
         """Draw the menu to the screen."""
 
-        if not self.visible:
+        if not self.is_visible or not self.needs_redraw:
             return False
         
         self.game.screen.blit(self.surface, self.rect)
+        self.needs_redraw = False
 
 class Tray(Menu):
     """A base class for the top and bottom trays."""
@@ -366,4 +353,4 @@ class Tray(Menu):
 
         pygame.draw.rect(self.background, "white", self.background.get_rect())
 
-        self.visible = True
+        self.is_visible = True

@@ -49,10 +49,10 @@ class Game:
         self.menus['main'] = ui.MainMenu(self)
         self.menus['upgrade'] = ui.UpgradeMenu(self)
         self.menus['unlock'] = ui.UnlockMenu(self)
-        self.menus['settings'] = ui.SettingsMenu(self)
-        self.menus['remap'] = ui.RemapKeyMenu(self)
-        self.menus['info'] = ui.InfoMenu(self)
-        self.menus['pause'] = ui.PauseMenu(self)
+        #self.menus['settings'] = ui.SettingsMenu(self)
+        #self.menus['remap'] = ui.RemapKeyMenu(self)
+        #self.menus['info'] = ui.InfoMenu(self)
+        #self.menus['pause'] = ui.PauseMenu(self)
         
     
     def run(self):
@@ -440,6 +440,9 @@ class Game:
 
             # draw the play surface
             self.screen.blit(self.play_surf)
+        
+        for menu in self.menus.values():
+            menu.draw()
 
         # draw everything to the screen
         pygame.display.flip()

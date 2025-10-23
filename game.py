@@ -93,9 +93,7 @@ class Game:
 
         # finish setting up the trays
         self.top_tray.update()
-        self.top_tray.draw()
         self.bot_tray.update()
-        self.bot_tray.draw()
 
         self.bullets = pygame.sprite.Group()
         self.aliens = pygame.sprite.Group()

@@ -32,8 +32,8 @@ class Ship(Entity):
         # ship stats
         self.hp = 3
         self.thrust = 1
-        self.next_bullet_time = pygame.time.get_ticks()
         self.bullet_delay_ms = 1000 * 3
+        self.bullet_cooldown_ms = self.bullet_delay_ms
         self.fire_rate = 3
         self.fire_power = 1
 
@@ -56,6 +56,7 @@ class Ship(Entity):
     def update(self, dt):
         """Update the ship."""
 
+        self.bullet_cooldown_ms += dt * 1000
         self._steer()
         # TODO: use thrust for speed
         self._move(dt)
@@ -123,14 +124,12 @@ class Ship(Entity):
     def fire_bullet(self, fire_rate_bonus = 0):
         """Fire a bullet."""
 
-        now = pygame.time.get_ticks()
-        if now < self.next_bullet_time:
+        fire_rate = self.fire_rate + fire_rate_bonus
+        if self.bullet_cooldown_ms < self.bullet_delay_ms / fire_rate:
             return False
 
         self.game.bullets.add(Bullet(self.game))
-
-        fire_rate = self.fire_rate + fire_rate_bonus
-        self.next_bullet_time = now + (self.bullet_delay_ms / fire_rate)
+        self.bullet_cooldown_ms = 0
         return True
     
     # region ACTIVE ABILITIES

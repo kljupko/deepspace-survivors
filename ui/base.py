@@ -243,7 +243,9 @@ class Menu():
             el_bottom = element.rect.y + element.rect.height
             height = el_bottom if el_bottom > height else height
         self.surface = pygame.Surface((self.rect.width, height))
+        prev_pos = self.rect.x, self.rect.y
         self.rect = self.surface.get_rect()
+        self.rect.x, self.rect.y = prev_pos
         self.surface.blit(self.background, self.background.get_rect())
 
         for element in self.elements.values():

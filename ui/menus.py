@@ -1,7 +1,7 @@
 """A module containing all the menus in the game."""
 
 import pygame
-from .base import *
+from .base import Menu
 
 class MainMenu(Menu):
     """A class which represents the game's main menu."""
@@ -21,7 +21,7 @@ class MainMenu(Menu):
                 'name': 'play_btn',
                 'content': 'Play',
                 'font': None, 'wraplen': None,
-                'x_offset': 0, 'y_offset': 0,
+                'x': 0, 'y': 0,
                 'anchor': None,
                 'action': self.game.start_session
             }, {
@@ -29,7 +29,7 @@ class MainMenu(Menu):
                 'name': 'upgrade_btn',
                 'content': 'Upgrade',
                 'font': None, 'wraplen': None,
-                'x_offset': 0, 'y_offset': 11,
+                'x': 0, 'y': 11,
                 'anchor': None,
                 'action': lambda: self.game.menus['upgrade'].open()
             }, {
@@ -37,7 +37,7 @@ class MainMenu(Menu):
                 'name': 'unlock_btn',
                 'content': 'Unlock',
                 'font': None, 'wraplen': None,
-                'x_offset': 0, 'y_offset': 11,
+                'x': 0, 'y': 11,
                 'anchor': None,
                 'action': lambda: self.game.menus['unlock'].open()
             }, {
@@ -45,7 +45,7 @@ class MainMenu(Menu):
                 'name': 'settings_btn',
                 'content': 'Settings',
                 'font': None, 'wraplen': None,
-                'x_offset': 0, 'y_offset': 11,
+                'x': 0, 'y': 11,
                 'anchor': None,
                 'action': lambda: self.game.menus['settings'].open()
             }, {
@@ -53,7 +53,7 @@ class MainMenu(Menu):
                 'name': 'info_btn',
                 'content': 'Info',
                 'font': None, 'wraplen': None,
-                'x_offset': 0, 'y_offset': 11,
+                'x': 0, 'y': 11,
                 'anchor': None,
                 'action': lambda: self.game.menus['info'].open()
             }, {
@@ -61,13 +61,14 @@ class MainMenu(Menu):
                 'name': 'quit_btn',
                 'content': 'Quit',
                 'font': None, 'wraplen': None,
-                'x_offset': 0, 'y_offset': 11,
+                'x': 0, 'y': 11,
                 'anchor': None,
                 'action': self.game.quit
             },
         )
 
         self._add_elements_from_dicts(element_dicts)
+        self._expand_height()
 
 class UpgradeMenu(Menu):
     """A class representing the upgrade menu."""
@@ -87,7 +88,7 @@ class UpgradeMenu(Menu):
                 'name': 'back_btn',
                 'content': '< BACK',
                 'font': None, 'wraplen': None,
-                'x_offset': 0, 'y_offset': 0,
+                'x': 0, 'y': 0,
                 'anchor': None,
                 'action': lambda: self.close('main')
             }, {
@@ -95,13 +96,14 @@ class UpgradeMenu(Menu):
                 'name': 'title',
                 'content': 'Upgrades',
                 'font': None, 'wraplen': None,
-                'x_offset': 0, 'y_offset': 22,
+                'x': 0, 'y': 22,
                 'anchor': None,
                 'action': None
             },
         )
 
         self._add_elements_from_dicts(element_dicts)
+        self._expand_height()
 
 class UnlockMenu(Menu):
     """A class representing the unlock menu."""
@@ -121,7 +123,7 @@ class UnlockMenu(Menu):
                 'name': 'back_btn',
                 'content': '< BACK',
                 'font': None, 'wraplen': None,
-                'x_offset': 0, 'y_offset': 0,
+                'x': 0, 'y': 0,
                 'anchor': None,
                 'action': lambda: self.close('main')
             }, {
@@ -129,13 +131,14 @@ class UnlockMenu(Menu):
                 'name': 'title',
                 'content': 'Unlocks',
                 'font': None, 'wraplen': None,
-                'x_offset': 0, 'y_offset': 22,
+                'x': 0, 'y': 22,
                 'anchor': None,
                 'action': None
             },
         )
 
         self._add_elements_from_dicts(element_dicts)
+        self._expand_height()
 
 class SettingsMenu(Menu):
     """A class representing the game's settings menu."""
@@ -151,9 +154,6 @@ class SettingsMenu(Menu):
         """Populate the menu with the values from the settings."""
 
         data = self.game.settings.data
-
-        # TODO: fix the method so you don't need to use this
-        right_edge = self.rect.width-self.padding['left']-self.padding['right']
         
         element_dicts = (
             {
@@ -161,7 +161,7 @@ class SettingsMenu(Menu):
                 'name': 'back_btn',
                 'content': '< BACK',
                 'font': None, 'wraplen': None,
-                'x_offset': 0, 'y_offset': 0,
+                'x': 0, 'y': 0,
                 'anchor': None,
                 'action': lambda: self.close('main')
             }, {
@@ -169,7 +169,7 @@ class SettingsMenu(Menu):
                 'name': 'fps_label',
                 'content': 'Target FPS',
                 'font': None, 'wraplen': None,
-                'x_offset': 0, 'y_offset': 22,
+                'x': 0, 'y': 22,
                 'anchor': None,
                 'action': None
             }, {
@@ -177,7 +177,7 @@ class SettingsMenu(Menu):
                 'name': 'fps_value',
                 'content': data['fps'],
                 'font': None, 'wraplen': None,
-                'x_offset': right_edge, 'y_offset': 0,
+                'x': self.rect.width, 'y': 0,
                 'anchor': 'topright',
                 'action': None
             }, {
@@ -185,7 +185,7 @@ class SettingsMenu(Menu):
                 'name': 'show_fps_label',
                 'content': 'Show FPS',
                 'font': None, 'wraplen': None,
-                'x_offset': 0, 'y_offset': 11,
+                'x': 0, 'y': 11,
                 'anchor': None,
                 'action': None
             }, {
@@ -193,7 +193,7 @@ class SettingsMenu(Menu):
                 'name': 'show_fps_value',
                 'content': data['show_fps'],
                 'font': None, 'wraplen': None,
-                'x_offset': right_edge, 'y_offset': 0,
+                'x': self.rect.width, 'y': 0,
                 'anchor': 'topright',
                 'action': None
             }, {
@@ -201,7 +201,7 @@ class SettingsMenu(Menu):
                 'name': 'keybinds_header',
                 'content': 'Keybinds',
                 'font': None, 'wraplen': None,
-                'x_offset': 0, 'y_offset': 22,
+                'x': 0, 'y': 22,
                 'anchor': None,
                 'action': None
             }, {
@@ -209,7 +209,7 @@ class SettingsMenu(Menu):
                 'name': 'key_confirm_label',
                 'content': 'Confirm',
                 'font': None, 'wraplen': None,
-                'x_offset': 0, 'y_offset': 22,
+                'x': 0, 'y': 22,
                 'anchor': None,
                 'action': None
             }, {
@@ -217,7 +217,7 @@ class SettingsMenu(Menu):
                 'name': 'key_confirm_value',
                 'content': pygame.key.name(data['key_confirm']),
                 'font': None, 'wraplen': None,
-                'x_offset': right_edge, 'y_offset': 0,
+                'x': self.rect.width, 'y': 0,
                 'anchor': 'topright',
                 'action': None
             }, {
@@ -225,7 +225,7 @@ class SettingsMenu(Menu):
                 'name': 'key_cancel_label',
                 'content': 'Cancel',
                 'font': None, 'wraplen': None,
-                'x_offset': 0, 'y_offset': 11,
+                'x': 0, 'y': 11,
                 'anchor': None,
                 'action': None
             }, {
@@ -233,7 +233,7 @@ class SettingsMenu(Menu):
                 'name': 'key_cancel_value',
                 'content': pygame.key.name(data['key_cancel']),
                 'font': None, 'wraplen': None,
-                'x_offset': right_edge, 'y_offset': 0,
+                'x': self.rect.width, 'y': 0,
                 'anchor': 'topright',
                 'action': None
             }, {
@@ -241,7 +241,7 @@ class SettingsMenu(Menu):
                 'name': 'key_move_left_label',
                 'content': 'Move Left',
                 'font': None, 'wraplen': None,
-                'x_offset': 0, 'y_offset': 11,
+                'x': 0, 'y': 11,
                 'anchor': None,
                 'action': None
             }, {
@@ -249,7 +249,7 @@ class SettingsMenu(Menu):
                 'name': 'key_move_left_value',
                 'content': pygame.key.name(data['key_move_left']),
                 'font': None, 'wraplen': None,
-                'x_offset': right_edge, 'y_offset': 0,
+                'x': self.rect.width, 'y': 0,
                 'anchor': 'topright',
                 'action': None
             }, {
@@ -257,7 +257,7 @@ class SettingsMenu(Menu):
                 'name': 'key_move_right_label',
                 'content': 'Move Right',
                 'font': None, 'wraplen': None,
-                'x_offset': 0, 'y_offset': 11,
+                'x': 0, 'y': 11,
                 'anchor': None,
                 'action': None
             }, {
@@ -265,7 +265,7 @@ class SettingsMenu(Menu):
                 'name': 'key_move_right_value',
                 'content': pygame.key.name(data['key_move_right']),
                 'font': None, 'wraplen': None,
-                'x_offset': right_edge, 'y_offset': 0,
+                'x': self.rect.width, 'y': 0,
                 'anchor': 'topright',
                 'action': None
             }, {
@@ -273,7 +273,7 @@ class SettingsMenu(Menu):
                 'name': 'key_fire_label',
                 'content': 'Fire',
                 'font': None, 'wraplen': None,
-                'x_offset': 0, 'y_offset': 11,
+                'x': 0, 'y': 11,
                 'anchor': None,
                 'action': None
             }, {
@@ -281,7 +281,7 @@ class SettingsMenu(Menu):
                 'name': 'key_fire_value',
                 'content': pygame.key.name(data['key_fire']),
                 'font': None, 'wraplen': None,
-                'x_offset': right_edge, 'y_offset': 0,
+                'x': self.rect.width, 'y': 0,
                 'anchor': 'topright',
                 'action': None
             }, {
@@ -289,7 +289,7 @@ class SettingsMenu(Menu):
                 'name': 'key_active_1_label',
                 'content': 'Toggle Active 1',
                 'font': None, 'wraplen': None,
-                'x_offset': 0, 'y_offset': 11,
+                'x': 0, 'y': 11,
                 'anchor': None,
                 'action': None
             }, {
@@ -297,7 +297,7 @@ class SettingsMenu(Menu):
                 'name': 'key_active_1_value',
                 'content': pygame.key.name(data['key_active_1']),
                 'font': None, 'wraplen': None,
-                'x_offset': right_edge, 'y_offset': 0,
+                'x': self.rect.width, 'y': 0,
                 'anchor': 'topright',
                 'action': None
             }, {
@@ -305,7 +305,7 @@ class SettingsMenu(Menu):
                 'name': 'key_active_2_label',
                 'content': 'Toggle Active 2',
                 'font': None, 'wraplen': None,
-                'x_offset': 0, 'y_offset': 11,
+                'x': 0, 'y': 11,
                 'anchor': None,
                 'action': None
             }, {
@@ -313,7 +313,7 @@ class SettingsMenu(Menu):
                 'name': 'key_active_2_value',
                 'content': pygame.key.name(data['key_active_2']),
                 'font': None, 'wraplen': None,
-                'x_offset': right_edge, 'y_offset': 0,
+                'x': self.rect.width, 'y': 0,
                 'anchor': 'topright',
                 'action': None
             }, {
@@ -321,7 +321,7 @@ class SettingsMenu(Menu):
                 'name': 'key_active_3_label',
                 'content': 'Toggle Active 3',
                 'font': None, 'wraplen': None,
-                'x_offset': 0, 'y_offset': 11,
+                'x': 0, 'y': 11,
                 'anchor': None,
                 'action': None
             }, {
@@ -329,7 +329,7 @@ class SettingsMenu(Menu):
                 'name': 'key_active_3_value',
                 'content': pygame.key.name(data['key_active_3']),
                 'font': None, 'wraplen': None,
-                'x_offset': right_edge, 'y_offset': 0,
+                'x': self.rect.width, 'y': 0,
                 'anchor': 'topright',
                 'action': None
             }, {
@@ -337,7 +337,7 @@ class SettingsMenu(Menu):
                 'name': 'key_passive_1_label',
                 'content': 'Toggle Passive 1',
                 'font': None, 'wraplen': None,
-                'x_offset': 0, 'y_offset': 11,
+                'x': 0, 'y': 11,
                 'anchor': None,
                 'action': None
             }, {
@@ -345,7 +345,7 @@ class SettingsMenu(Menu):
                 'name': 'key_passive_1_value',
                 'content': pygame.key.name(data['key_passive_1']),
                 'font': None, 'wraplen': None,
-                'x_offset': right_edge, 'y_offset': 0,
+                'x': self.rect.width, 'y': 0,
                 'anchor': 'topright',
                 'action': None
             }, {
@@ -353,7 +353,7 @@ class SettingsMenu(Menu):
                 'name': 'key_passive_2_label',
                 'content': 'Toggle Passive 2',
                 'font': None, 'wraplen': None,
-                'x_offset': 0, 'y_offset': 11,
+                'x': 0, 'y': 11,
                 'anchor': None,
                 'action': None
             }, {
@@ -361,7 +361,7 @@ class SettingsMenu(Menu):
                 'name': 'key_passive_2_value',
                 'content': pygame.key.name(data['key_passive_2']),
                 'font': None, 'wraplen': None,
-                'x_offset': right_edge, 'y_offset': 0,
+                'x': self.rect.width, 'y': 0,
                 'anchor': 'topright',
                 'action': None
             }, {
@@ -369,7 +369,7 @@ class SettingsMenu(Menu):
                 'name': 'key_passive_3_label',
                 'content': 'Toggle Passive 3',
                 'font': None, 'wraplen': None,
-                'x_offset': 0, 'y_offset': 11,
+                'x': 0, 'y': 11,
                 'anchor': None,
                 'action': None
             }, {
@@ -377,7 +377,7 @@ class SettingsMenu(Menu):
                 'name': 'key_passive_3_value',
                 'content': pygame.key.name(data['key_passive_3']),
                 'font': None, 'wraplen': None,
-                'x_offset': right_edge, 'y_offset': 0,
+                'x': self.rect.width, 'y': 0,
                 'anchor': 'topright',
                 'action': None
             }, {
@@ -385,7 +385,7 @@ class SettingsMenu(Menu):
                 'name': 'key_passive_4_label',
                 'content': 'Toggle Passive 4',
                 'font': None, 'wraplen': None,
-                'x_offset': 0, 'y_offset': 11,
+                'x': 0, 'y': 11,
                 'anchor': None,
                 'action': None
             }, {
@@ -393,7 +393,7 @@ class SettingsMenu(Menu):
                 'name': 'key_passive_4_value',
                 'content': pygame.key.name(data['key_passive_4']),
                 'font': None, 'wraplen': None,
-                'x_offset': right_edge, 'y_offset': 0,
+                'x': self.rect.width, 'y': 0,
                 'anchor': 'topright',
                 'action': None
             }, {
@@ -401,7 +401,7 @@ class SettingsMenu(Menu):
                 'name': 'audio_header',
                 'content': 'Audio',
                 'font': None, 'wraplen': None,
-                'x_offset': 0, 'y_offset': 22,
+                'x': 0, 'y': 22,
                 'anchor': None,
                 'action': None
             }, {
@@ -409,7 +409,7 @@ class SettingsMenu(Menu):
                 'name': 'music_vol_label',
                 'content': 'Music Volume',
                 'font': None, 'wraplen': None,
-                'x_offset': 0, 'y_offset': 22,
+                'x': 0, 'y': 22,
                 'anchor': None,
                 'action': None
             }, {
@@ -417,15 +417,15 @@ class SettingsMenu(Menu):
                 'name': 'music_vol_value',
                 'content': data['music_volume'],
                 'font': None, 'wraplen': None,
-                'x_offset': right_edge, 'y_offset': 0,
+                'x': self.rect.width, 'y': 0,
                 'anchor': 'topright',
                 'action': None
             }, {
                 'type': 'label',
-                'name': 'restore_defauls_btn',
+                'name': 'restore_defaults_btn',
                 'content': 'Restore Defaults',
                 'font': None, 'wraplen': None,
-                'x_offset': 0, 'y_offset': 22,
+                'x': 0, 'y': 22,
                 'anchor': None,
                 'action': self._trigger_restore_defaults
             },
@@ -512,6 +512,7 @@ class SettingsMenu(Menu):
         )
 
         self._add_element_unions_from_dicts(union_dicts)
+        self._expand_height()
     
     def _trigger_restore_defaults(self):
         """Restore default settings and rewrite the menu."""
@@ -621,7 +622,7 @@ class InfoMenu(Menu):
                 'name': 'back_btn',
                 'content': '< BACK',
                 'font': None, 'wraplen': None,
-                'x_offset': 0, 'y_offset': 0,
+                'x': 0, 'y': 0,
                 'anchor': None,
                 'action': lambda: self.close('main')
             }, {
@@ -629,28 +630,28 @@ class InfoMenu(Menu):
                 'name': 'title',
                 'content': 'Created by @kljupko as a demo project.',
                 'font': None, 'wraplen': None,
-                'x_offset': 0, 'y_offset': 22,
+                'x': 0, 'y': 22,
                 'anchor': None,
                 'action': None
             },
         )
 
-        self._add_elements_from_dicts(element_dicts)  
+        self._add_elements_from_dicts(element_dicts)
+        self._expand_height()
 
 class PauseMenu(Menu):
     """A class representing the game's pause menu."""
 
-    def __init__(self, game, name='pause',
-                 width=None, height=None, background=None):
+    def __init__(self, game, name='pause', background=None):
         """Initialize the pause menu."""
 
-        super().__init__(game, name, width, height, background)
+        super().__init__(game, name, background)
         self._load_elements()
     
     def _load_elements(self):
         """Populate the menu with buttons."""
 
-        y = self.rect.center
+        y = self.rect.centery
 
         element_dicts = (
             {
@@ -658,7 +659,7 @@ class PauseMenu(Menu):
                 'name': 'continue_btn',
                 'content': 'Continue',
                 'font': None, 'wraplen': None,
-                'x_offset': 0, 'y_offset': y - 11,
+                'x': 0, 'y': y - 11,
                 'anchor': 'midleft',
                 'action': self._continue_session
             },
@@ -667,22 +668,23 @@ class PauseMenu(Menu):
                 'name': 'restart_btn',
                 'content': 'Restart',
                 'font': None, 'wraplen': None,
-                'x_offset': 0, 'y_offset': y,
+                'x': 0, 'y': y,
                 'anchor': 'midleft',
-                'action': self._continue_session
+                'action': self._restart_session
             },
             {
                 'type': 'label',
                 'name': 'quit_btn',
                 'content': 'Quit to Main Menu',
                 'font': None, 'wraplen': None,
-                'x_offset': 0, 'y_offset': y + 11,
+                'x': 0, 'y': y + 11,
                 'anchor': 'midleft',
-                'action': self._continue_session
+                'action': self.game.quit_session
             },
         )
 
-        self._add_elements_from_dicts(element_dicts)
+        self._add_elements_from_dicts(element_dicts, y_incremental=False)
+        self._expand_height()
     
     def open(self):
         """Pause the game and open the menu."""

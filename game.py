@@ -52,7 +52,7 @@ class Game:
         self.menus['settings'] = ui.SettingsMenu(self)
         self.menus['remap'] = ui.RemapKeyMenu(self)
         self.menus['info'] = ui.InfoMenu(self)
-        #self.menus['pause'] = ui.PauseMenu(self)
+        self.menus['pause'] = ui.PauseMenu(self)
         
     
     def run(self):
@@ -78,22 +78,17 @@ class Game:
 
         self.state = State()
         self.state.session_running = True
-        self.top_tray = ui.TopTray(self, "top_tray", self.screen.width, 23)
-        self.bot_tray = ui.BottomTray(self, "bot_tray", self.screen.width, 50)
 
         self.play_surf = pygame.Surface((
-            self.screen.width,
-            self.screen.height - self.bot_tray.rect.height + 11
+            self.screen.width, self.screen.height - 66
         ))
         self.play_rect = self.play_surf.get_rect()
 
-        # create the player ship
         self.ship = Ship(self)
         # TODO: add ship to group, after adding image loading
 
-        # finish setting up the trays
-        self.top_tray.update()
-        self.bot_tray.update()
+        self.top_tray = ui.TopTray(self)
+        self.bot_tray = ui.BottomTray(self)
 
         self.bullets = pygame.sprite.Group()
         self.aliens = pygame.sprite.Group()
@@ -421,6 +416,9 @@ class Game:
         if self.state.session_running:        
             # first, clear the play surface by drawing the background
             pygame.draw.rect(self.play_surf, "black", self.play_rect)
+
+            self.top_tray.draw()
+            self.bot_tray.draw()
 
             # TODO: use an entities group to draw the entities
             self.ship.draw()

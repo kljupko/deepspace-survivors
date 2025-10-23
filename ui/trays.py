@@ -1,51 +1,68 @@
 """A module containing the classes for the top and bottom tray."""
 
 import pygame
-from .base import UIElement, Tray
+from .base import Tray
 
 class TopTray(Tray):
     """A class representing the top tray."""
 
-    def __init__(self, game, name, width=None, height=None, background=None):
+    def __init__(self, game, name='top_tray', background=None):
         """Initialize the top tray."""
 
-        super().__init__(game, name, width, height, background)
+        super().__init__(game, name, background)
+        self.padding = {'top': 1, 'bottom': 1, 'left': 1, 'right': 1}
+        self.rect.height = 23
+        self._load_elements()
     
-    def _populate_values(self):
+    def _load_elements(self):
         """Populate the tray with UI Elements."""
 
-        el_name = "fire_power"
-        self.elements[el_name] = UIElement(
-            self.game, el_name, self, self.game.ship.fire_power,
-            position=(1, 1)
+        element_dicts = (
+            {
+                'type': 'label',
+                'name': 'fire_power_value',
+                'content': self.game.ship.fire_power,
+                'font': None, 'wraplen': None,
+                'x': 0, 'y': 0,
+                'anchor': None,
+                'action': None
+            }, {
+                'type': 'label',
+                'name': 'fire_rate_value',
+                'content': self.game.ship.fire_rate,
+                'font': None, 'wraplen': None,
+                'x': self.rect.width, 'y': 0,
+                'anchor': 'topright',
+                'action': None
+            }, {
+                'type': 'label',
+                'name': 'session_duration',
+                'content': self._get_session_duration(),
+                'font': None, 'wraplen': None,
+                'x': self.rect.centerx, 'y': 0,
+                'anchor': 'midtop',
+                'action': lambda: self.game.menus['pause'].open()
+            }, {
+                'type': 'label',
+                'name': 'credits_earned',
+                'content': self.game.state.credits_earned,
+                'font': None, 'wraplen': None,
+                'x': self.rect.centerx, 'y': 12,
+                'anchor': 'midtop',
+                'action': lambda: self.game.menus['pause'].open()
+            }, {
+                'type': 'label',
+                'name': 'fps',
+                'content': self._get_fps(),
+                'font': None, 'wraplen': None,
+                'x': self.rect.width, 'y': 0,
+                'anchor': 'topright',
+                'action': None
+            },
         )
 
-        el_name = "fire_rate"
-        self.elements[el_name] = UIElement(
-            self.game, el_name, self, self.game.ship.fire_rate,
-            position=(self.rect.width - 1, 1), symbol_is_left=False,
-            anchor="topright"
-        )
-
-        el_name = "session_duration"
-        self.elements[el_name] = UIElement(
-            self.game, el_name, self, self._get_session_duration(),
-            False, position=(self.rect.centerx, 1), anchor="midtop",
-            action=self.game.menus['pause'].open
-        )
-
-        el_name = "credits_earned"
-        self.elements[el_name] = UIElement(
-            self.game, el_name, self,
-            self.game.state.credits_earned,
-            position=(self.rect.centerx, 12), anchor="midtop"
-        )
-
-        el_name = 'fps'
-        self.elements[el_name] = UIElement(
-            self.game, el_name, self, self._get_fps(), False,
-            position=(self.rect.width - 1, 12), anchor="topright"
-        )
+        self._add_elements_from_dicts(element_dicts)
+        # no need to call self._expand_height
     
     def _get_session_duration(self):
         """Return the duration of the current session."""
@@ -68,82 +85,92 @@ class TopTray(Tray):
 class BottomTray(Tray):
     """A class representing the bottom tray."""
 
-    def __init__(self, game, name, width=None, height=None, background=None):
+    def __init__(self, game, name='bot_tray', background=None):
         """Initialize the bottom tray."""
 
-        super().__init__(game, name, width, height, background)
-        self.rect.y = self.game.screen.height - self.rect.height
+        super().__init__(game, name, background)
+        self.padding = {'top': 1, 'bottom': 1, 'left': 1, 'right': 1}
+        self.rect.height = 23
+        self.rect.y = self.game.play_rect.y + self.game.play_rect.height
     
-    def _populate_values(self):
+    def _load_elements(self):
         """Populate the tray with UI Elements"""
-
-        el_name = "ship_hp"
-        self.elements[el_name] = UIElement(
-            self.game, el_name, self, self.game.ship.hp,
-            position=(1, 1)
+  
+        element_dicts = (
+            {
+                'type': 'label',
+                'name': 'ship_hp_value',
+                'content': self.game.ship.hp,
+                'font': None, 'wraplen': None,
+                'x': 0, 'y': 0,
+                'anchor': None,
+                'action': None
+            }, {
+                'type': 'label',
+                'name': 'ship_thrust_value',
+                'content': self.game.ship.thrust,
+                'font': None, 'wraplen': None,
+                'x': self.rect.width, 'y': 0,
+                'anchor': 'topright',
+                'action': None
+            }, {
+                'type': 'icon',
+                'name': 'active_1_btn',
+                'content': None,
+                'font': None, 'wraplen': None,
+                'x': self.rect.width // 4 * 1, 'y': 12,
+                'anchor': 'midtop',
+                'action': self.game.ship.active_abilities[0].toggle
+            }, {
+                'type': 'icon',
+                'name': 'active_2_btn',
+                'content': None,
+                'font': None, 'wraplen': None,
+                'x': self.rect.width // 4 * 2, 'y': 0,
+                'anchor': 'midtop',
+                'action': self.game.ship.active_abilities[1].toggle
+            }, {
+                'type': 'icon',
+                'name': 'active_3_btn',
+                'content': None,
+                'font': None, 'wraplen': None,
+                'x': self.rect.width // 4 * 3, 'y': 0,
+                'anchor': 'midtop',
+                'action': self.game.ship.active_abilities[2].toggle
+            }, {
+                'type': 'icon',
+                'name': 'passive_1_btn',
+                'content': None,
+                'font': None, 'wraplen': None,
+                'x': self.rect.width // 8 * 1, 'y': 12,
+                'anchor': 'midtop',
+                'action': self.game.ship.active_abilities[0].toggle
+            }, {
+                'type': 'icon',
+                'name': 'passive_2_btn',
+                'content': None,
+                'font': None, 'wraplen': None,
+                'x': self.rect.width // 8 * 3, 'y': 0,
+                'anchor': 'midtop',
+                'action': self.game.ship.active_abilities[1].toggle
+            }, {
+                'type': 'icon',
+                'name': 'passive_3_btn',
+                'content': None,
+                'font': None, 'wraplen': None,
+                'x': self.rect.width // 8 * 5, 'y': 0,
+                'anchor': 'midtop',
+                'action': self.game.ship.active_abilities[2].toggle
+            }, {
+                'type': 'icon',
+                'name': 'passive_4_btn',
+                'content': None,
+                'font': None, 'wraplen': None,
+                'x': self.rect.width // 8 * 7, 'y': 0,
+                'anchor': 'midtop',
+                'action': self.game.ship.active_abilities[3].toggle
+            },
         )
 
-        el_name = "ship_thrust"
-        self.elements[el_name] = UIElement(
-            self.game, el_name, self, self.game.ship.thrust,
-            symbol_is_left=False, position=(self.rect.width - 1, 1),
-            anchor="topright"
-        )
-
-        # temporary image for the abilities
-        # TODO: replace with real image
-        image = pygame.Surface((18, 18))
-        pygame.draw.rect(image, "gray", (0, 0, 18, 18))
-
-        el_name = "active_1"
-        self.elements[el_name] = UIElement(
-            self.game, el_name, self, symbol=image,
-            position=(self.rect.width // 4 * 1, 12), anchor="midtop",
-            action=self.game.ship.active_abilities[0].toggle
-        )
-
-        el_name = "active_2"
-        self.elements[el_name] = UIElement(
-            self.game, el_name, self, symbol=image,
-            position=(self.rect.width // 4 * 2, 12), anchor="midtop",
-            action=self.game.ship.active_abilities[1].toggle
-        )
-
-        el_name = "active_3"
-        self.elements[el_name] = UIElement(
-            self.game, el_name, self, symbol=image,
-            position=(self.rect.width // 4 * 3, 12), anchor="midtop",
-            action=self.game.ship.active_abilities[2].toggle
-        )
-
-        el_name = "passive_1"
-        self.elements[el_name] = UIElement(
-            self.game, el_name, self, symbol=image,
-            position=(self.rect.width // 8 * 1, self.rect.height - 1),
-            anchor="midbottom",
-            action=self.game.ship.passive_abilities[0].toggle
-        )
-
-        el_name = "passive_2"
-        self.elements[el_name] = UIElement(
-            self.game, el_name, self, symbol=image,
-            position=(self.rect.width // 8 * 3, self.rect.height - 1),
-            anchor="midbottom",
-            action=self.game.ship.passive_abilities[1].toggle
-        )
-
-        el_name = "passive_3"
-        self.elements[el_name] = UIElement(
-            self.game, el_name, self, symbol=image,
-            position=(self.rect.width // 8 * 5, self.rect.height - 1),
-            anchor="midbottom",
-            action=self.game.ship.passive_abilities[2].toggle
-        )
-
-        el_name = "passive_4"
-        self.elements[el_name] = UIElement(
-            self.game, el_name, self, symbol=image,
-            position=(self.rect.width // 8 * 7, self.rect.height - 1),
-            anchor="midbottom",
-            action=self.game.ship.passive_abilities[3].toggle
-        )
+        self._add_elements_from_dicts(element_dicts)
+        # no need to call self._expand_height

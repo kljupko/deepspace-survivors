@@ -14,7 +14,7 @@ class UIElement():
         self.name = name
         self.content = content
 
-        self.initial_position = position
+        self.anchor_pos = position
         self.anchor = anchor
         self._set_rect()
         self._set_rect_position()
@@ -35,13 +35,13 @@ class UIElement():
         based on the anchor.
         """
 
-        draw_x = self.initial_position[0]
+        draw_x = self.anchor_pos[0]
         if self.anchor in ["midtop", "center", "midbottom"]:
             draw_x -= self.rect.width // 2
         elif self.anchor in ["topright", "midright", "bottomright"]:
             draw_x -= self.rect.width
         
-        draw_y = self.initial_position[1]
+        draw_y = self.anchor_pos[1]
         if self.anchor in ["midleft", "center", "midright"]:
             draw_y -= self.rect.height // 2
         elif self.anchor in ["bottomleft", "midbottom", "bottomright"]:
@@ -191,35 +191,49 @@ class Menu():
         # this is just a hook to be overwritten by child classes
         pass
     
-    def _add_elements_from_dicts(self, dicts,
-                                      x_origin=None, y_origin=None):
+    def _add_elements_from_dicts(self, dicts, x_incremental=False, x_origin=0,
+                                 y_incremental=True, y_origin=0):
         """
         To be used in _load_elements.
         Takes a sequence of dictionaries containing element data, and
         adds the elements to the menu according to the data provided.
         """
 
-        if x_origin is None:
-            x_origin = self.padding['left']
-        if y_origin is None:
-            y_origin = self.padding['top']
         x_pos = x_origin
         y_pos = y_origin
 
         for d in dicts:
-            x = x_pos + d['x_offset']
-            y_pos += d['y_offset']
-            y = y_pos
+            x = d['x']
+            y = d['y']
+
+            if x_incremental:
+                x_pos += x
+                x = x_pos
+            if y_incremental:
+                y_pos += y
+                y = y_pos
+            
+            # adjust for padding
+            x += self.padding['left']
+            y += self.padding['top']
+            right_limit = self.rect.width - self.padding['right']
+            x = right_limit if x > right_limit else x
 
             if d['type'] == 'label':
-                el = Label(self, d['name'], d['content'], d['font'],
-                           0, (x, y), d['anchor'], d['action'])
+                el = Label(
+                    self, d['name'], d['content'], d['font'],
+                    0, (x, y), d['anchor'], d['action']
+                )
             elif d['type'] == 'icon':
-                el = Icon(self, d['name'], d['content'],
-                          (x, y), d['anchor'], d['action'])
+                el = Icon(
+                    self, d['name'], d['content'],
+                    (x, y), d['anchor'], d['action']
+                )
             elif d['type'] == 'textbox':
-                el = TextBox(self, d['name'], d['content'], d['font'],
-                           d['wraplen'], (x, y), d['anchor'], d['action'])
+                el = TextBox(
+                    self, d['name'], d['content'], d['font'],
+                    d['wraplen'], (x, y), d['anchor'], d['action']
+                )
 
     def _add_element_unions_from_dicts(self, dicts):
         """
@@ -235,22 +249,32 @@ class Menu():
             
             u = ElemUnion(self, d['name'], *elems, action=d['action'])
 
+    def _expand_height(self):
+        """
+        To be used in _load_elements.
+        Expands the rect height to include all elements + bottom padding.
+        """
+        
+        height = self.rect.height
+        pos = self.rect.x, self.rect.y
+
+        for element in self.elements.values():
+            el_bottom = element.rect.y + element.rect.height
+            height = el_bottom if el_bottom > height else height
+        
+        height += self.padding['bottom']
+
+        self.surface = pygame.Surface((self.rect.width, height))
+        self.rect = self.surface.get_rect()
+
+        self.rect.x, self.rect.y = pos
+
+        self.surface.blit(self.background, self.background.get_rect())
+
     def update(self):
         """Re-renders the menu with current values."""
 
         self._load_elements()
-
-        # update the height and surface if elements are below view
-        # TODO: organize this better
-        height = self.rect.height
-        for element in self.elements.values():
-            el_bottom = element.rect.y + element.rect.height
-            height = el_bottom if el_bottom > height else height
-        self.surface = pygame.Surface((self.rect.width, height))
-        prev_pos = self.rect.x, self.rect.y
-        self.rect = self.surface.get_rect()
-        self.rect.x, self.rect.y = prev_pos
-        self.surface.blit(self.background, self.background.get_rect())
 
         for element in self.elements.values():
             element.draw()
@@ -363,11 +387,13 @@ class Menu():
 class Tray(Menu):
     """A base class for the top and bottom trays."""
 
-    def __init__(self, game, name, width=None, height=None, background=None):
+    def __init__(self, game, name,background=None):
         """Initialize the tray with a surface."""
 
-        super().__init__(game, name, width, height, background)
+        if background is None:
+            background = pygame.Surface((game.screen.width, game.screen.height))
+            pygame.draw.rect(background, 'white', background.get_rect())
 
-        pygame.draw.rect(self.background, "white", self.background.get_rect())
+        super().__init__(game, name, background)
 
         self.is_visible = True

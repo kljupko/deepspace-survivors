@@ -20,7 +20,7 @@ class MainMenu(Menu):
                 'type': 'label',
                 'name': 'play_btn',
                 'content': 'Play',
-                'font': None, 'wraplen': 0,
+                'font': None, 'wraplen': None,
                 'x_offset': 0, 'y_offset': 0,
                 'anchor': None,
                 'action': self.game.start_session
@@ -28,7 +28,7 @@ class MainMenu(Menu):
                 'type': 'label',
                 'name': 'upgrade_btn',
                 'content': 'Upgrade',
-                'font': None, 'wraplen': 0,
+                'font': None, 'wraplen': None,
                 'x_offset': 0, 'y_offset': 11,
                 'anchor': None,
                 'action': lambda: self.game.menus['upgrade'].open()
@@ -36,7 +36,7 @@ class MainMenu(Menu):
                 'type': 'label',
                 'name': 'unlock_btn',
                 'content': 'Unlock',
-                'font': None, 'wraplen': 0,
+                'font': None, 'wraplen': None,
                 'x_offset': 0, 'y_offset': 11,
                 'anchor': None,
                 'action': lambda: self.game.menus['unlock'].open()
@@ -44,7 +44,7 @@ class MainMenu(Menu):
                 'type': 'label',
                 'name': 'settings_btn',
                 'content': 'Settings',
-                'font': None, 'wraplen': 0,
+                'font': None, 'wraplen': None,
                 'x_offset': 0, 'y_offset': 11,
                 'anchor': None,
                 'action': lambda: self.game.menus['settings'].open()
@@ -52,7 +52,7 @@ class MainMenu(Menu):
                 'type': 'label',
                 'name': 'info_btn',
                 'content': 'Info',
-                'font': None, 'wraplen': 0,
+                'font': None, 'wraplen': None,
                 'x_offset': 0, 'y_offset': 11,
                 'anchor': None,
                 'action': lambda: self.game.menus['info'].open()
@@ -60,7 +60,7 @@ class MainMenu(Menu):
                 'type': 'label',
                 'name': 'quit_btn',
                 'content': 'Quit',
-                'font': None, 'wraplen': 0,
+                'font': None, 'wraplen': None,
                 'x_offset': 0, 'y_offset': 11,
                 'anchor': None,
                 'action': self.game.quit
@@ -86,7 +86,7 @@ class UpgradeMenu(Menu):
                 'type': 'label',
                 'name': 'back_btn',
                 'content': '< BACK',
-                'font': None, 'wraplen': 0,
+                'font': None, 'wraplen': None,
                 'x_offset': 0, 'y_offset': 0,
                 'anchor': None,
                 'action': lambda: self.close('main')
@@ -94,7 +94,7 @@ class UpgradeMenu(Menu):
                 'type': 'label',
                 'name': 'title',
                 'content': 'Upgrades',
-                'font': None, 'wraplen': 0,
+                'font': None, 'wraplen': None,
                 'x_offset': 0, 'y_offset': 22,
                 'anchor': None,
                 'action': None
@@ -120,7 +120,7 @@ class UnlockMenu(Menu):
                 'type': 'label',
                 'name': 'back_btn',
                 'content': '< BACK',
-                'font': None, 'wraplen': 0,
+                'font': None, 'wraplen': None,
                 'x_offset': 0, 'y_offset': 0,
                 'anchor': None,
                 'action': lambda: self.close('main')
@@ -128,7 +128,7 @@ class UnlockMenu(Menu):
                 'type': 'label',
                 'name': 'title',
                 'content': 'Unlocks',
-                'font': None, 'wraplen': 0,
+                'font': None, 'wraplen': None,
                 'x_offset': 0, 'y_offset': 22,
                 'anchor': None,
                 'action': None
@@ -140,11 +140,10 @@ class UnlockMenu(Menu):
 class SettingsMenu(Menu):
     """A class representing the game's settings menu."""
 
-    def __init__(self, game, name="settings",
-                 width=None, height=None, background=None):
+    def __init__(self, game, name="settings", background=None):
         """Initialize the settings menu."""
 
-        super().__init__(game, name, width, height, background)
+        super().__init__(game, name, background)
         
         self._load_elements()
     
@@ -153,141 +152,366 @@ class SettingsMenu(Menu):
 
         data = self.game.settings.data
 
+        # TODO: fix the method so you don't need to use this
+        right_edge = self.rect.width-self.padding['left']-self.padding['right']
         
         element_dicts = (
             {
                 'type': 'label',
                 'name': 'back_btn',
                 'content': '< BACK',
-                'font': None, 'wraplen': 0,
+                'font': None, 'wraplen': None,
                 'x_offset': 0, 'y_offset': 0,
                 'anchor': None,
                 'action': lambda: self.close('main')
             }, {
                 'type': 'label',
-                'name': 'title',
-                'content': 'Upgrades',
-                'font': None, 'wraplen': 0,
+                'name': 'fps_label',
+                'content': 'Target FPS',
+                'font': None, 'wraplen': None,
                 'x_offset': 0, 'y_offset': 22,
                 'anchor': None,
                 'action': None
+            }, {
+                'type': 'label',
+                'name': 'fps_value',
+                'content': data['fps'],
+                'font': None, 'wraplen': None,
+                'x_offset': right_edge, 'y_offset': 0,
+                'anchor': 'topright',
+                'action': None
+            }, {
+                'type': 'label',
+                'name': 'show_fps_label',
+                'content': 'Show FPS',
+                'font': None, 'wraplen': None,
+                'x_offset': 0, 'y_offset': 11,
+                'anchor': None,
+                'action': None
+            }, {
+                'type': 'label',
+                'name': 'show_fps_value',
+                'content': data['show_fps'],
+                'font': None, 'wraplen': None,
+                'x_offset': right_edge, 'y_offset': 0,
+                'anchor': 'topright',
+                'action': None
+            }, {
+                'type': 'label',
+                'name': 'keybinds_header',
+                'content': 'Keybinds',
+                'font': None, 'wraplen': None,
+                'x_offset': 0, 'y_offset': 22,
+                'anchor': None,
+                'action': None
+            }, {
+                'type': 'label',
+                'name': 'key_confirm_label',
+                'content': 'Confirm',
+                'font': None, 'wraplen': None,
+                'x_offset': 0, 'y_offset': 22,
+                'anchor': None,
+                'action': None
+            }, {
+                'type': 'label',
+                'name': 'key_confirm_value',
+                'content': pygame.key.name(data['key_confirm']),
+                'font': None, 'wraplen': None,
+                'x_offset': right_edge, 'y_offset': 0,
+                'anchor': 'topright',
+                'action': None
+            }, {
+                'type': 'label',
+                'name': 'key_cancel_label',
+                'content': 'Cancel',
+                'font': None, 'wraplen': None,
+                'x_offset': 0, 'y_offset': 11,
+                'anchor': None,
+                'action': None
+            }, {
+                'type': 'label',
+                'name': 'key_cancel_value',
+                'content': pygame.key.name(data['key_cancel']),
+                'font': None, 'wraplen': None,
+                'x_offset': right_edge, 'y_offset': 0,
+                'anchor': 'topright',
+                'action': None
+            }, {
+                'type': 'label',
+                'name': 'key_move_left_label',
+                'content': 'Move Left',
+                'font': None, 'wraplen': None,
+                'x_offset': 0, 'y_offset': 11,
+                'anchor': None,
+                'action': None
+            }, {
+                'type': 'label',
+                'name': 'key_move_left_value',
+                'content': pygame.key.name(data['key_move_left']),
+                'font': None, 'wraplen': None,
+                'x_offset': right_edge, 'y_offset': 0,
+                'anchor': 'topright',
+                'action': None
+            }, {
+                'type': 'label',
+                'name': 'key_move_right_label',
+                'content': 'Move Right',
+                'font': None, 'wraplen': None,
+                'x_offset': 0, 'y_offset': 11,
+                'anchor': None,
+                'action': None
+            }, {
+                'type': 'label',
+                'name': 'key_move_right_value',
+                'content': pygame.key.name(data['key_move_right']),
+                'font': None, 'wraplen': None,
+                'x_offset': right_edge, 'y_offset': 0,
+                'anchor': 'topright',
+                'action': None
+            }, {
+                'type': 'label',
+                'name': 'key_fire_label',
+                'content': 'Fire',
+                'font': None, 'wraplen': None,
+                'x_offset': 0, 'y_offset': 11,
+                'anchor': None,
+                'action': None
+            }, {
+                'type': 'label',
+                'name': 'key_fire_value',
+                'content': pygame.key.name(data['key_fire']),
+                'font': None, 'wraplen': None,
+                'x_offset': right_edge, 'y_offset': 0,
+                'anchor': 'topright',
+                'action': None
+            }, {
+                'type': 'label',
+                'name': 'key_active_1_label',
+                'content': 'Toggle Active 1',
+                'font': None, 'wraplen': None,
+                'x_offset': 0, 'y_offset': 11,
+                'anchor': None,
+                'action': None
+            }, {
+                'type': 'label',
+                'name': 'key_active_1_value',
+                'content': pygame.key.name(data['key_active_1']),
+                'font': None, 'wraplen': None,
+                'x_offset': right_edge, 'y_offset': 0,
+                'anchor': 'topright',
+                'action': None
+            }, {
+                'type': 'label',
+                'name': 'key_active_2_label',
+                'content': 'Toggle Active 2',
+                'font': None, 'wraplen': None,
+                'x_offset': 0, 'y_offset': 11,
+                'anchor': None,
+                'action': None
+            }, {
+                'type': 'label',
+                'name': 'key_active_2_value',
+                'content': pygame.key.name(data['key_active_2']),
+                'font': None, 'wraplen': None,
+                'x_offset': right_edge, 'y_offset': 0,
+                'anchor': 'topright',
+                'action': None
+            }, {
+                'type': 'label',
+                'name': 'key_active_3_label',
+                'content': 'Toggle Active 3',
+                'font': None, 'wraplen': None,
+                'x_offset': 0, 'y_offset': 11,
+                'anchor': None,
+                'action': None
+            }, {
+                'type': 'label',
+                'name': 'key_active_3_value',
+                'content': pygame.key.name(data['key_active_3']),
+                'font': None, 'wraplen': None,
+                'x_offset': right_edge, 'y_offset': 0,
+                'anchor': 'topright',
+                'action': None
+            }, {
+                'type': 'label',
+                'name': 'key_passive_1_label',
+                'content': 'Toggle Passive 1',
+                'font': None, 'wraplen': None,
+                'x_offset': 0, 'y_offset': 11,
+                'anchor': None,
+                'action': None
+            }, {
+                'type': 'label',
+                'name': 'key_passive_1_value',
+                'content': pygame.key.name(data['key_passive_1']),
+                'font': None, 'wraplen': None,
+                'x_offset': right_edge, 'y_offset': 0,
+                'anchor': 'topright',
+                'action': None
+            }, {
+                'type': 'label',
+                'name': 'key_passive_2_label',
+                'content': 'Toggle Passive 2',
+                'font': None, 'wraplen': None,
+                'x_offset': 0, 'y_offset': 11,
+                'anchor': None,
+                'action': None
+            }, {
+                'type': 'label',
+                'name': 'key_passive_2_value',
+                'content': pygame.key.name(data['key_passive_2']),
+                'font': None, 'wraplen': None,
+                'x_offset': right_edge, 'y_offset': 0,
+                'anchor': 'topright',
+                'action': None
+            }, {
+                'type': 'label',
+                'name': 'key_passive_3_label',
+                'content': 'Toggle Passive 3',
+                'font': None, 'wraplen': None,
+                'x_offset': 0, 'y_offset': 11,
+                'anchor': None,
+                'action': None
+            }, {
+                'type': 'label',
+                'name': 'key_passive_3_value',
+                'content': pygame.key.name(data['key_passive_3']),
+                'font': None, 'wraplen': None,
+                'x_offset': right_edge, 'y_offset': 0,
+                'anchor': 'topright',
+                'action': None
+            }, {
+                'type': 'label',
+                'name': 'key_passive_4_label',
+                'content': 'Toggle Passive 4',
+                'font': None, 'wraplen': None,
+                'x_offset': 0, 'y_offset': 11,
+                'anchor': None,
+                'action': None
+            }, {
+                'type': 'label',
+                'name': 'key_passive_4_value',
+                'content': pygame.key.name(data['key_passive_4']),
+                'font': None, 'wraplen': None,
+                'x_offset': right_edge, 'y_offset': 0,
+                'anchor': 'topright',
+                'action': None
+            }, {
+                'type': 'label',
+                'name': 'audio_header',
+                'content': 'Audio',
+                'font': None, 'wraplen': None,
+                'x_offset': 0, 'y_offset': 22,
+                'anchor': None,
+                'action': None
+            }, {
+                'type': 'label',
+                'name': 'music_vol_label',
+                'content': 'Music Volume',
+                'font': None, 'wraplen': None,
+                'x_offset': 0, 'y_offset': 22,
+                'anchor': None,
+                'action': None
+            }, {
+                'type': 'label',
+                'name': 'music_vol_value',
+                'content': data['music_volume'],
+                'font': None, 'wraplen': None,
+                'x_offset': right_edge, 'y_offset': 0,
+                'anchor': 'topright',
+                'action': None
+            }, {
+                'type': 'label',
+                'name': 'restore_defauls_btn',
+                'content': 'Restore Defaults',
+                'font': None, 'wraplen': None,
+                'x_offset': 0, 'y_offset': 22,
+                'anchor': None,
+                'action': self._trigger_restore_defaults
             },
         )
 
         self._add_elements_from_dicts(element_dicts)
-        element_data = (
-            ("back_button", "< BACK", 1, lambda: self.close("main")),
 
-            ("fps_label", "Target FPS", 22, None),
-            ("fps_value", str(data['fps']), 0, None),
-            ("show_fps_label", "Show FPS", 11, None),
-            ("show_fps_value", str(data['show_fps']), 0, None),
-
-            ("keybinds_header", "Keybinds", 22, None),
-            ("key_confirm_label", "Confirm", 22, None),
-            ("key_confirm_value", pygame.key.name(data['key_confirm']), 0, None),
-            ("key_cancel_label", "Cancel", 11, None),
-            ("key_cancel_value", pygame.key.name(data['key_cancel']), 0, None),
-
-            ("key_move_left_label", "Move Left", 11, None),
-            ("key_move_left_value", pygame.key.name(data['key_move_left']), 0, None),
-            ("key_move_right_label", "Move Right", 11, None),
-            ("key_move_right_value", pygame.key.name(data['key_move_right']), 0, None),
-            ("key_fire_label", "Fire", 11, None),
-            ("key_fire_value", pygame.key.name(data['key_fire']), 0, None),
-
-            ("key_active_1_label", "On/Off Active 1", 11, None),
-            ("key_active_1_value", pygame.key.name(data['key_active_1']), 0, None),
-            ("key_active_2_label", "On/Off Active 2", 11, None),
-            ("key_active_2_value", pygame.key.name(data['key_active_2']), 0, None),
-            ("key_active_3_label", "On/Off Active 3", 11, None),
-            ("key_active_3_value", pygame.key.name(data['key_active_3']), 0, None),
-
-            ("key_passive_1_label", "On/Off Passive 1", 11, None),
-            ("key_passive_1_value", pygame.key.name(data['key_passive_1']), 0, None),
-            ("key_passive_2_label", "On/Off Passive 2", 11, None),
-            ("key_passive_2_value", pygame.key.name(data['key_passive_2']), 0, None),
-            ("key_passive_3_label", "On/Off Passive 3", 11, None),
-            ("key_passive_3_value", pygame.key.name(data['key_passive_3']), 0, None),
-            ("key_passive_4_label", "On/Off Passive 4", 11, None),
-            ("key_passive_4_value", pygame.key.name(data['key_passive_4']), 0, None),
-
-            ("audio_header", "Audio", 22, None),
-            ("music_vol_label", "Music Volume", 22, None),
-            ("music_vol_value", str(data['music_volume']), 0, None),
-
-            ("restore_defaults", "Restore Defaults", 22, self._trigger_restore_defaults)
+        union_dicts = (
+            {
+                'name': 'cycle_fps_btn',
+                'elem_names': ['fps_label', 'fps_value'],
+                'action': self._cycle_framerates
+            },
+            {
+                'name': 'show_fps_btn',
+                'elem_names': ['show_fps_label', 'show_fps_value'],
+                'action': self._toggle_fps_display
+            },
+            {
+                'name': 'remap_confirm_btn',
+                'elem_names': ['key_confirm_label', 'key_confirm_value'],
+                'action': (lambda: self.game.menus['remap'].open('Confirm', 'key_confirm'))
+            },
+            {
+                'name': 'remap_cancel_btn',
+                'elem_names': ['key_cancel_label', 'key_cancel_value'],
+                'action': (lambda: self.game.menus['remap'].open('Cancel', 'key_cancel'))
+            },
+            {
+                'name': 'remap_move_left_btn',
+                'elem_names': ['key_move_left_label', 'key_move_left_value'],
+                'action': (lambda: self.game.menus['remap'].open('Move Left', 'key_move_left'))
+            },
+            {
+                'name': 'remap_move_right_btn',
+                'elem_names': ['key_move_right_label', 'key_move_right_value'],
+                'action': (lambda: self.game.menus['remap'].open('Move Right', 'key_move_right'))
+            },
+            {
+                'name': 'remap_fire_btn',
+                'elem_names': ['key_fire_label', 'key_fire_value'],
+                'action': (lambda: self.game.menus['remap'].open('Fire', 'key_fire'))
+            },
+            {
+                'name': 'remap_active_1_btn',
+                'elem_names': ['key_active_1_label', 'key_active_1_value'],
+                'action': (lambda: self.game.menus['remap'].open('Toggle Active 1', 'key_active_1'))
+            },
+            {
+                'name': 'remap_active_2_btn',
+                'elem_names': ['key_active_2_label', 'key_active_2_value'],
+                'action': (lambda: self.game.menus['remap'].open('Toggle Active 2', 'key_active_2'))
+            },
+            {
+                'name': 'remap_active_3_btn',
+                'elem_names': ['key_active_3_label', 'key_active_3_value'],
+                'action': (lambda: self.game.menus['remap'].open('Toggle Active 3', 'key_active_3'))
+            },
+            {
+                'name': 'remap_passive_1_btn',
+                'elem_names': ['key_passive_1_label', 'key_passive_1_value'],
+                'action': (lambda: self.game.menus['remap'].open('Toggle Passive 1', 'key_passive_1'))
+            },
+            {
+                'name': 'remap_passive_2_btn',
+                'elem_names': ['key_passive_2_label', 'key_passive_2_value'],
+                'action': (lambda: self.game.menus['remap'].open('Toggle Passive 2', 'key_passive_2'))
+            },
+            {
+                'name': 'remap_passive_3_btn',
+                'elem_names': ['key_passive_3_label', 'key_passive_3_value'],
+                'action': (lambda: self.game.menus['remap'].open('Toggle Passive 3', 'key_passive_3'))
+            },
+            {
+                'name': 'remap_passive_4_btn',
+                'elem_names': ['key_passive_4_label', 'key_passive_4_value'],
+                'action': (lambda: self.game.menus['remap'].open('Toggle Passive 4', 'key_passive_4'))
+            },
+            {
+                'name': 'cycle_music_vol_btn',
+                'elem_names': ['music_vol_label', 'music_vol_value'],
+                'action': self._cycle_music_volume
+            },
         )
 
-        for element in element_data:
-            name = element[0]
-            content = element[1]
-            height_increment = element[2]
-            y_pos += height_increment
-            action = element[3]
-
-            anchor = "topleft" # label, left aligned
-            x_pos = self.rect.width // 10
-            if height_increment == 0:
-                anchor = "topright" # value, right aligned
-                x_pos = self.rect.width // 10 * 9
-
-            self.elements[name] = UIElement(
-                self.game, name, self, content, False,
-                position=(x_pos, y_pos),
-                anchor=anchor, action=action
-            )
-
-        # the touple of touples below is used to generate the unions
-        # keybinding/ union name, action
-        union_data = (
-            ("fps", self._cycle_framerates),
-            ("show_fps", self._toggle_fps_display),
-            ("music_vol", self._cycle_music_volume)
-        )
-
-        for union in union_data:
-            name = union[0]
-            label_name = name + "_label"
-            value_name = name + "_value"
-            action = union[1]
-
-            self.elements[name] = ElemUnion(
-                self.game, name,
-                self.elements[label_name], self.elements[value_name],
-                action=action
-            )
-
-        # similar to above, but for keybinds
-        # keybinding/ union name, control name
-        union_data = (
-            ("key_confirm", "Confirm"),
-            ("key_cancel", "Cancel"),
-            ("key_move_left", "Move Left"),
-            ("key_move_right", "Move Right"),
-            ("key_fire", "Fire"),
-            ("key_active_1", "Toggle Active 1"),
-            ("key_active_2","Toggle Active 2"),
-            ("key_active_3","Toggle Active 3"),
-            ("key_passive_1","Toggle Passive 1"),
-            ("key_passive_2","Toggle Passive 2"),
-            ("key_passive_3","Toggle Passive 3"),
-            ("key_passive_4","Toggle Passive 4")
-        )
-
-        for union in union_data:
-            name = union[0]
-            label_name = name + "_label"
-            value_name = name + "_value"
-            control_name = union[1]
-            action = (lambda cn=control_name, kbn=name:
-                      self.game.menus['remap'].open(cn, kbn))
-
-            self.elements[name] = ElemUnion(
-                self.game, name,
-                self.elements[label_name], self.elements[value_name],
-                action=action
-            )
+        self._add_element_unions_from_dicts(union_dicts)
     
     def _trigger_restore_defaults(self):
         """Restore default settings and rewrite the menu."""
@@ -296,6 +520,7 @@ class SettingsMenu(Menu):
         self.game.settings.save_data()
         self.update()
     
+    # TODO: merge the two cycle methods into one
     def _cycle_framerates(self):
         """Cycle through available framerates."""
 
@@ -343,41 +568,33 @@ class SettingsMenu(Menu):
 class RemapKeyMenu(Menu):
     """A class representing the key remapping prompt."""
 
-    def __init__(self, game, name="remap",
-                 width=None, height=None, background=None):
+    def __init__(self, game, name="remap", background=None):
         """Initialize the key remapping menu."""
 
-        super().__init__(game, name, width, height, background)
+        super().__init__(game, name, background)
 
         self.keybind = None
-        self.control = None
-        self.text = None
     
     def open(self, control, keybind):
         """Show the menu with the correct prompt."""
 
-        self.control = control
         self.keybind = keybind
         key_name = pygame.key.name(self.game.settings.data[self.keybind])
 
-        self.text = "Press a key to..."
-        self.text += f'\nremap "{self.control}"'
-        self.text += f"\ncurrently: {key_name}"
+        text = "Press a key to remap\n"
+        text += f'"{control}"\n'
+        text += f"\nCurrent keybinding: {key_name}"
 
         self.elements = {}
-        el_name = "prompt"
-        self.elements[el_name] = UIElement(
-            self.game, el_name, self, self.text, False,
-            position=(self.rect.width // 2, self.rect.height // 2),
-            anchor="center"
-        )
-        self.update()
+        tb = TextBox(self, 'prompt', text,
+                     position=self.rect.center, anchor='center')
+        
         return super().open()
     
     def listen_for_key(self, key):
         """Listen for a keypress and remap the key."""
 
-        if not self.visible:
+        if not self.is_visible:
             return False
         
         self.game.settings.data[self.keybind] = key
@@ -388,39 +605,37 @@ class RemapKeyMenu(Menu):
 class InfoMenu(Menu):
     """A class representing the info page/ menu."""
 
-    def __init__(self, game, name="info",
-                 width=None, height=None, background=None):
+    def __init__(self, game, name="info", background=None):
         """Initialize the info menu."""
 
-        super().__init__(game, name, width, height, background)
+        super().__init__(game, name, background)
 
-        self.update()
+        self._load_elements()
     
     def _load_elements(self):
         """Populate the menu with information."""
 
-        y_pos = 0
-        element_data = (
-            ("back_btn", "< BACK", 1, lambda: self.close("main")),
-            ("about", "Created by @kljupko in Pygame as a demo project",
-             22, None),
+        element_dicts = (
+            {
+                'type': 'label',
+                'name': 'back_btn',
+                'content': '< BACK',
+                'font': None, 'wraplen': None,
+                'x_offset': 0, 'y_offset': 0,
+                'anchor': None,
+                'action': lambda: self.close('main')
+            }, {
+                'type': 'textbox',
+                'name': 'title',
+                'content': 'Created by @kljupko as a demo project.',
+                'font': None, 'wraplen': None,
+                'x_offset': 0, 'y_offset': 22,
+                'anchor': None,
+                'action': None
+            },
         )
 
-        for element in element_data:
-            name = element[0]
-            content = element[1]
-            height_increment = element[2]
-            y_pos += height_increment
-            action = element[3]
-
-            anchor = "topleft"
-            x_pos = self.rect.width // 10
-
-            self.elements[name] = UIElement(
-                self.game, name, self, content, False,
-                position=(x_pos, y_pos),
-                anchor=anchor, action=action
-            )   
+        self._add_elements_from_dicts(element_dicts)  
 
 class PauseMenu(Menu):
     """A class representing the game's pause menu."""
@@ -430,32 +645,45 @@ class PauseMenu(Menu):
         """Initialize the pause menu."""
 
         super().__init__(game, name, width, height, background)
-        self.update()
+        self._load_elements()
     
     def _load_elements(self):
         """Populate the menu with buttons."""
-       
-        y_pos_adjustment = -11
-        element_data = (
-            ("continue_button", "Continue", 0, self._continue_session),
-            ("restart_button", "Restart", 11, self._restart_session),
-            ("quit_button", "Quit to Main Menu", 11, self.game.quit_session)
+
+        y = self.rect.center
+
+        element_dicts = (
+            {
+                'type': 'label',
+                'name': 'continue_btn',
+                'content': 'Continue',
+                'font': None, 'wraplen': None,
+                'x_offset': 0, 'y_offset': y - 11,
+                'anchor': 'midleft',
+                'action': self._continue_session
+            },
+            {
+                'type': 'label',
+                'name': 'restart_btn',
+                'content': 'Restart',
+                'font': None, 'wraplen': None,
+                'x_offset': 0, 'y_offset': y,
+                'anchor': 'midleft',
+                'action': self._continue_session
+            },
+            {
+                'type': 'label',
+                'name': 'quit_btn',
+                'content': 'Quit to Main Menu',
+                'font': None, 'wraplen': None,
+                'x_offset': 0, 'y_offset': y + 11,
+                'anchor': 'midleft',
+                'action': self._continue_session
+            },
         )
 
-        self.elements = {}
-        for data in element_data:
-            name = data[0]
-            text = data[1]
-            y_pos_adjustment += data[2]
-            action = data[3]
-
-            self.elements[name] = UIElement(
-                self.game, name, self, text, position=(
-                    self.rect.width // 10,
-                    self.rect.height // 2 + y_pos_adjustment
-                ), action=action
-            )
-
+        self._add_elements_from_dicts(element_dicts)
+    
     def open(self):
         """Pause the game and open the menu."""
 

@@ -100,7 +100,7 @@ class TextBox(UIElement):
             font = container.game.config.font_normal
         
         if wraplength is None:
-            wraplength = container.padding['right']
+            wraplength = container.rect.width - container.padding['right']
         
         content = font.render(
             str(content), False, 'white', 'black', wraplength
@@ -120,19 +120,22 @@ class Label(TextBox):
 class ElemUnion():
     """A class representing a union of multiple UI Elements."""
 
-    def __init__(self, game, name, *elems, action=None):
+    def __init__(self, container, name, *elems, action=None):
         """Initialize the union."""
 
-        self.game = game
         self.name = name
+        self.container = container
+        self.game = self.container.game
         self.elems = elems
         self.action = action
 
-        self.update()
+        self._unify_elements()
+
+        self.container.elements[self.name] = self
 
     
-    def update(self):
-        """Update the rectangle of the union."""
+    def _unify_elements(self):
+        """Create the rectangle around the elements."""
 
         self.rect = self.elems[0].rect
         for element in self.elems[1:]:
@@ -166,7 +169,7 @@ class Menu():
 
         self.inner_pos = None # inner coordinates where the user clicked
         self.was_scrolled = False
-        self.needs_redraw = False
+        self.needs_redraw = True
 
         width = self.game.screen.width
         height = self.game.screen.height
@@ -210,13 +213,27 @@ class Menu():
 
             if d['type'] == 'label':
                 el = Label(self, d['name'], d['content'], d['font'],
-                           d['wraplen'], (x, y), d['anchor'], d['action'])
+                           0, (x, y), d['anchor'], d['action'])
             elif d['type'] == 'icon':
                 el = Icon(self, d['name'], d['content'],
                           (x, y), d['anchor'], d['action'])
             elif d['type'] == 'textbox':
                 el = TextBox(self, d['name'], d['content'], d['font'],
                            d['wraplen'], (x, y), d['anchor'], d['action'])
+
+    def _add_element_unions_from_dicts(self, dicts):
+        """
+        To be used in _load_elemets.
+        Takes a sequence of dictionaries containing union data, and adds
+        the unions to the menu according to the data provided.
+        """
+
+        for d in dicts:
+            elems = []
+            for name in d['elem_names']:
+                elems.append(self.elements[name])
+            
+            u = ElemUnion(self, d['name'], *elems, action=d['action'])
 
     def update(self):
         """Re-renders the menu with current values."""

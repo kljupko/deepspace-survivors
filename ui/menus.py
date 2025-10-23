@@ -1,7 +1,7 @@
 """A module containing all the menus in the game."""
 
 import pygame
-from .base import Menu
+from .base import Menu, TextBox
 
 class MainMenu(Menu):
     """A class which represents the game's main menu."""

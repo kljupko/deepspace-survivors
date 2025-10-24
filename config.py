@@ -21,3 +21,5 @@ class Config():
 
         self.framerates = (30, 60, 120, 144, 240)
         self.music_volumes = range(11)
+
+        self.global_colorkey = pygame.Color(1,2,3)

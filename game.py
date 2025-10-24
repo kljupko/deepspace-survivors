@@ -80,7 +80,7 @@ class Game:
         self.state.session_running = True
 
         self.play_surf = pygame.Surface((
-            self.screen.width, self.screen.height - (40-11)
+            self.screen.width, self.screen.height - 24
         ))
         self.play_rect = self.play_surf.get_rect()
 
@@ -406,10 +406,10 @@ class Game:
             self.state.last_second_tracked = self.state.session_duration // 1000
 
         # TODO: use the group to update the ship maybe
-        self.ship.update(self.dt)
-        self.bullets.update(self.dt)
-        self.powerups.update(self.dt)
-        self.aliens.update(self.dt)
+        self.ship.update()
+        self.bullets.update()
+        self.powerups.update()
+        self.aliens.update()
     
     def _draw(self):
         """Draw to the screen."""
@@ -419,9 +419,6 @@ class Game:
             # first, clear the play surface by drawing the background
             pygame.draw.rect(self.play_surf, "black", self.play_rect)
 
-            self.top_tray.draw()
-            self.bot_tray.draw()
-
             # TODO: use an entities group to draw the entities
             self.ship.draw()
             for bullet in self.bullets:
@@ -430,16 +427,14 @@ class Game:
                 powerup.draw()
             for alien in self.aliens:
                 alien.draw()
-            
-            # draw the top and part of bottom tray to the play surface
-            self.play_surf.blit(self.top_tray.surface, self.top_tray.rect)
-            self.play_surf.blit(self.bot_tray.surface, (
-                0, self.play_rect.height - 11,
-                self.bot_tray.rect.width, self.bot_tray.rect.height
-            ))
+
 
             # draw the play surface
             self.screen.blit(self.play_surf)
+            self.top_tray.needs_redraw = True
+            self.top_tray.draw()
+            self.bot_tray.needs_redraw = True
+            self.bot_tray.draw()
         
         for menu in self.menus.values():
             menu.draw()

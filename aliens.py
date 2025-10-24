@@ -36,10 +36,10 @@ class Alien(Entity):
         self.credits = 10
     
     # override Entity update method
-    def update(self, dt):
+    def update(self):
         """Update the alien."""
 
-        self._move(dt)
+        self._move()
         self._check_bottom()
     
     def _check_bottom(self):

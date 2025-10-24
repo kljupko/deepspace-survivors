@@ -6,8 +6,10 @@ class TopTray(Tray):
     """A class representing the top tray."""
 
     def __init__(self, game, name='top_tray', background=None,
-                 width=None, height=23, padding=None):
+                 width=None, height=None, padding=None):
         """Initialize the top tray."""
+
+        height = 23
 
         super().__init__(game, name, background, width, height, padding)
     
@@ -83,11 +85,13 @@ class BottomTray(Tray):
     """A class representing the bottom tray."""
 
     def __init__(self, game, name='bot_tray', background=None,
-                 width=None, height=40, padding=None):
+                 width=None, height=None, padding=None):
         """Initialize the bottom tray."""
 
+        height = game.screen.height - game.play_surf.height + 11
+
         super().__init__(game, name, background, width, height, padding)
-        self.rect.y = self.game.play_rect.y + self.game.play_rect.height - 11
+        self.rect.y = self.game.screen.height - self.rect.height
     
     def _load_elements(self):
         """Populate the tray with UI Elements"""
@@ -114,7 +118,7 @@ class BottomTray(Tray):
                 'name': 'active_1_btn',
                 'content': None,
                 'font': None, 'wraplen': None,
-                'x': self.rect.width // 4 * 1, 'y': 12,
+                'x': self.rect.width // 4 * 1, 'y': 11,
                 'anchor': 'midtop',
                 'action': self.game.ship.active_abilities[0].toggle
             }, {

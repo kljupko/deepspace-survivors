@@ -27,10 +27,10 @@ class Bullet(Entity):
         # TODO: determine if bullet will have any stats
 
     # override Entity update method
-    def update(self, dt):
+    def update(self):
         """Update the bullet."""
 
-        self._move(dt)
+        self._move()
         self._check_alien_collisions()
         self._check_top()
     

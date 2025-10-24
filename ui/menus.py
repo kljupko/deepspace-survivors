@@ -37,7 +37,7 @@ class MainMenu(Menu):
                 'name': 'unlock_btn',
                 'content': 'Unlock',
                 'font': None, 'wraplen': None,
-                'x': 0, 'y': 11,
+                'x': 0, 'y': 12,
                 'anchor': None,
                 'action': lambda: self.game.menus['unlock'].open()
             }, {
@@ -53,7 +53,7 @@ class MainMenu(Menu):
                 'name': 'info_btn',
                 'content': 'Info',
                 'font': None, 'wraplen': None,
-                'x': 0, 'y': 11,
+                'x': 0, 'y': 12,
                 'anchor': None,
                 'action': lambda: self.game.menus['info'].open()
             }, {
@@ -184,7 +184,7 @@ class SettingsMenu(Menu):
                 'name': 'show_fps_label',
                 'content': 'Show FPS',
                 'font': None, 'wraplen': None,
-                'x': 0, 'y': 11,
+                'x': 0, 'y': 12,
                 'anchor': None,
                 'action': None
             }, {
@@ -272,7 +272,7 @@ class SettingsMenu(Menu):
                 'name': 'key_fire_label',
                 'content': 'Fire',
                 'font': None, 'wraplen': None,
-                'x': 0, 'y': 11,
+                'x': 0, 'y': 12,
                 'anchor': None,
                 'action': None
             }, {
@@ -304,7 +304,7 @@ class SettingsMenu(Menu):
                 'name': 'key_active_2_label',
                 'content': 'Toggle Active 2',
                 'font': None, 'wraplen': None,
-                'x': 0, 'y': 11,
+                'x': 0, 'y': 12,
                 'anchor': None,
                 'action': None
             }, {
@@ -320,7 +320,7 @@ class SettingsMenu(Menu):
                 'name': 'key_active_3_label',
                 'content': 'Toggle Active 3',
                 'font': None, 'wraplen': None,
-                'x': 0, 'y': 11,
+                'x': 0, 'y': 12,
                 'anchor': None,
                 'action': None
             }, {
@@ -336,7 +336,7 @@ class SettingsMenu(Menu):
                 'name': 'key_passive_1_label',
                 'content': 'Toggle Passive 1',
                 'font': None, 'wraplen': None,
-                'x': 0, 'y': 11,
+                'x': 0, 'y': 12,
                 'anchor': None,
                 'action': None
             }, {
@@ -352,7 +352,7 @@ class SettingsMenu(Menu):
                 'name': 'key_passive_2_label',
                 'content': 'Toggle Passive 2',
                 'font': None, 'wraplen': None,
-                'x': 0, 'y': 11,
+                'x': 0, 'y': 12,
                 'anchor': None,
                 'action': None
             }, {
@@ -368,7 +368,7 @@ class SettingsMenu(Menu):
                 'name': 'key_passive_3_label',
                 'content': 'Toggle Passive 3',
                 'font': None, 'wraplen': None,
-                'x': 0, 'y': 11,
+                'x': 0, 'y': 12,
                 'anchor': None,
                 'action': None
             }, {
@@ -384,7 +384,7 @@ class SettingsMenu(Menu):
                 'name': 'key_passive_4_label',
                 'content': 'Toggle Passive 4',
                 'font': None, 'wraplen': None,
-                'x': 0, 'y': 11,
+                'x': 0, 'y': 12,
                 'anchor': None,
                 'action': None
             }, {

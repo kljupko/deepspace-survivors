@@ -35,19 +35,19 @@ class Entity(Sprite):
         # set default as not moving
         self.destination = None
     
-    def update(self, dt):
+    def update(self):
         """Update the entity."""
 
-        self._move(dt)
+        self._move(self.game.dt)
 
-    def _move(self, dt):
+    def _move(self):
         """Move the entity."""
 
         if self.destination == None:
             return False
         
-        move_x = self.speed_x * dt
-        move_y = self.speed_y * dt
+        move_x = self.speed_x * self.game.dt
+        move_y = self.speed_y * self.game.dt
         dx = self.destination[0] - self.x
         dy = self.destination[1] - self.y
         

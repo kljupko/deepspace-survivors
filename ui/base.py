@@ -100,7 +100,8 @@ class TextBox(UIElement):
             font = container.game.config.font_normal
         
         if wraplength is None:
-            wraplength = container.rect.width - container.padding['right']
+            wraplength = container.rect.width - \
+                container.padding['left'] - container.padding['right']
         
         content = font.render(
             str(content), False, 'white', 'black', wraplength
@@ -172,7 +173,7 @@ class Menu():
         self.was_scrolled = False
         self.needs_redraw = True
 
-        self._set_size(width, height)
+        self._set_surface(width, height)
         if padding is None:
             padding = (10, 10, 10, 10)
         self._set_padding(padding)
@@ -181,8 +182,8 @@ class Menu():
         self.elements = {}
         self._load_elements()
     
-    def _set_size(self, width=None, height=None):
-        """Set the size for the menu and its surface."""
+    def _set_surface(self, width=None, height=None):
+        """Set the surface for menu and derive the size."""
 
         if width is None:
             width = self.game.screen.width
@@ -191,6 +192,9 @@ class Menu():
         
         self.surface = pygame.Surface((width, height))
         self.rect = self.surface.get_rect()
+        ck = self.game.config.global_colorkey
+        self.surface.set_colorkey(ck)
+        pygame.draw.rect(self.surface, ck, self.rect)
 
     def _set_padding(self, padding=None):
         """Sets the padding for the menu: (top, bottom, left, right)."""
@@ -208,7 +212,7 @@ class Menu():
 
         if background is None:
             background = pygame.Surface((self.rect.width, self.rect.height))
-            pygame.draw.rect(background, "black", background.get_rect())
+            pygame.draw.rect(background, 'aquamarine', background.get_rect())
         # TODO: otherwise, load the background image
         self.background = background
 
@@ -293,21 +297,13 @@ class Menu():
         lowest = bottom + self.padding['bottom']
         height = lowest if lowest > height else height
 
-        self._set_size(width, height)
+        self._set_surface(width, height)
         self.rect.x, self.rect.y = pos_x, pos_y
 
     def update(self):
         """Re-renders the menu with current values."""
 
-        self._load_elements()
-
-        self.surface.blit(
-            self.background,
-            (0, self.rect.height - self.background.height)
-        )
-        for element in self.elements.values():
-            element.draw()
-        
+        self._load_elements()        
         self.needs_redraw = True
     
     def open(self):
@@ -410,7 +406,22 @@ class Menu():
         if not self.is_visible or not self.needs_redraw:
             return False
         
+        if self.rect.height > self.game.screen.height:
+            top = 0
+        else:
+            top = self.rect.y
+        
+        back_draw_rect = pygame.Rect(
+            self.rect.x, top,
+            self.background.width, self.background.height
+        )
+
+        self.game.screen.blit(self.background, back_draw_rect)
+        self.surface.blit(self.background, self.rect)
+        for element in self.elements.values():
+            element.draw()
         self.game.screen.blit(self.surface, self.rect)
+
         self.needs_redraw = False
 
 class Tray(Menu):
@@ -420,8 +431,11 @@ class Tray(Menu):
                  width=None, height=None, padding=None):
         """Initialize the tray with a surface."""
 
+        if width is None:
+            width = game.play_surf.width
+
         if background is None:
-            background = pygame.Surface((game.screen.width, game.screen.height))
+            background = pygame.Surface((width, height))
             pygame.draw.rect(background, 'white', background.get_rect())
         
         if padding is None:

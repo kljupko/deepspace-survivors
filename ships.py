@@ -53,13 +53,13 @@ class Ship(Entity):
         ]
     
     # override Entity update method
-    def update(self, dt):
+    def update(self):
         """Update the ship."""
 
-        self.bullet_cooldown_ms += dt * 1000
+        self.bullet_cooldown_ms += self.game.dt * 1000
         self._steer()
         # TODO: use thrust for speed
-        self._move(dt)
+        self._move()
         self._fire_active_abilities()
         self._fire_passive_abilities()
         self._check_powerup_collisions()

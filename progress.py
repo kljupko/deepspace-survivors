@@ -75,3 +75,23 @@ class Progress():
             path.write_text(data)
         except Exception as e:
             print(f"Encountered an error while saving progress: {e}.")
+    
+    def update(self):
+        """Updates the progress after the session ends, and saves."""
+
+        self.data['credits'] += self.game.state.credits_earned
+
+        if self.data['credits'] > self.data['max_credits_owned']:
+            self.data['max_credits_owned'] = self.data['credits']
+        
+        if self.game.state.credits_earned > self.data['max_credits_session']:
+            self.data['max_credits_session'] = self.game.state.credits_earned
+        
+        self.data['num_of_sessions'] += 1
+
+        if self.game.state.session_duration > self.data['longest_session']:
+            self.data['longest_session'] = self.game.state.session_duration
+        
+        self.data['total_session_duration'] += self.game.state.session_duration
+
+        self.save_data()

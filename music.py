@@ -5,6 +5,8 @@ import json
 import pygame
 from pygame.mixer import Channel, Sound
 
+import custom_events
+
 class MusicPlayer():
     """A class which handles playing music from a sequence of sounds."""
 
@@ -32,7 +34,7 @@ class MusicPlayer():
         self.sequence_sounds = None
         self.sequence = None
     
-    def load_sequence(self, file_name, loop_sequence=False):
+    def load_sequence(self, file_name, loop_sequence=False, autoplay=True):
         """Load a sequence of sounds."""
 
         path = Path(self.game.config.sequences_path, file_name)
@@ -58,6 +60,9 @@ class MusicPlayer():
         self.loop_sequence = loop_sequence
 
         self.reset_sequence()
+
+        if autoplay:
+            self.update()
     
     def _load_step(self, step=None):
         """Load the sounds for the given step."""
@@ -98,7 +103,7 @@ class MusicPlayer():
         
         if self.drum_snd:
             self.drum_ch.play(self.drum_snd)
-            self.drum_ch.set_endevent(self.game.CH_DONE_PLAYING)
+            self.drum_ch.set_endevent(custom_events.MUSIC_STEP_FINISHED)
         if self.bass_snd:
             self.bass_ch.play(self.bass_snd)
         if self.chrd_snd:

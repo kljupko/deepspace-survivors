@@ -371,17 +371,21 @@ class Menu():
 
         self.inner_pos = None
     
-    def scroll(self, position):
+    def scroll(self, position, is_mousewheel_scroll=False):
         """Scroll the menu."""
 
         if not self.is_visible:
             return False
 
-        if not self.inner_pos:
+        if self.inner_pos:
+            # scrolling via mouse/ finger drag
+            destination = position[1] - self.inner_pos[1]
+        elif is_mousewheel_scroll:
+            # scrolling via mouse wheel
+            destination = self.rect.y + position[1]
+        else:
+            # not scrolling
             return False
-
-
-        destination = position[1] - self.inner_pos[1]
 
         if self.rect.y == destination:
             return False
@@ -416,8 +420,11 @@ class Menu():
             self.background.width, self.background.height
         )
 
+        if self.name in ["top_tray", "bot_tray"]:
+            # draw background to tray so it's visible on play_surf
+            self.surface.blit(self.background, self.rect)
+        
         self.game.screen.blit(self.background, back_draw_rect)
-        self.surface.blit(self.background, self.rect)
         for element in self.elements.values():
             element.draw()
         self.game.screen.blit(self.surface, self.rect)

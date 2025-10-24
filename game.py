@@ -1,5 +1,6 @@
 import pygame
 
+import custom_events
 from ships import Ship
 from aliens import Alien
 from touch import Touch
@@ -42,7 +43,6 @@ class Game:
         self.state = State()
         self.progress = Progress(self)
 
-        self.CH_DONE_PLAYING = pygame.event.custom_type()
         self.music_player = MusicPlayer(self)
 
         self.menus = {}
@@ -52,15 +52,13 @@ class Game:
         self.menus['settings'] = ui.SettingsMenu(self)
         self.menus['remap'] = ui.RemapKeyMenu(self)
         self.menus['info'] = ui.InfoMenu(self)
-        self.menus['pause'] = ui.PauseMenu(self)
-        
+        self.menus['pause'] = ui.PauseMenu(self)      
     
     def run(self):
         """Run the game loop."""
 
         self.menus['main'].open()
         self.music_player.load_sequence("main_menu.json", True)
-        self.music_player.update()
 
         while self.game_running:
             self._handle_events()
@@ -72,7 +70,10 @@ class Game:
             self.fps = int(self.clock.get_fps())
         
         pygame.quit()
-    
+
+    # region GAME FLOW HELPER FUNCTIONS
+    # -------------------------------------------------------------------
+
     def start_session(self):
         """Start the session."""
 
@@ -99,29 +100,16 @@ class Game:
 
         self.menus["main"].close()
         self.music_player.load_sequence("test.json", True)
-        self.music_player.update()
     
     def quit_session(self):
         """Quit the session and return to the main menu."""
 
         self.state.session_running = False
-
-        # update the progress
-        self.progress.data['credits'] += self.state.credits_earned
-        if self.progress.data['credits'] > self.progress.data['max_credits_owned']:
-            self.progress.data['max_credits_owned'] = self.progress.data['credits']
-        if self.state.credits_earned > self.progress.data['max_credits_session']:
-            self.progress.data['max_credits_session'] = self.state.credits_earned
-        self.progress.data['num_of_sessions'] += 1
-        if self.state.session_duration > self.progress.data['longest_session']:
-            self.progress.data['longest_session'] = self.state.session_duration
-        self.progress.data['total_session_duration'] += self.state.session_duration
-        self.progress.save_data()
+        self.progress.update()
 
         # TODO: clear the game objects
         self.menus["main"].open()
         self.music_player.load_sequence("main_menu.json", True)
-        self.music_player.update()
     
     def quit(self):
         """Handle quitting the game."""
@@ -131,6 +119,9 @@ class Game:
             self.quit_session()
         
         self.game_running = False
+    
+    # -------------------------------------------------------------------
+    # endregion
 
     # region DISPLAY HELPER FUNCTIONS
     # -------------------------------------------------------------------
@@ -204,7 +195,7 @@ class Game:
     # -------------------------------------------------------------------
     # endregion
     
-    # region EVENT HANDLING
+    # region EVENT HANDLING FUNCTIONS
     # -------------------------------------------------------------------
 
     def _handle_events(self):
@@ -214,7 +205,7 @@ class Game:
             if event.type == pygame.QUIT:
                 self.quit()
             
-            elif event.type == self.CH_DONE_PLAYING:
+            elif event.type == custom_events.MUSIC_STEP_FINISHED:
                 self.music_player.update()
 
             elif event.type == pygame.KEYDOWN:
@@ -231,6 +222,9 @@ class Game:
             
             elif event.type == pygame.MOUSEBUTTONUP:
                 self._handle_mouseup_event(event)
+            
+            elif event.type == pygame.MOUSEWHEEL:
+                self._handle_mousewheel_event(event)
             
             elif event.type == pygame.MOUSEMOTION:
                 self._handle_mousemove_event(event)
@@ -303,6 +297,10 @@ class Game:
         A touchscreen touch is interpreted as a mouse click.
         """
 
+        # respond only to left mouse button
+        if not event.touch and event.button != 1:
+            return False
+
         self.touch.register_mousedown_event(event)
 
         if self.touch.touch_start_ts is None:
@@ -352,6 +350,15 @@ class Game:
         
         self.ship.cancel_ability_charge()
         self.ship.destination = None
+    
+    def _handle_mousewheel_event(self, event):
+        """Handles what happens when the user scrolls the mouse wheel."""
+
+        x = event.x * self.config.mouse_wheel_magnitude
+        y = event.y * self.config.mouse_wheel_magnitude
+
+        for menu in self.menus.values():
+            menu.scroll((x, y), True)
 
     def _handle_mousemove_event(self, event):
         """
@@ -389,11 +396,11 @@ class Game:
     # -------------------------------------------------------------------
     # endregion
 
-    def _update(self):
-        """Update the game objects."""
+    # region UPDATE HELPER FUNCTIONS
+    # -------------------------------------------------------------------
 
-        if self.touch:
-            self.touch.track_touch_duration()
+    def _update_session(self):
+        """Updates the entities and trays if the session is running."""
 
         if not self.state.session_running:
             return False
@@ -410,32 +417,54 @@ class Game:
         self.bullets.update()
         self.powerups.update()
         self.aliens.update()
+    # -------------------------------------------------------------------
+    # endregion
+
+    def _update(self):
+        """Update the game objects."""
+
+        if self.touch:
+            self.touch.track_touch_duration()
+
+        self._update_session()
     
+    # region DRAW HELPER FUNCTIONS
+    # -------------------------------------------------------------------
+
+    def _draw_session(self):
+        """Draws the play surface and trays if the session is running."""
+
+        if not self.state.session_running:
+            return False
+        
+        # first, clear the play surface by drawing the background
+        pygame.draw.rect(self.play_surf, "black", self.play_rect)
+
+        # TODO: use an entities group to draw the entities
+        self.ship.draw()
+        for bullet in self.bullets:
+            bullet.draw()
+        for powerup in self.powerups:
+            powerup.draw()
+        for alien in self.aliens:
+            alien.draw()
+
+        # draw the play surface
+        self.screen.blit(self.play_surf)
+
+        self.top_tray.needs_redraw = True
+        self.bot_tray.needs_redraw = True
+        self.top_tray.draw()
+        self.bot_tray.draw()
+
+    # -------------------------------------------------------------------
+    # endregion
+
     def _draw(self):
         """Draw to the screen."""
 
-        # TODO: organize the session drawing better (func?)
-        if self.state.session_running:        
-            # first, clear the play surface by drawing the background
-            pygame.draw.rect(self.play_surf, "black", self.play_rect)
-
-            # TODO: use an entities group to draw the entities
-            self.ship.draw()
-            for bullet in self.bullets:
-                bullet.draw()
-            for powerup in self.powerups:
-                powerup.draw()
-            for alien in self.aliens:
-                alien.draw()
-
-
-            # draw the play surface
-            self.screen.blit(self.play_surf)
-            self.top_tray.needs_redraw = True
-            self.top_tray.draw()
-            self.bot_tray.needs_redraw = True
-            self.bot_tray.draw()
-        
+        self._draw_session()     
+                
         for menu in self.menus.values():
             menu.draw()
 

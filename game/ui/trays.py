@@ -174,3 +174,5 @@ class BottomTray(Tray):
 
         self._add_elements_from_dicts(element_dicts)
         # no need to call self._expand_height
+
+__all__ = ["TopTray", "BottomTray"]

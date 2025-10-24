@@ -708,3 +708,8 @@ class PauseMenu(Menu):
         self.game.quit_session()
         self.game.start_session()
         self.close()
+
+__all__ = [
+    "MainMenu", "UpgradeMenu", "UnlockMenu", "SettingsMenu",
+    "RemapKeyMenu", "InfoMenu", "PauseMenu"
+]

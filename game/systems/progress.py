@@ -95,3 +95,5 @@ class Progress():
         self.data['total_session_duration'] += self.game.state.session_duration
 
         self.save_data()
+
+__all__ = ["Progress"]

@@ -154,3 +154,5 @@ class Spear(Passive):
 
 # -----------------------------------------------------------------------
 # endregion
+
+__all__ = ["Blank","Locked", "DeathPulse", "Spear"]

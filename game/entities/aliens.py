@@ -2,9 +2,9 @@
 A module containing all the aliens.
 """
 
-from entity import Entity
-import abilities
-import powerups
+from .entity import Entity
+from ..mechanics import abilities
+from .powerups import *
 
 class Alien(Entity):
     """Base class that manages the aliens."""
@@ -70,7 +70,7 @@ class Alien(Entity):
         
         # TODO: add random chance to drop powerup, choose random powerup
         self.game.powerups.add(
-            powerups.AddAbility(
+            AddAbility(
                 self.game, self.rect.center,
                 abilities.Spear(self.game)
             )
@@ -86,3 +86,5 @@ class Alien(Entity):
 
         # TODO: play sounds and animations
         self.kill()
+
+__all__ = ["Alien"]

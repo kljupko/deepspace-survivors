@@ -3,9 +3,9 @@ A module containing all the playable ships.
 """
 
 import pygame
-from entity import Entity
-from bullet import Bullet
-import abilities
+from .entity import Entity
+from .bullet import Bullet
+from ..mechanics import abilities
 
 class Ship(Entity):
     """Base class that manages the player ship."""
@@ -229,3 +229,5 @@ class Ship(Entity):
     
     # -------------------------------------------------------------------
     # endregion
+
+__all__ = ["Ship"]

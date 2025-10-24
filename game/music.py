@@ -5,7 +5,7 @@ import json
 import pygame
 from pygame.mixer import Channel, Sound
 
-import custom_events
+from .systems import events
 
 class MusicPlayer():
     """A class which handles playing music from a sequence of sounds."""
@@ -103,7 +103,7 @@ class MusicPlayer():
         
         if self.drum_snd:
             self.drum_ch.play(self.drum_snd)
-            self.drum_ch.set_endevent(custom_events.MUSIC_STEP_FINISHED)
+            self.drum_ch.set_endevent(events.MUSIC_STEP_FINISHED)
         if self.bass_snd:
             self.bass_ch.play(self.bass_snd)
         if self.chrd_snd:

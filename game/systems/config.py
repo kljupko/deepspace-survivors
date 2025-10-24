@@ -11,11 +11,11 @@ class Config():
 
         self.mouse_wheel_magnitude = 5
 
-        self.settings_path = "data/settings.json"
-        self.main_save_path = "data/saves/main_save.json"
-        self.back_save_path = "data/saves/backup_save.json"
-        self.sounds_path = "audio/sounds/"
-        self.sequences_path = "audio/sequences/"
+        self.settings_path = "game/data/settings.json"
+        self.main_save_path = "game/data/saves/main_save.json"
+        self.back_save_path = "game/data/saves/backup_save.json"
+        self.sounds_path = "game/audio/sounds/"
+        self.sequences_path = "game/audio/sequences/"
         # TODO: add other file paths
 
         self.font_normal = pygame.font.SysFont(None, 14)
@@ -25,3 +25,5 @@ class Config():
         self.music_volumes = range(11)
 
         self.global_colorkey = pygame.Color(1,2,3)
+
+__all__ = ["Config"]

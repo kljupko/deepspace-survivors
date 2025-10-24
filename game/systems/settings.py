@@ -83,3 +83,5 @@ class Settings():
         """Restore the settings to default values."""
 
         self.data = self._defaults()
+
+__all__ = ["Settings"]

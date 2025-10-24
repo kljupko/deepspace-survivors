@@ -3,7 +3,7 @@ A module containing the powerups dropped by destroyed aliens.
 """
 
 import pygame
-from entity import Entity
+from .entity import Entity
 
 class PowerUp(Entity):
     """A base class representing a powerup."""
@@ -99,3 +99,5 @@ class AddAbility(PowerUp):
         
         self.game.powerups.remove(self)
         return True
+
+__all__ = ["BonusHP", "AddAbility"]

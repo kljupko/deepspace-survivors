@@ -1,15 +1,10 @@
 import pygame
 
-import custom_events
-from ships import Ship
-from aliens import Alien
-from touch import Touch
-from config import Config
-from settings import Settings
-from state import State
-from progress import Progress
-from music import MusicPlayer
-import ui
+from .systems import *
+from .entities import *
+from .touch import Touch
+from .music import MusicPlayer
+from .ui import *
 
 class Game:
     """Class that represents the game object."""
@@ -46,13 +41,13 @@ class Game:
         self.music_player = MusicPlayer(self)
 
         self.menus = {}
-        self.menus['main'] = ui.MainMenu(self)
-        self.menus['upgrade'] = ui.UpgradeMenu(self)
-        self.menus['unlock'] = ui.UnlockMenu(self)
-        self.menus['settings'] = ui.SettingsMenu(self)
-        self.menus['remap'] = ui.RemapKeyMenu(self)
-        self.menus['info'] = ui.InfoMenu(self)
-        self.menus['pause'] = ui.PauseMenu(self)      
+        self.menus['main'] = MainMenu(self)
+        self.menus['upgrade'] = UpgradeMenu(self)
+        self.menus['unlock'] = UnlockMenu(self)
+        self.menus['settings'] = SettingsMenu(self)
+        self.menus['remap'] = RemapKeyMenu(self)
+        self.menus['info'] = InfoMenu(self)
+        self.menus['pause'] = PauseMenu(self)
     
     def run(self):
         """Run the game loop."""
@@ -88,9 +83,9 @@ class Game:
         self.ship = Ship(self)
         # TODO: add ship to group, after adding image loading
 
-        self.top_tray = ui.TopTray(self)
+        self.top_tray = TopTray(self)
         self.top_tray.update()
-        self.bot_tray = ui.BottomTray(self)
+        self.bot_tray = BottomTray(self)
         self.bot_tray.update()
 
         self.bullets = pygame.sprite.Group()
@@ -205,7 +200,7 @@ class Game:
             if event.type == pygame.QUIT:
                 self.quit()
             
-            elif event.type == custom_events.MUSIC_STEP_FINISHED:
+            elif event.type == events.MUSIC_STEP_FINISHED:
                 self.music_player.update()
 
             elif event.type == pygame.KEYDOWN:

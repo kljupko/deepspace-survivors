@@ -1,5 +1,5 @@
 import pygame
-from entity import Entity
+from .entity import Entity
 
 class Bullet(Entity):
     """A class that represents a bullet fired from the ship."""
@@ -55,3 +55,5 @@ class Bullet(Entity):
         
         self.destroy()
         return True
+
+__all__ = ["Bullet"]

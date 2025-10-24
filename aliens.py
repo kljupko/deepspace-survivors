@@ -52,7 +52,7 @@ class Alien(Entity):
             return False
         
         self.game.ship.hp -= self.damage
-        self.game.bot_tray.update("ship_hp", self.game.ship.hp)
+        self.game.bot_tray.update()
         
         self.destroy()
         return True
@@ -76,9 +76,7 @@ class Alien(Entity):
             )
         )
         self.game.state.credits_earned += self.credits
-        self.game.top_tray.update(
-            "credits_earned", self.game.state.credits_earned
-        )
+        self.game.top_tray.update()
 
         self.destroy()
         return True

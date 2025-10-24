@@ -160,7 +160,8 @@ class ElemUnion():
 class Menu():
     """A base class representing a menu."""
 
-    def __init__(self, game, name, background=None):
+    def __init__(self, game, name, background=None,
+                 width=None, height=None, padding=None):
         """Initialize the menu."""
 
         self.game = game
@@ -171,20 +172,46 @@ class Menu():
         self.was_scrolled = False
         self.needs_redraw = True
 
-        width = self.game.screen.width
-        height = self.game.screen.height
-
-        self.surface = pygame.Surface((width, height))
-        self.rect = self.surface.get_rect()
-        self.padding = {'top': 10, 'bottom': 10, 'left': 10, 'right': 10}
-
-        if background is None:
-            background = pygame.Surface((width, height))
-            pygame.draw.rect(background, "black", background.get_rect())
-        self.background = background
+        self._set_size(width, height)
+        if padding is None:
+            padding = (10, 10, 10, 10)
+        self._set_padding(padding)
+        self._set_background(background)
 
         self.elements = {}
+        self._load_elements()
     
+    def _set_size(self, width=None, height=None):
+        """Set the size for the menu and its surface."""
+
+        if width is None:
+            width = self.game.screen.width
+        if height is None:
+            height = self.game.screen.height
+        
+        self.surface = pygame.Surface((width, height))
+        self.rect = self.surface.get_rect()
+
+    def _set_padding(self, padding=None):
+        """Sets the padding for the menu: (top, bottom, left, right)."""
+
+        if padding is None:
+            padding = (0, 0, 0, 0)
+
+        self.padding = {
+            'top': padding[0], 'bottom': padding[1],
+            'left': padding[2], 'right': padding[3]
+        }
+    
+    def _set_background(self, background=None):
+        """Set the background for the menu."""
+
+        if background is None:
+            background = pygame.Surface((self.rect.width, self.rect.height))
+            pygame.draw.rect(background, "black", background.get_rect())
+        # TODO: otherwise, load the background image
+        self.background = background
+
     def _load_elements(self):
         """A hook for populating the menu with UI Elements."""
 
@@ -255,27 +282,29 @@ class Menu():
         Expands the rect height to include all elements + bottom padding.
         """
         
-        height = self.rect.height
-        pos = self.rect.x, self.rect.y
+        width, height = self.rect.width, self.rect.height
+        pos_x, pos_y = self.rect.x, self.rect.y
 
+        bottom = 0
         for element in self.elements.values():
             el_bottom = element.rect.y + element.rect.height
-            height = el_bottom if el_bottom > height else height
+            bottom = el_bottom if el_bottom > bottom else bottom
         
-        height += self.padding['bottom']
+        lowest = bottom + self.padding['bottom']
+        height = lowest if lowest > height else height
 
-        self.surface = pygame.Surface((self.rect.width, height))
-        self.rect = self.surface.get_rect()
-
-        self.rect.x, self.rect.y = pos
-
-        self.surface.blit(self.background, self.background.get_rect())
+        self._set_size(width, height)
+        self.rect.x, self.rect.y = pos_x, pos_y
 
     def update(self):
         """Re-renders the menu with current values."""
 
         self._load_elements()
 
+        self.surface.blit(
+            self.background,
+            (0, self.rect.height - self.background.height)
+        )
         for element in self.elements.values():
             element.draw()
         
@@ -387,13 +416,16 @@ class Menu():
 class Tray(Menu):
     """A base class for the top and bottom trays."""
 
-    def __init__(self, game, name,background=None):
+    def __init__(self, game, name,background=None,
+                 width=None, height=None, padding=None):
         """Initialize the tray with a surface."""
 
         if background is None:
             background = pygame.Surface((game.screen.width, game.screen.height))
             pygame.draw.rect(background, 'white', background.get_rect())
+        
+        if padding is None:
+            padding = (1, 1, 1, 1)
 
-        super().__init__(game, name, background)
-
+        super().__init__(game, name, background, width, height, padding)
         self.is_visible = True

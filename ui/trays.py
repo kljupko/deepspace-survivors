@@ -1,18 +1,15 @@
 """A module containing the classes for the top and bottom tray."""
 
-import pygame
 from .base import Tray
 
 class TopTray(Tray):
     """A class representing the top tray."""
 
-    def __init__(self, game, name='top_tray', background=None):
+    def __init__(self, game, name='top_tray', background=None,
+                 width=None, height=23, padding=None):
         """Initialize the top tray."""
 
-        super().__init__(game, name, background)
-        self.padding = {'top': 1, 'bottom': 1, 'left': 1, 'right': 1}
-        self.rect.height = 23
-        self._load_elements()
+        super().__init__(game, name, background, width, height, padding)
     
     def _load_elements(self):
         """Populate the tray with UI Elements."""
@@ -47,7 +44,7 @@ class TopTray(Tray):
                 'name': 'credits_earned',
                 'content': self.game.state.credits_earned,
                 'font': None, 'wraplen': None,
-                'x': self.rect.centerx, 'y': 12,
+                'x': self.rect.centerx, 'y': 11,
                 'anchor': 'midtop',
                 'action': lambda: self.game.menus['pause'].open()
             }, {
@@ -85,13 +82,12 @@ class TopTray(Tray):
 class BottomTray(Tray):
     """A class representing the bottom tray."""
 
-    def __init__(self, game, name='bot_tray', background=None):
+    def __init__(self, game, name='bot_tray', background=None,
+                 width=None, height=40, padding=None):
         """Initialize the bottom tray."""
 
-        super().__init__(game, name, background)
-        self.padding = {'top': 1, 'bottom': 1, 'left': 1, 'right': 1}
-        self.rect.height = 23
-        self.rect.y = self.game.play_rect.y + self.game.play_rect.height
+        super().__init__(game, name, background, width, height, padding)
+        self.rect.y = self.game.play_rect.y + self.game.play_rect.height - 11
     
     def _load_elements(self):
         """Populate the tray with UI Elements"""
@@ -144,7 +140,7 @@ class BottomTray(Tray):
                 'font': None, 'wraplen': None,
                 'x': self.rect.width // 8 * 1, 'y': 12,
                 'anchor': 'midtop',
-                'action': self.game.ship.active_abilities[0].toggle
+                'action': self.game.ship.passive_abilities[0].toggle
             }, {
                 'type': 'icon',
                 'name': 'passive_2_btn',
@@ -152,7 +148,7 @@ class BottomTray(Tray):
                 'font': None, 'wraplen': None,
                 'x': self.rect.width // 8 * 3, 'y': 0,
                 'anchor': 'midtop',
-                'action': self.game.ship.active_abilities[1].toggle
+                'action': self.game.ship.passive_abilities[1].toggle
             }, {
                 'type': 'icon',
                 'name': 'passive_3_btn',
@@ -160,7 +156,7 @@ class BottomTray(Tray):
                 'font': None, 'wraplen': None,
                 'x': self.rect.width // 8 * 5, 'y': 0,
                 'anchor': 'midtop',
-                'action': self.game.ship.active_abilities[2].toggle
+                'action': self.game.ship.passive_abilities[2].toggle
             }, {
                 'type': 'icon',
                 'name': 'passive_4_btn',
@@ -168,7 +164,7 @@ class BottomTray(Tray):
                 'font': None, 'wraplen': None,
                 'x': self.rect.width // 8 * 7, 'y': 0,
                 'anchor': 'midtop',
-                'action': self.game.ship.active_abilities[3].toggle
+                'action': self.game.ship.passive_abilities[3].toggle
             },
         )
 

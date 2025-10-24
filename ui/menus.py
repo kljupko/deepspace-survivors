@@ -6,11 +6,11 @@ from .base import Menu, TextBox
 class MainMenu(Menu):
     """A class which represents the game's main menu."""
 
-    def __init__(self, game, name="main", background=None):
+    def __init__(self, game, name="main", background=None,
+                 width=None, height=None, padding=None):
         """Initialize the main menu."""
 
-        super().__init__(game, name, background)
-        self._load_elements()
+        super().__init__(game, name, background, width, height, padding)
     
     def _load_elements(self):
         """Populate menu with UI Elements."""
@@ -73,11 +73,11 @@ class MainMenu(Menu):
 class UpgradeMenu(Menu):
     """A class representing the upgrade menu."""
 
-    def __init__(self, game, name="upgrade", background=None):
+    def __init__(self, game, name="upgrade", background=None,
+                 width=None, height=None, padding=None):
         """Initialize the upgrade menu."""
 
-        super().__init__(game, name, background)
-        self._load_elements()
+        super().__init__(game, name, background, width, height, padding)
     
     def _load_elements(self):
         """Populate the menu with upgrades."""
@@ -108,11 +108,11 @@ class UpgradeMenu(Menu):
 class UnlockMenu(Menu):
     """A class representing the unlock menu."""
 
-    def __init__(self, game, name="unlock", background=None):
+    def __init__(self, game, name="unlock", background=None,
+                 width=None, height=None, padding=None):
         """Initialize the unlock menu."""
 
-        super().__init__(game, name, background)
-        self._load_elements()
+        super().__init__(game, name, background, width, height, padding)
     
     def _load_elements(self):
         """Populate the menu with unlockables."""
@@ -143,12 +143,11 @@ class UnlockMenu(Menu):
 class SettingsMenu(Menu):
     """A class representing the game's settings menu."""
 
-    def __init__(self, game, name="settings", background=None):
+    def __init__(self, game, name="settings", background=None,
+                 width=None, height=None, padding=None):
         """Initialize the settings menu."""
 
-        super().__init__(game, name, background)
-        
-        self._load_elements()
+        super().__init__(game, name, background, width, height, padding)
     
     def _load_elements(self):
         """Populate the menu with the values from the settings."""
@@ -569,10 +568,11 @@ class SettingsMenu(Menu):
 class RemapKeyMenu(Menu):
     """A class representing the key remapping prompt."""
 
-    def __init__(self, game, name="remap", background=None):
+    def __init__(self, game, name="remap", background=None,
+                 width=None, height=None, padding=None):
         """Initialize the key remapping menu."""
 
-        super().__init__(game, name, background)
+        super().__init__(game, name, background, width, height, padding)
 
         self.keybind = None
     
@@ -606,12 +606,11 @@ class RemapKeyMenu(Menu):
 class InfoMenu(Menu):
     """A class representing the info page/ menu."""
 
-    def __init__(self, game, name="info", background=None):
+    def __init__(self, game, name="info", background=None,
+                 width=None, height=None, padding=None):
         """Initialize the info menu."""
 
-        super().__init__(game, name, background)
-
-        self._load_elements()
+        super().__init__(game, name, background, width, height, padding)
     
     def _load_elements(self):
         """Populate the menu with information."""
@@ -642,11 +641,11 @@ class InfoMenu(Menu):
 class PauseMenu(Menu):
     """A class representing the game's pause menu."""
 
-    def __init__(self, game, name='pause', background=None):
+    def __init__(self, game, name='pause', background=None,
+                 width=None, height=None, padding=None):
         """Initialize the pause menu."""
 
-        super().__init__(game, name, background)
-        self._load_elements()
+        super().__init__(game, name, background, width, height, padding)
     
     def _load_elements(self):
         """Populate the menu with buttons."""
@@ -699,8 +698,8 @@ class PauseMenu(Menu):
         self.game.state.session_running = True
         self.game.state.last_session_tick = pygame.time.get_ticks()
         self.close()
-        # draw the bottom tray just to overwrite the part of the menu
-        self.game.bot_tray.draw()
+        # update the bottom tray just to overwrite the part of the menu
+        self.game.bot_tray.update()
         self.game.music_player.unpause()
     
     def _restart_session(self):

@@ -80,7 +80,7 @@ class Game:
         self.state.session_running = True
 
         self.play_surf = pygame.Surface((
-            self.screen.width, self.screen.height - 66
+            self.screen.width, self.screen.height - (40-11)
         ))
         self.play_rect = self.play_surf.get_rect()
 
@@ -88,7 +88,9 @@ class Game:
         # TODO: add ship to group, after adding image loading
 
         self.top_tray = ui.TopTray(self)
+        self.top_tray.update()
         self.bot_tray = ui.BottomTray(self)
+        self.bot_tray.update()
 
         self.bullets = pygame.sprite.Group()
         self.aliens = pygame.sprite.Group()

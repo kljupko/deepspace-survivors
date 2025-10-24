@@ -1,11 +1,14 @@
-"""A module containing classes for playing music."""
+"""
+A module containing the MusicPlayer class
+for playing music from sequences of Sounds.
+"""
 
 from pathlib import Path
 import json
 import pygame
 from pygame.mixer import Channel, Sound
 
-from .systems import events
+from ..systems import events
 
 class MusicPlayer():
     """A class which handles playing music from a sequence of sounds."""
@@ -172,3 +175,5 @@ class MusicPlayer():
         self._play()
         self._load_step()
         self.current_step += 1
+
+__all__ = ["MusicPlayer"]

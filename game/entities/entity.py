@@ -1,3 +1,7 @@
+"""
+A module containing the base Entity class, parent to Ship, Alien, etc.
+"""
+
 import pygame
 from pygame.sprite import Sprite
 
@@ -150,3 +154,5 @@ class Entity(Sprite):
         
         self.x = x
         self.y = y
+
+__all__ = ["Entity"]

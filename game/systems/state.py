@@ -1,3 +1,7 @@
+"""
+A module containing the State class, which tracks the current game state.
+"""
+
 import pygame
 
 class State():

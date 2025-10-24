@@ -1,4 +1,5 @@
 """Module which contains the class in charge of touch/ mouse controls."""
+
 import pygame
 
 class Touch():
@@ -48,3 +49,5 @@ Touch object:
     Current position:   {self.current_pos}
     Touch duration:     {self.touch_duration}
 """
+
+__all__ = ["Touch"]

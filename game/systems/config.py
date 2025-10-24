@@ -1,3 +1,5 @@
+"""A module containing the Config class for developer configuration."""
+
 import pygame.font
 
 class Config():

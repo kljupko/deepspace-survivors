@@ -1,9 +1,13 @@
+"""
+A module containing the main Game class,
+which manages the game as a whole.
+"""
+
 import pygame
 
 from .systems import *
 from .entities import *
-from .touch import Touch
-from .music import MusicPlayer
+from .input import *
 from .ui import *
 
 class Game:

@@ -1,3 +1,5 @@
+"""A module containing the Bullet class."""
+
 import pygame
 from .entity import Entity
 

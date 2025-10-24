@@ -1,3 +1,8 @@
+"""
+A module which contains the Settings class
+for user-defined settings and keybindings.
+"""
+
 from pathlib import Path
 import json
 import pygame

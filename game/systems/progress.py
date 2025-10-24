@@ -1,3 +1,8 @@
+"""
+A module containing the Progress class,
+which saves, loads, and keeps track of player progress.
+"""
+
 from pathlib import Path
 import json
 

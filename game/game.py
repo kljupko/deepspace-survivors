@@ -52,6 +52,8 @@ class Game:
         self.menus['remap'] = RemapKeyMenu(self)
         self.menus['info'] = InfoMenu(self)
         self.menus['pause'] = PauseMenu(self)
+
+        self.spawn_manager = SpawnManager(self)
     
     def run(self):
         """Run the game loop."""
@@ -94,11 +96,24 @@ class Game:
 
         self.bullets = pygame.sprite.Group()
         self.aliens = pygame.sprite.Group()
-        self.aliens.add(Alien(self))
         self.powerups = pygame.sprite.Group()
 
         self.menus["main"].close()
         self.music_player.load_sequence("test.json", True)
+    
+    def _level_up(self, seconds):
+        """Increase the level of the game after a period of time."""
+
+        if seconds < 1:
+            return False
+        
+        if seconds % 5 != 0:
+            return False
+        
+        self.state.level += 1
+        print("Level:", self.state.level)
+        self.spawn_manager.level_up()
+        self.spawn_manager.spawn_wave()
     
     def quit_session(self):
         """Quit the session and return to the main menu."""
@@ -398,6 +413,21 @@ class Game:
     # region UPDATE HELPER FUNCTIONS
     # -------------------------------------------------------------------
 
+    def _update_each_second(self):
+        """
+        This method handles updates that need to be checked only once
+        each second, to improve performance by reducing method calls.
+        """
+
+        seconds = self.state.session_duration // 1000
+        if seconds <= self.state.last_second_tracked:
+            return False
+        
+        self.top_tray.update()
+        self._level_up(seconds)
+
+        self.state.last_second_tracked = seconds
+
     def _update_session(self):
         """Updates the entities and trays if the session is running."""
 
@@ -405,11 +435,9 @@ class Game:
             return False
         
         self.state.track_duration()
-       
-        # update top tray each second
-        if self.state.session_duration // 1000 > self.state.last_second_tracked:
-            self.top_tray.update()
-            self.state.last_second_tracked = self.state.session_duration // 1000
+        self._update_each_second()
+
+        self.spawn_manager.spawn_random()
 
         # TODO: use the group to update the ship maybe
         self.ship.update()

@@ -80,6 +80,19 @@ class Ship(Entity):
         elif self.moving_right:
             self.destination = (self.bounds["right"], self.y)
     
+    def take_damage(self, damage):
+        """
+        Reduces the ship's HP by the given damage.
+        Ends the session at 0 HP.
+        """
+
+        self.hp -= damage
+        self.game.bot_tray.update()
+
+        if self.hp <= 0:
+            # TODO: replace this with a 'lose_session' menu
+            self.game.quit_session()
+
     # region COLLISION CHECKING
     # -------------------------------------------------------------------
 
@@ -91,13 +104,8 @@ class Ship(Entity):
             return False
         
         for alien in collisions:
-            self.hp -= alien.damage
-            self.game.bot_tray.update()
+            self.take_damage(alien.damage)
             alien.destroy()
-        
-        if self.hp <= 0:
-            # TODO: replace this with a 'lose_session' menu
-            self.game.quit_session()
         
         return True
     

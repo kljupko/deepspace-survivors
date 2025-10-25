@@ -51,10 +51,9 @@ class Alien(Entity):
         if self.y < self.bounds["bottom"]:
             return False
         
-        self.game.ship.hp -= self.damage
-        self.game.bot_tray.update()
-        
+        self.game.ship.take_damage(self.damage)
         self.destroy()
+        
         return True
     
     def take_damage(self, damage):

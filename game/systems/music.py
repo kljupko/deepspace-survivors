@@ -116,7 +116,7 @@ class MusicPlayer():
     
     def reset_sequence(self):
         """Set the sequence to step 0."""
-        self.drum_ch.set_endevent()
+        self.stop()
         self.current_step = 0
         self._load_step(0)
     

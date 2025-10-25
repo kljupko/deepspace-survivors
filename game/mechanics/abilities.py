@@ -39,6 +39,7 @@ class Active(Ability):
 
         self.name = "Base Active Ability"
         self.description = "Active ability description."
+        self.is_active = True
     
     def toggle(self):
         """Toggle the ability On/Off."""
@@ -61,6 +62,7 @@ class Passive(Ability):
 
         self.name = "Base Passive Ability"
         self.description = "Passive ability description."
+        self.is_active = False
         self.level = 1
         self.enabled = True
 

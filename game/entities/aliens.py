@@ -2,6 +2,8 @@
 A module containing all the aliens.
 """
 
+import pygame
+
 from .entity import Entity
 from ..mechanics import abilities
 from . import powerups
@@ -15,7 +17,10 @@ class Alien(Entity):
         super().__init__(game)
 
         # TODO: load alien as an image
-        self.color = "red"
+        self.image = pygame.Surface((24, 24))
+        # remove this draw after you start using images
+        pygame.draw.rect(self.image, 'red', self.image.get_rect())
+        self.rect = self.image.get_rect()
 
         # spawn enemy above the screen
         self.rect.midbottom = self.game.play_rect.midtop
@@ -68,12 +73,9 @@ class Alien(Entity):
             return False
         
         # TODO: add random chance to drop powerup, choose random powerup
-        self.game.powerups.add(
-            powerups.AddAbility(
-                self.game, self.rect.center,
-                abilities.Spear(self.game)
-            )
-        )
+        powerup = powerups.ImproveStat(self.game, self.rect.center, "Fire Power")
+        powerup = powerups.AddAbility(self.game, self.rect.center, abilities.DeathPulse)
+        self.game.powerups.add(powerup)
         self.game.state.credits_earned += self.credits
         self.game.top_tray.update()
 

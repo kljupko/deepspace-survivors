@@ -17,8 +17,10 @@ class PowerUp(Entity):
         self.description = "Powerup description."
 
         # TODO: load the powerup as an image
-        self.rect = pygame.Rect(0, 0, 12, 12)
-        self.color = "teal"
+        self.image = pygame.Surface((12, 12))
+        # remove this draw after you start using images
+        pygame.draw.rect(self.image, 'teal', self.image.get_rect())
+        self.rect = self.image.get_rect()
 
         self.rect.center = position
         self.x = float(self.rect.x)
@@ -56,43 +58,84 @@ class PowerUp(Entity):
         print(self.description)
         self.destroy()
     
-class BonusHP(PowerUp):
-    """A class representing a powerup that increases the ship's HP."""
+class ImproveStat(PowerUp):
+    """
+    A class representing a powerup that improves one of the ship's stats.
+    """
 
-    def __init__(self, game, position):
+    def __init__(self, game, position, stat_name, magnitude=1):
         """Initialize the powerup."""
 
         super().__init__(game, position)
 
-        self.name = "BonusHP"
-        self.hp_bonus = 1
-        self.description = f"Increases the player ship's HP by {self.hp_bonus}."
+        # TODO: load the image based on the stat
+        self.image = pygame.Surface((12, 12))
+        # remove this draw after you start using images
+        pygame.draw.rect(self.image, 'deeppink', self.image.get_rect())
+
+        self.stat_name = stat_name
+        self.magnitude = magnitude
+        self.name = f"Increase {self.stat_name}"
+        self.description = f"Increases a player ship's {stat_name.lower()} "
+        self.description += f"by {self.magnitude}."
 
     def apply(self):
         """Apply the powerup on pickup."""
 
-        self.game.ship.hp += self.hp_bonus
-        self.game.powerups.remove(self)
-        return True
+        # loop through the options by name to figure out which one it is?
+        name = self.stat_name.lower()
+        success = False
+
+        # check bottom tray stats
+        if name == 'hp':
+            self.game.ship.hp += self.magnitude
+            success = True
+        elif name == 'thrust':
+            self.game.ship.thrust += self.magnitude
+            success = True
+
+        if success:
+            self.game.bot_tray.update()
+            self.game.powerups.remove(self)
+            return True
+        
+        # check top tray stats
+        if name == 'fire power':
+            self.game.ship.fire_power += self.magnitude
+            success = True
+        if name == 'fire rate':
+            self.game.ship.fire_rate += self.magnitude
+            success = True
+
+        if success:
+            self.game.top_tray.update()
+            self.game.powerups.remove(self)
+            return True
+
+        return False
 
 class AddAbility(PowerUp):
     """A class representing a powerup that grants the ship an ability."""
 
-    def __init__(self, game, position, ability, isActive=False):
+    def __init__(self, game, position, ability_class):
         """Initialize the powerup."""
 
         super().__init__(game, position)
 
-        self.ability = ability
-        self.isActive = isActive
+        # override the default image
+        self.image = pygame.Surface((12, 12))
+        # remove this draw after you start using images
+        pygame.draw.rect(self.image, 'peru', self.image.get_rect())
+
+        self.ability = ability_class(self.game)
         self.name = f"Add {self.ability.name}"
-        self.description = f"Gives the player the {self.ability.name}" \
-        " ability."
+        self.description = f"Gives the player the "
+        self.description += f"{self.ability.name} ability."
     
     def apply(self):
         """Apply the powerup on pickup."""
 
-        if self.isActive:
+        if self.ability.is_active:
             self.game.ship.add_active_ability(self.ability)
         else:
             self.game.ship.add_passive_ability(self.ability)
@@ -100,4 +143,4 @@ class AddAbility(PowerUp):
         self.game.powerups.remove(self)
         return True
 
-__all__ = ["BonusHP", "AddAbility"]
+__all__ = ["ImproveStat", "AddAbility"]

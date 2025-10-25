@@ -52,8 +52,6 @@ class Game:
         self.menus['remap'] = RemapKeyMenu(self)
         self.menus['info'] = InfoMenu(self)
         self.menus['pause'] = PauseMenu(self)
-
-        self.spawn_manager = SpawnManager(self)
     
     def run(self):
         """Run the game loop."""
@@ -97,6 +95,8 @@ class Game:
         self.bullets = pygame.sprite.Group()
         self.aliens = pygame.sprite.Group()
         self.powerups = pygame.sprite.Group()
+
+        self.spawn_manager = SpawnManager(self)
 
         self.menus["main"].close()
         self.music_player.load_sequence("test.json", True)

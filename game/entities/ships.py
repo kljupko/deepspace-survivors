@@ -16,7 +16,10 @@ class Ship(Entity):
         super().__init__(game)
 
         # TODO: load ship as an image
-        self.color = "green"
+        self.image = pygame.Surface((24, 24))
+        # remove this draw after you start using images
+        pygame.draw.rect(self.image, 'green', self.image.get_rect())
+        self.rect = self.image.get_rect()
 
         # overwrite Entity's center position
         self.rect.midtop = self.game.play_rect.centerx, self.bounds["bottom"]

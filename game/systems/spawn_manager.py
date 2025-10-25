@@ -24,7 +24,7 @@ class SpawnManager():
         }
 
         self.waves = {
-            2: AlienWave,
+            5: AlienWave,
             # TODO: add more waves when more alien classes are made
         }
     

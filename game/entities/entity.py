@@ -18,8 +18,9 @@ class Entity(Sprite):
         self.game = game
 
         # show the entity as a rectangle
-        self.rect = pygame.Rect(0, 0, 24, 24)
-        self.color = "pink"
+        self.image = pygame.Surface((24, 24))
+        pygame.draw.rect(self.image, 'pink', self.image.get_rect())
+        self.rect = self.image.get_rect()
 
         # start at the center of the screen
         self.rect.center = self.game.play_rect.center
@@ -84,7 +85,7 @@ class Entity(Sprite):
     def draw(self):
         """Draw the entity to the screen."""
 
-        pygame.draw.rect(self.game.play_surf, self.color, self.rect)
+        self.game.play_surf.blit(self.image, self.rect)
     
     def destroy(self):
         """

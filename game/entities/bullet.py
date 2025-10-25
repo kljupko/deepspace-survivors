@@ -12,8 +12,10 @@ class Bullet(Entity):
         super().__init__(game)
 
         # TODO: load the bullet as an image
-        self.color = "orange"
-        self.rect = pygame.Rect(0, 0, 4, 4)
+        self.image = pygame.Surface((4, 4))
+        # remove this draw after you start using images
+        pygame.draw.rect(self.image, 'orange', self.image.get_rect())
+        self.rect = self.image.get_rect()
 
         # spawn bullet on top of the ship
         self._calculate_bounds(pad_top=-self.rect.height)

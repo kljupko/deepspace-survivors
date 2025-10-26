@@ -7,6 +7,8 @@ from pathlib import Path
 import json
 import pygame
 
+from . import config
+
 class Settings():
     """A class representing the user settings and controls."""
 
@@ -15,7 +17,7 @@ class Settings():
 
         self.game = game
 
-        self.data = self._load_data(self.game.config.settings_path)
+        self.data = self._load_data(config.settings_path)
 
         if self.data:
             return
@@ -75,7 +77,7 @@ class Settings():
     def save_data(self):
         "Save the current settings to a .json file."
 
-        path = Path(self.game.config.settings_path)
+        path = Path(config.settings_path)
 
         try:
             data = json.dumps(self.data)

@@ -9,6 +9,7 @@ import pygame
 from pygame.mixer import Channel, Sound
 
 from ..systems import events
+from . import config
 
 class MusicPlayer():
     """A class which handles playing music from a sequence of sounds."""
@@ -40,7 +41,7 @@ class MusicPlayer():
     def load_sequence(self, file_name, loop_sequence=False, autoplay=True):
         """Load a sequence of sounds."""
 
-        path = Path(self.game.config.sequences_path, file_name)
+        path = Path(config.sequences_path, file_name)
         if not path.exists():
             print(f"No sequence at: {path}")
             return False
@@ -76,7 +77,7 @@ class MusicPlayer():
         if step > self.max_step:
             return False
 
-        dir = self.game.config.sounds_path
+        dir = config.sounds_path
         drum = self.sequence_sounds[self.sequence[step][0]]
         bass = self.sequence_sounds[self.sequence[step][1]]
         chrd = self.sequence_sounds[self.sequence[step][2]]
@@ -95,7 +96,7 @@ class MusicPlayer():
         """
 
         if self.drum_snd is None:
-            dir = self.game.config.sounds_path
+            dir = config.sounds_path
             self.drum_snd = Sound(Path(dir, "silence.wav"))
 
     def _play(self):

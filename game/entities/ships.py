@@ -6,6 +6,7 @@ import pygame
 from .entity import Entity
 from .bullet import Bullet
 from ..mechanics import abilities
+from ..systems import config, helper_funcs
 
 class Ship(Entity):
     """Base class that manages the player ship."""
@@ -15,10 +16,9 @@ class Ship(Entity):
         
         super().__init__(game)
 
-        # TODO: load ship as an image
-        self.image = pygame.Surface((24, 24))
-        # remove this draw after you start using images
-        pygame.draw.rect(self.image, 'green', self.image.get_rect())
+        self.image = helper_funcs.load_image(
+            dflt_color="green"
+        )
         self.rect = self.image.get_rect()
 
         # overwrite Entity's center position
@@ -27,7 +27,7 @@ class Ship(Entity):
         self.y = float(self.rect.y)
 
         # allow the ship to move horizontally
-        self.base_speed_x = self.game.config.base_speed
+        self.base_speed_x = config.base_speed
         self._calculate_relative_speed()
         self.moving_left = False
         self.moving_right = False
@@ -170,7 +170,7 @@ class Ship(Entity):
         """Start charging active abilities."""
 
         if self.charge is None:
-            req = self.game.config.required_ability_charge
+            req = config.required_ability_charge
             self.charge = pygame.time.get_ticks()
             self.required_charge = self.charge + req
             return True

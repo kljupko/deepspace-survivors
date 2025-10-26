@@ -5,6 +5,7 @@ which saves, loads, and keeps track of player progress.
 
 from pathlib import Path
 import json
+from . import config
 
 class Progress():
     """A class which handles saving and loading the player's progress."""
@@ -14,7 +15,7 @@ class Progress():
 
         self.game = game
 
-        self.data = self._load_data(self.game.config.main_save_path)
+        self.data = self._load_data(config.main_save_path)
         if self.data:
             # loading main file successful
             self.save_data(True) # save current data as backup
@@ -22,7 +23,7 @@ class Progress():
         
         # otherwise, try loading the backup
         print("Failed to load the main save. Loading backup...")
-        self.data = self._load_data(self.game.config.back_save_path)
+        self.data = self._load_data(config.back_save_path)
         if self.data:
             # at least the backup worked
             return
@@ -70,9 +71,9 @@ class Progress():
         """Save the current progress data to a .json file."""
 
         if save_as_backup:
-            path = Path(self.game.config.back_save_path)
+            path = Path(config.back_save_path)
         else:
-            path = Path(self.game.config.main_save_path)
+            path = Path(config.main_save_path)
         
         try:
             data = json.dumps(self.data)

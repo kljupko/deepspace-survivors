@@ -2,6 +2,7 @@
 
 import pygame
 from .entity import Entity
+from ..systems import config, helper_funcs
 
 class Bullet(Entity):
     """A class that represents a bullet fired from the ship."""
@@ -9,13 +10,8 @@ class Bullet(Entity):
     def __init__(self, game):
         """Initialize the bullet."""
 
-        super().__init__(game)
-
-        # TODO: load the bullet as an image
-        self.image = pygame.Surface((4, 4))
-        # remove this draw after you start using images
-        pygame.draw.rect(self.image, 'orange', self.image.get_rect())
-        self.rect = self.image.get_rect()
+        image = helper_funcs.load_image(dflt_color="orange", dflt_size=(4, 4))
+        super().__init__(game, image)
 
         # spawn bullet on top of the ship
         self._calculate_bounds(pad_top=-self.rect.height)
@@ -24,7 +20,7 @@ class Bullet(Entity):
         self.y = float(self.rect.y)
 
         # allow the bullet to move upwards
-        self.base_speed_y = self.game.config.base_speed * 0.5
+        self.base_speed_y = config.base_speed * 0.5
         self._calculate_relative_speed()
         self.destination = (self.x, self.bounds["top"])
 

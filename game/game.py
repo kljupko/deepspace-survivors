@@ -34,7 +34,6 @@ class Game:
         self._configure_display()
 
         self.touch = Touch()
-        self.config = Config()
         self.settings = Settings(self)
         self.clock = pygame.time.Clock()
         self.dt = 0
@@ -368,8 +367,8 @@ class Game:
     def _handle_mousewheel_event(self, event):
         """Handles what happens when the user scrolls the mouse wheel."""
 
-        x = event.x * self.config.mouse_wheel_magnitude
-        y = event.y * self.config.mouse_wheel_magnitude
+        x = event.x * config.mouse_wheel_magnitude
+        y = event.y * config.mouse_wheel_magnitude
 
         for menu in self.menus.values():
             menu.scroll((x, y), True)

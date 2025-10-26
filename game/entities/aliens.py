@@ -7,6 +7,7 @@ import pygame
 from .entity import Entity
 from ..mechanics import abilities
 from . import powerups
+from ..systems import config, helper_funcs
 
 class Alien(Entity):
     """Base class that manages the aliens."""
@@ -14,13 +15,8 @@ class Alien(Entity):
     def __init__(self, game):
         """Initialize the alien."""
 
-        super().__init__(game)
-
-        # TODO: load alien as an image
-        self.image = pygame.Surface((24, 24))
-        # remove this draw after you start using images
-        pygame.draw.rect(self.image, 'red', self.image.get_rect())
-        self.rect = self.image.get_rect()
+        image = helper_funcs.load_image(dflt_color="red")
+        super().__init__(game, image)
 
         # spawn enemy above the screen
         self.rect.midbottom = self.game.play_rect.midtop
@@ -30,7 +26,7 @@ class Alien(Entity):
         self._calculate_bounds(pad_bot=-self.rect.height)
 
         # allow the alien to move downwards
-        self.base_speed_y = self.game.config.base_speed * 0.25
+        self.base_speed_y = config.base_speed * 0.25
         self._calculate_relative_speed()
         self.destination = (self.x, self.bounds["bottom"])
 

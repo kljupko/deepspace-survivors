@@ -4,6 +4,7 @@ A module containing the base Entity class, parent to Ship, Alien, etc.
 
 import pygame
 from pygame.sprite import Sprite
+from ..systems import helper_funcs
 
 class Entity(Sprite):
     """
@@ -11,15 +12,15 @@ class Entity(Sprite):
     which other game objects inherit methods and properties.
     """
 
-    def __init__(self, game):
+    def __init__(self, game, image=None):
         """Initialize the entity."""
         
         super().__init__()
         self.game = game
 
-        # show the entity as a rectangle
-        self.image = pygame.Surface((24, 24))
-        pygame.draw.rect(self.image, 'pink', self.image.get_rect())
+        if image is None:
+            image = helper_funcs.load_image()
+        self.image = image
         self.rect = self.image.get_rect()
 
         # start at the center of the screen

@@ -2,6 +2,8 @@
 
 import pygame
 
+from ..systems import config, helper_funcs
+
 class UIElement():
     """A class that represents a single element of the user interface."""
 
@@ -71,23 +73,8 @@ class Icon(UIElement):
                  anchor="topleft", action=None):
         """Initialize the icon."""
 
-        content = self._process_image(content)
+        content = helper_funcs.load_image(content, "pink", (10, 10))
         super().__init__(container, name, content, position, anchor, action)
-    
-    def _process_image(self, image):
-        """Process the image provided to be set as the Icon's content."""
-
-        if image is None:
-            image = pygame.Surface((10, 10))
-            pygame.draw.rect(image, "pink", (0, 0, 10, 10))
-        elif image is False:
-            # image will be an empty surface with a size of 0
-            image = pygame.Surface((0, 0))
-        else:
-            # TODO: load the image of the icon
-            pass
-
-        return image
 
 class TextBox(UIElement):
     """A class representing a text box, with text wrapping."""
@@ -97,7 +84,7 @@ class TextBox(UIElement):
         """Initialize the text box."""
 
         if font is None:
-            font = container.game.config.font_normal
+            font = config.font_normal
         
         if wraplength is None:
             wraplength = container.rect.width - \
@@ -192,7 +179,7 @@ class Menu():
         
         self.surface = pygame.Surface((width, height))
         self.rect = self.surface.get_rect()
-        ck = self.game.config.global_colorkey
+        ck = config.global_colorkey
         self.surface.set_colorkey(ck)
         pygame.draw.rect(self.surface, ck, self.rect)
 

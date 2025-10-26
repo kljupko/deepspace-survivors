@@ -42,6 +42,7 @@ class Game:
         self.progress = Progress(self)
 
         self.music_player = MusicPlayer(self)
+        self.drop_manager = RandomDropManager(self)
 
         self.menus = {}
         self.menus['main'] = MainMenu(self)
@@ -438,11 +439,11 @@ class Game:
 
         self.spawn_manager.spawn_random()
 
-        # TODO: use the group to update the ship maybe
+        # TODO: use an "entity" group to update them
         self.ship.update()
+        self.aliens.update()
         self.bullets.update()
         self.powerups.update()
-        self.aliens.update()
     # -------------------------------------------------------------------
     # endregion
 

@@ -35,6 +35,7 @@ class Alien(Entity):
         self.speed = 1
         self.damage = 1
         self.credits = 10
+        self.drop_chance = 50 # percent
     
     # override Entity update method
     def update(self):
@@ -68,10 +69,13 @@ class Alien(Entity):
         if self.hp > 0:
             return False
         
-        # TODO: add random chance to drop powerup, choose random powerup
-        powerup = powerups.ImproveStat(self.game, self.rect.center, "Fire Power")
-        powerup = powerups.AddAbility(self.game, self.rect.center, abilities.Spear)
-        self.game.powerups.add(powerup)
+        # try dropping a random powerup
+        powerup = self.game.drop_manager.try_drop(
+            self.drop_chance, (self.x, self.y)
+        )
+        if powerup:
+            self.game.powerups.add(powerup)
+        
         self.game.state.credits_earned += self.credits
         self.game.top_tray.update()
 

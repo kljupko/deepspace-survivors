@@ -63,8 +63,7 @@ class ImproveStat(PowerUp):
     def __init__(self, game, position, stat_name, magnitude=1):
         """Initialize the powerup."""
 
-        image = helper_funcs.load_image(dflt_color="deeppink", dflt_size=(12, 12))
-        # TODO: add icon of stat, based on stat name
+        image = helper_funcs.load_image(dflt_color="cadetblue1", dflt_size=(12, 12))
         super().__init__(game, position, image)
 
         self.stat_name = stat_name
@@ -72,6 +71,16 @@ class ImproveStat(PowerUp):
         self.name = f"Increase {self.stat_name}"
         self.description = f"Increases a player ship's {stat_name.lower()} "
         self.description += f"by {self.magnitude}."
+
+        if self.stat_name.lower() == 'hp':
+            icon = helper_funcs.load_image(dflt_color='deeppink', dflt_size=(10, 10))
+        elif self.stat_name.lower() == 'thrust':
+            icon = helper_funcs.load_image(dflt_color='yellow', dflt_size=(10, 10))
+        elif self.stat_name.lower() == 'fire power':
+            icon = helper_funcs.load_image(dflt_color='red', dflt_size=(10, 10))
+        elif self.stat_name.lower() == 'fire rate':
+            icon = helper_funcs.load_image(dflt_color='orange', dflt_size=(10, 10))
+        self.image.blit(icon, (1, 1))
 
     def apply(self):
         """Apply the powerup on pickup."""

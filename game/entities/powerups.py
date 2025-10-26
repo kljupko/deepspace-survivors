@@ -63,8 +63,8 @@ class ImproveStat(PowerUp):
     def __init__(self, game, position, stat_name, magnitude=1):
         """Initialize the powerup."""
 
-        # TODO: load image based on stat name
         image = helper_funcs.load_image(dflt_color="deeppink", dflt_size=(12, 12))
+        # TODO: add icon of stat, based on stat name
         super().__init__(game, position, image)
 
         self.stat_name = stat_name
@@ -114,7 +114,6 @@ class AddAbility(PowerUp):
     def __init__(self, game, position, ability_class):
         """Initialize the powerup."""
 
-        # TODO: load image based on ability class
         image = helper_funcs.load_image(dflt_color="peru", dflt_size=(12, 12))
         super().__init__(game, position, image)
 
@@ -122,6 +121,8 @@ class AddAbility(PowerUp):
         self.name = f"Add {self.ability.name}"
         self.description = f"Gives the player the "
         self.description += f"{self.ability.name} ability."
+
+        self.image.blit(self.ability.icon, (1, 1))
     
     def apply(self):
         """Apply the powerup on pickup."""

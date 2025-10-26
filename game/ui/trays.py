@@ -1,6 +1,7 @@
 """A module containing the classes for the top and bottom tray."""
 
 from .base import Tray
+from ..systems import helper_funcs
 
 class TopTray(Tray):
     """A class representing the top tray."""
@@ -115,64 +116,160 @@ class BottomTray(Tray):
                 'action': None
             }, {
                 'type': 'icon',
-                'name': 'active_1_btn',
-                'content': None,
+                'name': 'active_1_bg',
+                'content': helper_funcs.load_image(dflt_size=(12, 12)),
                 'font': None, 'wraplen': None,
                 'x': self.rect.width // 4 * 1, 'y': 11,
                 'anchor': 'midtop',
-                'action': self.game.ship.active_abilities[0].toggle
+                'action': None
             }, {
                 'type': 'icon',
-                'name': 'active_2_btn',
-                'content': None,
+                'name': 'active_2_bg',
+                'content': helper_funcs.load_image(dflt_size=(12, 12)),
                 'font': None, 'wraplen': None,
                 'x': self.rect.width // 4 * 2, 'y': 0,
                 'anchor': 'midtop',
-                'action': self.game.ship.active_abilities[1].toggle
+                'action': None
             }, {
                 'type': 'icon',
-                'name': 'active_3_btn',
-                'content': None,
+                'name': 'active_3_bg',
+                'content': helper_funcs.load_image(dflt_size=(12, 12)),
+                'font': None, 'wraplen': None,
+                'x': self.rect.width // 4 * 3, 'y': 0,
+                'anchor': 'midtop',
+                'action': None
+            }, {
+                'type': 'icon',
+                'name': 'active_1_icon',
+                'content': self.game.ship.active_abilities[0].icon,
+                'font': None, 'wraplen': None,
+                'x': self.rect.width // 4 * 1, 'y': 1,
+                'anchor': 'midtop',
+                'action': None
+            }, {
+                'type': 'icon',
+                'name': 'active_2_icon',
+                'content': self.game.ship.active_abilities[1].icon,
+                'font': None, 'wraplen': None,
+                'x': self.rect.width // 4 * 2, 'y': 0,
+                'anchor': 'midtop',
+                'action': None
+            }, {
+                'type': 'icon',
+                'name': 'active_3_icon',
+                'content': self.game.ship.active_abilities[2].icon,
                 'font': None, 'wraplen': None,
                 'x': self.rect.width // 4 * 3, 'y': 0,
                 'anchor': 'midtop',
                 'action': self.game.ship.active_abilities[2].toggle
             }, {
                 'type': 'icon',
-                'name': 'passive_1_btn',
-                'content': None,
+                'name': 'passive_1_bg',
+                'content': helper_funcs.load_image(dflt_size=(12, 12)),
                 'font': None, 'wraplen': None,
-                'x': self.rect.width // 8 * 1, 'y': 12,
+                'x': self.rect.width // 8 * 1, 'y': 13,
                 'anchor': 'midtop',
-                'action': self.game.ship.passive_abilities[0].toggle
+                'action': None
             }, {
                 'type': 'icon',
-                'name': 'passive_2_btn',
-                'content': None,
+                'name': 'passive_2_bg',
+                'content': helper_funcs.load_image(dflt_size=(12, 12)),
                 'font': None, 'wraplen': None,
                 'x': self.rect.width // 8 * 3, 'y': 0,
                 'anchor': 'midtop',
-                'action': self.game.ship.passive_abilities[1].toggle
+                'action': None
             }, {
                 'type': 'icon',
-                'name': 'passive_3_btn',
-                'content': None,
+                'name': 'passive_3_bg',
+                'content': helper_funcs.load_image(dflt_size=(12, 12)),
                 'font': None, 'wraplen': None,
                 'x': self.rect.width // 8 * 5, 'y': 0,
                 'anchor': 'midtop',
-                'action': self.game.ship.passive_abilities[2].toggle
+                'action': None
             }, {
                 'type': 'icon',
-                'name': 'passive_4_btn',
-                'content': None,
+                'name': 'passive_4_bg',
+                'content': helper_funcs.load_image(dflt_size=(12, 12)),
                 'font': None, 'wraplen': None,
                 'x': self.rect.width // 8 * 7, 'y': 0,
                 'anchor': 'midtop',
-                'action': self.game.ship.passive_abilities[3].toggle
+                'action': None
+            }, {
+                'type': 'icon',
+                'name': 'passive_1_icon',
+                'content': self.game.ship.passive_abilities[0].icon,
+                'font': None, 'wraplen': None,
+                'x': self.rect.width // 8 * 1, 'y': 1,
+                'anchor': 'midtop',
+                'action': None
+            }, {
+                'type': 'icon',
+                'name': 'passive_2_icon',
+                'content': self.game.ship.passive_abilities[1].icon,
+                'font': None, 'wraplen': None,
+                'x': self.rect.width // 8 * 3, 'y': 0,
+                'anchor': 'midtop',
+                'action': None
+            }, {
+                'type': 'icon',
+                'name': 'passive_3_icon',
+                'content': self.game.ship.passive_abilities[2].icon,
+                'font': None, 'wraplen': None,
+                'x': self.rect.width // 8 * 5, 'y': 0,
+                'anchor': 'midtop',
+                'action': None
+            }, {
+                'type': 'icon',
+                'name': 'passive_4_icon',
+                'content': self.game.ship.passive_abilities[3].icon,
+                'font': None, 'wraplen': None,
+                'x': self.rect.width // 8 * 7, 'y': 0,
+                'anchor': 'midtop',
+                'action': None
             },
         )
 
         self._add_elements_from_dicts(element_dicts)
         # no need to call self._expand_height
+
+        union_dicts = (
+            {
+                'name': 'toggle_active_1_btn',
+                'elem_names': ['active_1_bg', 'active_1_icon'],
+                'action': lambda: self.game.ship.toggle_active_ability_num(1)
+            },
+            {
+                'name': 'toggle_active_2_btn',
+                'elem_names': ['active_2_bg', 'active_2_icon'],
+                'action': lambda: self.game.ship.toggle_active_ability_num(2)
+            },
+            {
+                'name': 'toggle_active_3_btn',
+                'elem_names': ['active_3_bg', 'active_3_icon'],
+                'action': lambda: self.game.ship.toggle_active_ability_num(3)
+            },
+            {
+                'name': 'toggle_passive_1_btn',
+                'elem_names': ['passive_1_bg', 'passive_1_icon'],
+                'action': lambda: self.game.ship.toggle_passive_ability_num(1)
+            },
+            {
+                'name': 'toggle_passive_2_btn',
+                'elem_names': ['passive_2_bg', 'passive_2_icon'],
+                'action': lambda: self.game.ship.toggle_passive_ability_num(2)
+            },
+            {
+                'name': 'toggle_passive_3_btn',
+                'elem_names': ['passive_3_bg', 'passive_3_icon'],
+                'action': lambda: self.game.ship.toggle_passive_ability_num(3)
+            },
+            {
+                'name': 'toggle_passive_4_btn',
+                'elem_names': ['passive_4_bg', 'passive_4_icon'],
+                'action': lambda: self.game.ship.toggle_passive_ability_num(4)
+            },
+        )
+
+        self._add_element_unions_from_dicts(union_dicts)
 
 __all__ = ["TopTray", "BottomTray"]

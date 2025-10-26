@@ -149,22 +149,32 @@ class Ship(Entity):
     def add_active_ability(self, new_ability):
         """
         Add an active ability to the ship if there are free slots.
-        The method returns True if the ability is added/ upgraded.
+        The method returns True if the ability is added.
         """
-
-        abils = self.active_abilities
         
-        for abil in abils:
-            idx = abils.index(abil)
+        abils = self.active_abilities
 
-            if abil.name == abilities.Blank(self.game).name:
+        for ability in abils:
+            idx = abils.index(ability)
+            if type(ability) == abilities.Blank:
                 abils[idx] = new_ability
-                ui_element = self.game.bot_tray.elements[f"passive_{idx+1}_btn"]
-                ui_element.action = abils[idx].toggle
-                self.game.bot_tray.draw()
+                self.game.bot_tray.update()
+                print(f"Placed {abils[idx]} into a blank slot.")
                 return True
         
         return False
+
+    def toggle_active_ability_num(self, number):
+        """
+        Toggles the active ability with the given number (one-based).
+        """
+
+        if number < 1 or number > 3:
+            print("Invalid number for active ability!")
+            print("Are you using one-based indices? You should in this case.")
+            return False
+        
+        self.active_abilities[number-1].toggle()
     
     def start_ability_charge(self):
         """Start charging active abilities."""
@@ -196,7 +206,7 @@ class Ship(Entity):
             if ability.enabled:
                 ability.fire()
         self.cancel_ability_charge()
-        self.game.bot_tray.draw()
+        self.game.bot_tray.update()
         return True
     
     # -------------------------------------------------------------------
@@ -215,21 +225,46 @@ class Ship(Entity):
 
         abils = self.passive_abilities
 
-        for abil in abils:
-            idx = abils.index(abil)
-
-            if abil.name == new_ability.name:
-                # TODO: level up the ability
+        # check if any abilities are the same; if yes, level up
+        for ability in abils:
+            idx = abils.index(ability)
+            if type(ability) == type(new_ability):
+                abils[idx].level_up()
+                print(f"Leveled up {ability.name} to level {abils[idx].level}.")
                 return True
-            
-            if abil.name == abilities.Blank(self.game).name or not abil.enabled:
+        
+        # otherwise, check if there are blank slots
+        for ability in abils:
+            idx = abils.index(ability)
+            if type(ability) == abilities.Blank:
                 abils[idx] = new_ability
-                ui_element = self.game.bot_tray.elements[f"passive_{idx+1}_btn"]
-                ui_element.action = abils[idx].toggle
-                self.game.bot_tray.draw()
+                self.game.bot_tray.update()
+                print(f"Placed {abils[idx].name} into a blank slot.")
+                return True
+        
+        # otherwise, check if there are disabled abilities
+        for ability in abils:
+            idx = abils.index(ability)
+            if not ability.enabled:
+                old = ability.name
+                abils[idx] = new_ability
+                self.game.bot_tray.update()
+                print(f"Replaced disabled {old} ability with {abils[idx].name}.")
                 return True
         
         return False
+
+    def toggle_passive_ability_num(self, number):
+        """
+        Toggles the passive ability with the given number (one-based).
+        """
+
+        if number < 1 or number > 4:
+            print("Invalid number for passive ability!")
+            print("Are you using one-based indices? You should in this case.")
+            return False
+        
+        self.passive_abilities[number-1].toggle()
     
     def _fire_passive_abilities(self):
         """Fire all the enabled passive abilities."""

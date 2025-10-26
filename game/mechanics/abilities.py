@@ -2,6 +2,8 @@
 A module containing the classes for the active and passive abilities.
 """
 
+from ..systems import helper_funcs
+
 class Ability():
     """A grandparent class representing a ship's ability."""
 
@@ -77,6 +79,11 @@ class Passive(Ability):
 
         self_idx = self.game.ship.passive_abilities.index(self)
         self.game.ship.passive_abilities[self_idx] = Blank(self.game)
+    
+    def level_up(self):
+        """Increase the level of the passive ability."""
+
+        self.level += 1
 
 class Blank(Ability):
     """A class that represents a blank ability. Does nothing."""
@@ -88,6 +95,10 @@ class Blank(Ability):
 
         self.name = "Blank Ability"
         self.description = "Collect a powerup to add an ability to this slot."
+
+        self.icon = helper_funcs.load_image(
+            dflt_color="gray", dflt_size=(10, 10)
+        )
         
 class Locked(Ability):
     """A class that represents a locked ability. Does nothing."""
@@ -99,6 +110,10 @@ class Locked(Ability):
 
         self.name = "Locked Ability"
         self.description = "Unlock this ability slot in the progress menu."
+
+        self.icon = helper_funcs.load_image(
+            dflt_color="black", dflt_size=(10, 10)
+        )
 
 # region ACTIVE ABILITIES
 # -----------------------------------------------------------------------
@@ -118,6 +133,10 @@ class DeathPulse(Active):
         self.fp_bonus = 50
         self.description = f"Deals {self.fp_bonus}x Fire Power to all enemies" \
         " on the screen."
+
+        self.icon = helper_funcs.load_image(
+            dflt_color="red", dflt_size=(10, 10)
+        )
     
     def fire(self):
         """Fire the Death Pulse ability."""
@@ -148,11 +167,19 @@ class Spear(Passive):
         self.fr_bonus = 1
         self.description = "Fires a continuous stream of bullets." \
         f" Each level increases fire rate by {self.fr_bonus}."
+
+        self.icon = helper_funcs.load_image(
+            dflt_color="purple", dflt_size=(10, 10)
+        )
     
     def fire(self):
         """Fire the Spear ability."""
 
-        self.game.ship.fire_bullet(self.fr_bonus)
+        self.game.ship.fire_bullet(self.fr_bonus * self.level)
+    
+    def level_up(self):
+        """Increase the fire rate bonus (autocalculated by level)."""
+        return super().level_up()
 
 # -----------------------------------------------------------------------
 # endregion

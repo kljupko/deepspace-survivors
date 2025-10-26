@@ -70,7 +70,7 @@ class Alien(Entity):
         
         # TODO: add random chance to drop powerup, choose random powerup
         powerup = powerups.ImproveStat(self.game, self.rect.center, "Fire Power")
-        powerup = powerups.AddAbility(self.game, self.rect.center, abilities.DeathPulse)
+        powerup = powerups.AddAbility(self.game, self.rect.center, abilities.Spear)
         self.game.powerups.add(powerup)
         self.game.state.credits_earned += self.credits
         self.game.top_tray.update()

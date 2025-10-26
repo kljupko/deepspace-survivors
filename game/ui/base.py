@@ -73,7 +73,8 @@ class Icon(UIElement):
                  anchor="topleft", action=None):
         """Initialize the icon."""
 
-        content = helper_funcs.load_image(content, "pink", (10, 10))
+        if content is None:
+            content = helper_funcs.load_image(content, "pink", (10, 10))
         super().__init__(container, name, content, position, anchor, action)
 
 class TextBox(UIElement):

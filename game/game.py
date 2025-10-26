@@ -79,7 +79,7 @@ class Game:
         self.state.session_running = True
 
         self.play_surf = pygame.Surface((
-            self.screen.width, self.screen.height - 24
+            self.screen.width, self.screen.height - 28
         ))
         self.play_rect = self.play_surf.get_rect()
 

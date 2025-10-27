@@ -410,7 +410,7 @@ class Menu():
 
         if self.name in ["top_tray", "bot_tray"]:
             # draw background to tray so it's visible on play_surf
-            self.surface.blit(self.background, self.rect)
+            self.surface.blit(self.background, self.background.get_rect())
         
         self.game.screen.blit(self.background, back_draw_rect)
         for element in self.elements.values():

@@ -50,8 +50,6 @@ class PowerUp(Entity):
     def apply(self):
         """Apply the powerup on pickup."""
 
-        print(f"Hook for picking up the {self.name} powerup.")
-        print(self.description)
         self.destroy()
     
 class ImproveStat(PowerUp):
@@ -71,20 +69,19 @@ class ImproveStat(PowerUp):
         self.description = f"Increases a player ship's {stat_name.lower()} "
         self.description += f"by {self.magnitude}."
 
-        if self.stat_name.lower() == 'hp':
-            icon = helper_funcs.load_image(dflt_color='deeppink', dflt_size=(10, 10))
-        elif self.stat_name.lower() == 'thrust':
-            icon = helper_funcs.load_image(dflt_color='yellow', dflt_size=(10, 10))
-        elif self.stat_name.lower() == 'fire power':
-            icon = helper_funcs.load_image(dflt_color='red', dflt_size=(10, 10))
-        elif self.stat_name.lower() == 'fire rate':
-            icon = helper_funcs.load_image(dflt_color='orange', dflt_size=(10, 10))
-        self.image.blit(icon, (1, 1))
+        for stat in self.game.ship.stats.values():
+            if stat.name == self.stat_name:
+                self.image.blit(stat.image, (1, 1))
+                return
 
     def apply(self):
         """Apply the powerup on pickup."""
 
-        return self.game.ship.set_stat(self.stat_name, self.magnitude)
+        for stat in self.game.ship.stats.values():
+            if stat.name == self.stat_name:
+                stat.modify_stat(self.magnitude)
+                return super().apply()
+
 
 class AddAbility(PowerUp):
     """A class representing a powerup that grants the ship an ability."""

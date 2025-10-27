@@ -42,7 +42,7 @@ class Bullet(Entity):
             return False
         
         alien = collisions[0]
-        alien.take_damage(self.game.ship.fire_power)
+        alien.take_damage(self.game.ship.stats['Fire Power'].value)
         
         self.destroy()
         return True

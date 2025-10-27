@@ -5,7 +5,7 @@ A module containing all the playable ships.
 import pygame
 from .entity import Entity
 from .bullet import Bullet
-from ..mechanics import abilities
+from ..mechanics import abilities, stats
 from ..systems import config, helper_funcs
 
 class Ship(Entity):
@@ -27,14 +27,16 @@ class Ship(Entity):
         self.y = float(self.rect.y)
 
         # ship stats
-        self.hp = 3
+        self.stats = {
+            'Hit Points': stats.HitPoints(self, 3),
+            'Thrust': stats.Thrust(self, 3),
+            'Fire Rate': stats.FireRate(self, 3),
+            'Fire Power': stats.FirePower(self, 1)
+        }
+
         self.bullet_delay_ms = 1000 * 3
         self.bullet_cooldown_ms = self.bullet_delay_ms
-        self.fire_rate = 3
-        self.fire_power = 1
 
-        # set thrust and allow the ship to move horizontally
-        self.set_stat('thrust', 3)
         self.moving_left = False
         self.moving_right = False
 
@@ -48,42 +50,10 @@ class Ship(Entity):
         ]
         self.passive_abilities = [
             abilities.Blank(self.game),
-            abilities.Blank(self.game),
+            abilities.Locked(self.game),
             abilities.Locked(self.game),
             abilities.Locked(self.game)
         ]
-    
-    def set_stat(self, stat_name, value=None, diff=None):
-        """Set the ship's given stat and recalcualte as needed."""
-
-        if not value and not diff:
-            print("Provide either new thrust value or a difference.")
-            return False
-
-        if stat_name.lower() == 'hp':
-            self.hp = value if value else self.hp + diff
-            print(f"Set HP to {self.hp}.")
-            return True
-        
-        if stat_name.lower() == 'thrust':
-            self.thrust = value if value else self.thrust + diff
-            self.base_speed_x = config.base_speed * self.thrust / 3
-            self._calculate_relative_speed()
-            print(f"Set Thrust to {self.thrust}.")
-            return True
-        
-        if stat_name.lower() == 'fire power':
-            self.fire_power = value if value else self.fire_power + diff
-            print(f"Set Fire Power to {self.fire_power}.")
-            return True
-        
-        if stat_name.lower() == 'fire rate':
-            self.fire_rate = value if value else self.fire_rate + diff
-            print(f"Set Fire Rate to {self.fire_rate}.")
-            return True
-        
-        print("No stat was set.")
-        return False
 
     # override Entity update method
     def update(self):
@@ -119,10 +89,10 @@ class Ship(Entity):
         Ends the session at 0 HP.
         """
 
-        self.hp -= damage
+        self.stats['Hit Points'].modify_stat(-damage)
         self.game.bot_tray.update()
 
-        if self.hp <= 0:
+        if self.stats['Hit Points'].value <= 0:
             # TODO: replace this with a 'lose_session' menu
             self.game.quit_session()
 
@@ -165,7 +135,7 @@ class Ship(Entity):
     def fire_bullet(self, fire_rate_bonus = 0):
         """Fire a bullet."""
 
-        fire_rate = self.fire_rate + fire_rate_bonus
+        fire_rate = self.stats['Fire Rate'].value + fire_rate_bonus
         if self.bullet_cooldown_ms < self.bullet_delay_ms / fire_rate:
             return False
 

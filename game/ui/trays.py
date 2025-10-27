@@ -19,17 +19,33 @@ class TopTray(Tray):
 
         element_dicts = (
             {
-                'type': 'label',
-                'name': 'fire_power_value',
-                'content': self.game.ship.fire_power,
+                'type': 'icon',
+                'name': 'fire_power_icon',
+                'content': self.game.ship.stats['Fire Power'].image,
                 'font': None, 'wraplen': None,
                 'x': 0, 'y': 0,
                 'anchor': None,
                 'action': None
             }, {
                 'type': 'label',
+                'name': 'fire_power_value',
+                'content': self.game.ship.stats['Fire Power'].value,
+                'font': None, 'wraplen': None,
+                'x': 11, 'y': 0,
+                'anchor': None,
+                'action': None
+            }, {
+                'type': 'label',
                 'name': 'fire_rate_value',
-                'content': self.game.ship.fire_rate,
+                'content': self.game.ship.stats['Fire Rate'].value,
+                'font': None, 'wraplen': None,
+                'x': self.rect.width - 13, 'y': 0,
+                'anchor': 'topright',
+                'action': None
+            }, {
+                'type': 'icon',
+                'name': 'fire_rate_icon',
+                'content': self.game.ship.stats['Fire Rate'].image,
                 'font': None, 'wraplen': None,
                 'x': self.rect.width, 'y': 0,
                 'anchor': 'topright',
@@ -99,17 +115,33 @@ class BottomTray(Tray):
   
         element_dicts = (
             {
-                'type': 'label',
-                'name': 'ship_hp_value',
-                'content': self.game.ship.hp,
+                'type': 'icon',
+                'name': 'ship_hp_icon',
+                'content': self.game.ship.stats['Hit Points'].image,
                 'font': None, 'wraplen': None,
                 'x': 0, 'y': 0,
                 'anchor': None,
                 'action': None
             }, {
                 'type': 'label',
+                'name': 'ship_hp_value',
+                'content': self.game.ship.stats['Hit Points'].value,
+                'font': None, 'wraplen': None,
+                'x': 11, 'y': 0,
+                'anchor': None,
+                'action': None
+            }, {
+                'type': 'label',
                 'name': 'ship_thrust_value',
-                'content': self.game.ship.thrust,
+                'content': self.game.ship.stats['Thrust'].value,
+                'font': None, 'wraplen': None,
+                'x': self.rect.width - 13, 'y': 0,
+                'anchor': 'topright',
+                'action': None
+            }, {
+                'type': 'icon',
+                'name': 'ship_thrust_icon',
+                'content': self.game.ship.stats['Thrust'].image,
                 'font': None, 'wraplen': None,
                 'x': self.rect.width, 'y': 0,
                 'anchor': 'topright',

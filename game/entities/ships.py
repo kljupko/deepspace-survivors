@@ -26,19 +26,17 @@ class Ship(Entity):
         self.x = float(self.rect.x)
         self.y = float(self.rect.y)
 
-        # allow the ship to move horizontally
-        self.base_speed_x = config.base_speed
-        self._calculate_relative_speed()
-        self.moving_left = False
-        self.moving_right = False
-
         # ship stats
         self.hp = 3
-        self.thrust = 1
         self.bullet_delay_ms = 1000 * 3
         self.bullet_cooldown_ms = self.bullet_delay_ms
         self.fire_rate = 3
         self.fire_power = 1
+
+        # set thrust and allow the ship to move horizontally
+        self.set_thrust(3)
+        self.moving_left = False
+        self.moving_right = False
 
         # abilities
         self.charge = None
@@ -55,6 +53,20 @@ class Ship(Entity):
             abilities.Locked(self.game)
         ]
     
+    def set_thrust(self, thrust=None, diff=None):
+        """Set the ship's thrust and recalcualte speed."""
+
+        if thrust:
+            self.thrust = thrust
+        elif diff:
+            self.thrust += diff
+        else:
+            print("Provide either new thrust value or a difference.")
+            return False
+        
+        self.base_speed_x = config.base_speed * self.thrust / 3
+        self._calculate_relative_speed()
+
     # override Entity update method
     def update(self):
         """Update the ship."""

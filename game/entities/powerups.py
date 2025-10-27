@@ -94,7 +94,7 @@ class ImproveStat(PowerUp):
             self.game.ship.hp += self.magnitude
             success = True
         elif name == 'thrust':
-            self.game.ship.thrust += self.magnitude
+            self.game.ship.set_thrust(diff=self.magnitude)
             success = True
 
         if success:

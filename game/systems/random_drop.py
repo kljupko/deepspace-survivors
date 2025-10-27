@@ -30,7 +30,7 @@ class RandomDropManager():
 
         self.stat_choices = {
             'HP': 3,
-            'Thrust': 100,
+            'Thrust': 1,
             'Fire Power': 3,
             'Fire Rate': 2
         }

@@ -2,8 +2,6 @@
 A module containing all the aliens.
 """
 
-import pygame
-
 from .entity import Entity
 from ..mechanics import abilities
 from . import powerups

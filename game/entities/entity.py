@@ -2,7 +2,6 @@
 A module containing the base Entity class, parent to Ship, Alien, etc.
 """
 
-import pygame
 from pygame.sprite import Sprite
 from ..systems import helper_funcs
 

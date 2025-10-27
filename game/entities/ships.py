@@ -34,7 +34,7 @@ class Ship(Entity):
         self.fire_power = 1
 
         # set thrust and allow the ship to move horizontally
-        self.set_thrust(3)
+        self.set_stat('thrust', 3)
         self.moving_left = False
         self.moving_right = False
 
@@ -48,24 +48,42 @@ class Ship(Entity):
         ]
         self.passive_abilities = [
             abilities.Blank(self.game),
-            abilities.Locked(self.game),
+            abilities.Blank(self.game),
             abilities.Locked(self.game),
             abilities.Locked(self.game)
         ]
     
-    def set_thrust(self, thrust=None, diff=None):
-        """Set the ship's thrust and recalcualte speed."""
+    def set_stat(self, stat_name, value=None, diff=None):
+        """Set the ship's given stat and recalcualte as needed."""
 
-        if thrust:
-            self.thrust = thrust
-        elif diff:
-            self.thrust += diff
-        else:
+        if not value and not diff:
             print("Provide either new thrust value or a difference.")
             return False
+
+        if stat_name.lower() == 'hp':
+            self.hp = value if value else self.hp + diff
+            print(f"Set HP to {self.hp}.")
+            return True
         
-        self.base_speed_x = config.base_speed * self.thrust / 3
-        self._calculate_relative_speed()
+        if stat_name.lower() == 'thrust':
+            self.thrust = value if value else self.thrust + diff
+            self.base_speed_x = config.base_speed * self.thrust / 3
+            self._calculate_relative_speed()
+            print(f"Set Thrust to {self.thrust}.")
+            return True
+        
+        if stat_name.lower() == 'fire power':
+            self.fire_power = value if value else self.fire_power + diff
+            print(f"Set Fire Power to {self.fire_power}.")
+            return True
+        
+        if stat_name.lower() == 'fire rate':
+            self.fire_rate = value if value else self.fire_rate + diff
+            print(f"Set Fire Rate to {self.fire_rate}.")
+            return True
+        
+        print("No stat was set.")
+        return False
 
     # override Entity update method
     def update(self):
@@ -171,9 +189,10 @@ class Ship(Entity):
             if type(ability) == abilities.Blank:
                 abils[idx] = new_ability
                 self.game.bot_tray.update()
-                print(f"Placed {abils[idx]} into a blank slot.")
+                print(f"Placed {abils[idx].name} into a blank slot.")
                 return True
         
+        print(f"{new_ability.name} not added.")
         return False
 
     def toggle_active_ability_num(self, number):
@@ -242,7 +261,7 @@ class Ship(Entity):
             idx = abils.index(ability)
             if type(ability) == type(new_ability):
                 abils[idx].level_up()
-                print(f"Leveled up {ability.name} to level {abils[idx].level}.")
+                print(f"Leveled up {abils[idx].name} to level {abils[idx].level}.")
                 return True
         
         # otherwise, check if there are blank slots
@@ -264,6 +283,7 @@ class Ship(Entity):
                 print(f"Replaced disabled {old} ability with {abils[idx].name}.")
                 return True
         
+        print(f"{new_ability.name} not added.")
         return False
 
     def toggle_passive_ability_num(self, number):

@@ -2,7 +2,6 @@
 A module containing the powerups dropped by destroyed aliens.
 """
 
-import pygame
 from .entity import Entity
 from ..systems import config, helper_funcs
 
@@ -85,37 +84,7 @@ class ImproveStat(PowerUp):
     def apply(self):
         """Apply the powerup on pickup."""
 
-        # loop through the options by name to figure out which one it is?
-        name = self.stat_name.lower()
-        success = False
-
-        # check bottom tray stats
-        if name == 'hp':
-            self.game.ship.hp += self.magnitude
-            success = True
-        elif name == 'thrust':
-            self.game.ship.set_thrust(diff=self.magnitude)
-            success = True
-
-        if success:
-            self.game.bot_tray.update()
-            self.game.powerups.remove(self)
-            return True
-        
-        # check top tray stats
-        if name == 'fire power':
-            self.game.ship.fire_power += self.magnitude
-            success = True
-        if name == 'fire rate':
-            self.game.ship.fire_rate += self.magnitude
-            success = True
-
-        if success:
-            self.game.top_tray.update()
-            self.game.powerups.remove(self)
-            return True
-
-        return False
+        return self.game.ship.set_stat(self.stat_name, self.magnitude)
 
 class AddAbility(PowerUp):
     """A class representing a powerup that grants the ship an ability."""

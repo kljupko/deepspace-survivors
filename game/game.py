@@ -111,7 +111,7 @@ class Game:
             return False
         
         self.state.level += 1
-        print("Level:", self.state.level)
+        print("\nLevel:", self.state.level)
         self.spawn_manager.level_up()
         self.spawn_manager.spawn_wave()
     

@@ -11,7 +11,7 @@ from ..utils import config, helper_funcs
 class Ship(Entity):
     """Base class that manages the player ship."""
 
-    def __init__(self, game, image=None, base_stats=None):
+    def __init__(self, game, image=None, base_stats=None, base_abils=None):
         """Initialize the ship."""
         
         super().__init__(game)
@@ -37,7 +37,7 @@ class Ship(Entity):
         self.y = float(self.rect.y)
 
         # ship stats
-        self._load_stats()
+        self.load_stats()
 
         self.bullet_delay_ms = 1000 * 3
         self.bullet_cooldown_ms = self.bullet_delay_ms
@@ -48,19 +48,24 @@ class Ship(Entity):
         # abilities
         self.charge = None
         self.required_charge = None
-        self.active_abilities = [
-            abilities.Blank(self.game),
-            abilities.Locked(self.game),
-            abilities.Locked(self.game)
-        ]
-        self.passive_abilities = [
-            abilities.Blank(self.game),
-            abilities.Locked(self.game),
-            abilities.Locked(self.game),
-            abilities.Locked(self.game)
-        ]
+        if base_abils is None:
+            base_abils = {
+                'active': [
+                    abilities.Blank,
+                    abilities.Locked,
+                    abilities.Locked
+                ],
+                'passive': [
+                    abilities.Blank,
+                    abilities.Locked,
+                    abilities.Locked,
+                    abilities.Locked
+                ]
+            }
+        self.base_abils = base_abils
+        self._load_abilities()
     
-    def _load_stats(self):
+    def load_stats(self):
         """Load stats with upgrades."""
 
         self.stats = {
@@ -77,6 +82,33 @@ class Ship(Entity):
                 self, self.base_stats['Fire Rate'] + self.game.upgrades['fr'].level
             )
         }
+
+    def _load_abilities(self):
+        """
+        Loads the ability slots, along with ones unlocked by upgrades.
+        """
+
+        active_unlocked = self.game.upgrades['active'].level # max. 2
+        passive_unlocked = self.game.upgrades['passive'].level # max. 3
+
+        self.active_abilities = [
+            self.base_abils['active'][0](self.game)
+        ]
+        self.passive_abilities = [
+            self.base_abils['passive'][0](self.game)
+        ]
+
+        for i in range(1, 3):
+            if i <= active_unlocked:
+                self.active_abilities.append(abilities.Blank(self.game))
+            else:
+                self.active_abilities.append(abilities.Locked(self.game))
+
+        for i in range(1, 4):
+            if i <= passive_unlocked:
+                self.passive_abilities.append(abilities.Blank(self.game))
+            else:
+                self.passive_abilities.append(abilities.Locked(self.game))
 
     # override Entity update method
     def update(self):

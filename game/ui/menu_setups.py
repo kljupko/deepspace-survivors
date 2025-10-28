@@ -85,7 +85,9 @@ def build_upgrade_menu_elements(menu):
             }, {
                 'type': 'label',
                 'name': 'credits_amount',
-                'content': menu.game.progress.data['credits'],
+                'content': helper_funcs.shorten_number(
+                    menu.game.progress.data['credits']
+                    ),
                 'linked_to': 'credits_icon',
                 'linked_anchor': 'topright',
                 'x_offset': 1
@@ -116,7 +118,8 @@ def build_upgrade_menu_elements(menu):
         content += f"\nLevel: {upgrade.level}"
         if upgrade.max_level is not None:
             content += f"\nMax Level: {upgrade.max_level}"
-        content += f"\nCost: {upgrade.get_cost()}"
+            if upgrade.level < upgrade.max_level:
+                content += f"\nCost: {helper_funcs.shorten_number(upgrade.get_cost())}"
         upgrade_dict['type'] = 'textbox'
         upgrade_dict['name'] = upgrade.name.lower().replace(" ", "_") + "_desc"
         upgrade_dict['content'] = content
@@ -124,6 +127,9 @@ def build_upgrade_menu_elements(menu):
         elements.append(upgrade_dict)
 
         linked_to = upgrade_dict['name']
+        if upgrade.max_level is not None and upgrade.level >= upgrade.max_level:
+            continue
+        
         upgrade_dict = {}
         content = "Upgrade" if upgrade.is_available() else "   x   "
         upgrade_dict['type'] = 'label'
@@ -581,3 +587,262 @@ def build_pause_menu_elements(menu):
         )
 
     return elements
+
+def build_top_tray_elements(tray):
+    """
+    Return the collection of dicts for the top tray's UI Elements.
+    """
+
+    elements = (
+            {
+                'type': 'icon',
+                'name': 'fire_power_icon',
+                'content': tray.game.ship.stats['Fire Power'].image,
+            }, {
+                'type': 'label',
+                'name': 'fire_power_value',
+                'content': tray.game.ship.stats['Fire Power'].value,
+                'linked_to' : 'fire_power_icon',
+                'linked_anchor': 'topright'
+            }, {
+                'type': 'icon',
+                'name': 'fire_rate_icon',
+                'content': tray.game.ship.stats['Fire Rate'].image,
+                'x_offset': tray.rect.width,
+                'anchor': 'topright'
+            }, {
+                'type': 'label',
+                'name': 'fire_rate_value',
+                'content': tray.game.ship.stats['Fire Rate'].value,
+                'linked_to': 'fire_rate_icon',
+                'linked_anchor': 'topleft',
+                'anchor': 'topright'
+            }, {
+                'type': 'label',
+                'name': 'session_duration',
+                'content': tray._get_session_duration(),
+                'x_offset': tray.rect.width // 2,
+                'anchor': 'midtop',
+                'action': lambda: tray.game.menus['pause'].open()
+            }, {
+                'type': 'label',
+                'name': 'credits_earned',
+                'content': helper_funcs.shorten_number(tray.game.state.credits_earned),
+                'linked_to': 'session_duration',
+                'linked_anchor': 'midbottom',
+                'x_offset': 5,
+                'y_offset': 1,
+                'anchor': 'midtop',
+                'action': lambda: tray.game.menus['pause'].open()
+            }, {
+                'type': 'icon',
+                'name': 'credits_icon',
+                'content': helper_funcs.load_image(None, 'gold', (10, 10)),
+                'linked_to': 'credits_earned',
+                'linked_anchor': 'topleft',
+                'x_offset': -1,
+                'anchor': 'topright'
+            }, {
+                'type': 'label',
+                'name': 'fps',
+                'content': tray._get_fps(),
+                'linked_to': 'credits_earned',
+                'ignore_linked_x': True,
+                'linked_anchor': 'topleft',
+                'x_offset': tray.rect.width,
+                'anchor': 'topright'
+            },
+        )
+
+    return elements
+
+def build_bot_tray_elements(tray):
+    """
+    Return the collection of dicts for the bottom tray's UI Elements.
+    """
+
+    elements = (
+            {
+                'type': 'icon',
+                'name': 'ship_hp_icon',
+                'content': tray.game.ship.stats['Hit Points'].image,
+            }, {
+                'type': 'label',
+                'name': 'ship_hp_value',
+                'content': tray.game.ship.stats['Hit Points'].value,
+                'linked_to': 'ship_hp_icon',
+                'linked_anchor': 'topright'
+            }, {
+                'type': 'icon',
+                'name': 'ship_thrust_icon',
+                'content': tray.game.ship.stats['Thrust'].image,
+                'x_offset': tray.rect.width,
+                'anchor': 'topright'
+            }, {
+                'type': 'label',
+                'name': 'ship_thrust_value',
+                'content': tray.game.ship.stats['Thrust'].value,
+                'linked_to': 'ship_thrust_icon',
+                'linked_anchor': 'topleft',
+                'anchor': 'topright',
+            }, {
+                'type': 'icon',
+                'name': 'active_1_bg',
+                'content': helper_funcs.load_image(dflt_size=(12, 12)),
+                'linked_to': 'ship_hp_icon',
+                'y_offset': 1,
+                'ignore_linked_x': True,
+                'x_offset': tray.rect.width // 4 * 1,
+                'anchor': 'midtop',
+            }, {
+                'type': 'icon',
+                'name': 'active_1_icon',
+                'content': tray.game.ship.active_abilities[0].icon,
+                'linked_to': 'active_1_bg',
+                'linked_anchor': 'center',
+                'anchor': 'center'
+            },  {
+                'type': 'icon',
+                'name': 'active_2_bg',
+                'content': helper_funcs.load_image(dflt_size=(12, 12)),
+                'linked_to': 'ship_hp_icon',
+                'y_offset': 1,
+                'ignore_linked_x': True,
+                'x_offset': tray.rect.width // 4 * 2,
+                'anchor': 'midtop',
+            }, {
+                'type': 'icon',
+                'name': 'active_2_icon',
+                'content': tray.game.ship.active_abilities[1].icon,
+                'linked_to': 'active_2_bg',
+                'linked_anchor': 'center',
+                'anchor': 'center'
+            }, {
+                'type': 'icon',
+                'name': 'active_3_bg',
+                'content': helper_funcs.load_image(dflt_size=(12, 12)),
+                'linked_to': 'ship_hp_icon',
+                'y_offset': 1,
+                'ignore_linked_x': True,
+                'x_offset': tray.rect.width // 4 * 3,
+                'anchor': 'midtop',
+            }, {
+                'type': 'icon',
+                'name': 'active_3_icon',
+                'content': tray.game.ship.active_abilities[2].icon,
+                'linked_to': 'active_3_bg',
+                'linked_anchor': 'center',
+                'anchor': 'center'
+            }, {
+                'type': 'icon',
+                'name': 'passive_1_bg',
+                'content': helper_funcs.load_image(dflt_size=(12, 12)),
+                'linked_to': 'active_1_bg',
+                'y_offset': 1,
+                'ignore_linked_x': True,
+                'x_offset': tray.rect.width // 8 * 1,
+                'anchor': 'midtop'
+            }, {
+                'type': 'icon',
+                'name': 'passive_1_icon',
+                'content': tray.game.ship.passive_abilities[0].icon,
+                'linked_to': 'passive_1_bg',
+                'linked_anchor': 'center',
+                'anchor': 'center'
+            }, {
+                'type': 'icon',
+                'name': 'passive_2_bg',
+                'content': helper_funcs.load_image(dflt_size=(12, 12)),
+                'linked_to': 'active_1_bg',
+                'y_offset': 1,
+                'ignore_linked_x': True,
+                'x_offset': tray.rect.width // 8 * 3,
+                'anchor': 'midtop'
+            }, {
+                'type': 'icon',
+                'name': 'passive_2_icon',
+                'content': tray.game.ship.passive_abilities[1].icon,
+                'linked_to': 'passive_2_bg',
+                'linked_anchor': 'center',
+                'anchor': 'center'
+            }, {
+                'type': 'icon',
+                'name': 'passive_3_bg',
+                'content': helper_funcs.load_image(dflt_size=(12, 12)),
+                'linked_to': 'active_1_bg',
+                'y_offset': 1,
+                'ignore_linked_x': True,
+                'x_offset': tray.rect.width // 8 * 5,
+                'anchor': 'midtop'
+            }, {
+                'type': 'icon',
+                'name': 'passive_3_icon',
+                'content': tray.game.ship.passive_abilities[2].icon,
+                'linked_to': 'passive_3_bg',
+                'linked_anchor': 'center',
+                'anchor': 'center'
+            }, {
+                'type': 'icon',
+                'name': 'passive_4_bg',
+                'content': helper_funcs.load_image(dflt_size=(12, 12)),
+                'linked_to': 'active_1_bg',
+                'y_offset': 1,
+                'ignore_linked_x': True,
+                'x_offset': tray.rect.width // 8 * 7,
+                'anchor': 'midtop'
+            }, {
+                'type': 'icon',
+                'name': 'passive_4_icon',
+                'content': tray.game.ship.passive_abilities[3].icon,
+                'linked_to': 'passive_4_bg',
+                'linked_anchor': 'center',
+                'anchor': 'center'
+            }
+        )
+
+    return elements
+
+def build_bot_tray_unions(tray):
+    """
+    Return the collection of dicts for the bottom tray's ElemUnions.
+    """
+
+    unions = (
+            {
+                'name': 'toggle_active_1_btn',
+                'elem_names': ['active_1_bg', 'active_1_icon'],
+                'action': lambda: tray.game.ship.toggle_active_ability_num(1)
+            },
+            {
+                'name': 'toggle_active_2_btn',
+                'elem_names': ['active_2_bg', 'active_2_icon'],
+                'action': lambda: tray.game.ship.toggle_active_ability_num(2)
+            },
+            {
+                'name': 'toggle_active_3_btn',
+                'elem_names': ['active_3_bg', 'active_3_icon'],
+                'action': lambda: tray.game.ship.toggle_active_ability_num(3)
+            },
+            {
+                'name': 'toggle_passive_1_btn',
+                'elem_names': ['passive_1_bg', 'passive_1_icon'],
+                'action': lambda: tray.game.ship.toggle_passive_ability_num(1)
+            },
+            {
+                'name': 'toggle_passive_2_btn',
+                'elem_names': ['passive_2_bg', 'passive_2_icon'],
+                'action': lambda: tray.game.ship.toggle_passive_ability_num(2)
+            },
+            {
+                'name': 'toggle_passive_3_btn',
+                'elem_names': ['passive_3_bg', 'passive_3_icon'],
+                'action': lambda: tray.game.ship.toggle_passive_ability_num(3)
+            },
+            {
+                'name': 'toggle_passive_4_btn',
+                'elem_names': ['passive_4_bg', 'passive_4_icon'],
+                'action': lambda: tray.game.ship.toggle_passive_ability_num(4)
+            },
+        )
+
+    return unions

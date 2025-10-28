@@ -141,6 +141,42 @@ class FireRateUpgrade(Upgrade):
         if self.game.ship:
             self.game.ship.load_stats()
 
+class ActiveAbilUpgrade(Upgrade):
+    """A class representing the ship's Active Ability Slot upgrades."""
+
+    def __init__(self, game, name="Active Ability Slot",
+                 max_level=2, base_cost=36, image=None):
+        """Initialize the upgrade."""
+
+        # TODO: load image
+        super().__init__(game, name, max_level, base_cost, image)
+        self.description = "Unlock an additional Active Ability Slot."
+    
+    def do_upgrade(self):
+        """Upgrade and apply to ship."""
+
+        super().do_upgrade()
+        if self.game.ship:
+            self.game.ship.load_abilities()
+
+class PassiveAbilUpgrade(Upgrade):
+    """A class representing the ship's Passive Ability Slot upgrades."""
+
+    def __init__(self, game, name="Passive Ability Slot",
+                 max_level=3, base_cost=24000, image=None):
+        """Initialize the upgrade."""
+
+        # TODO: load image
+        super().__init__(game, name, max_level, base_cost, image)
+        self.description = "Unlock an additional Passive Ability Slot."
+    
+    def do_upgrade(self):
+        """Upgrade and apply to ship."""
+
+        super().do_upgrade()
+        if self.game.ship:
+            self.game.ship.load_abilities()
+
 __all__ = [
     "HitPointUpgrade", "ThrustUpgrade", "FirePowerUpgrade", "FireRateUpgrade"
 ]

@@ -33,3 +33,12 @@ def load_image(filename=None, dflt_color="pink", dflt_size=(24, 24)):
         print(f"Error while loading image!\n{e}")
         print("Returning with default.")
         return default
+
+def shorten_number(number):
+    """Returnes a shortened number, so 1,200 becomes 1.2K."""
+
+    if number < 1000:
+        return number
+    
+    n = number / 1000
+    return f"{n:.2f}K"

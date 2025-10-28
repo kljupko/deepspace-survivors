@@ -63,6 +63,8 @@ class Game:
         self.upgrades['thrust'] = upgrades.ThrustUpgrade(self)
         self.upgrades['fp'] = upgrades.FirePowerUpgrade(self)
         self.upgrades['fr'] = upgrades.FireRateUpgrade(self)
+        self.upgrades['active'] = upgrades.ActiveAbilUpgrade(self)
+        self.upgrades['passive'] = upgrades.PassiveAbilUpgrade(self)
 
     def _load_saved_upgrades(self):
         """Loads upgrades from self.progress."""

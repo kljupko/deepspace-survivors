@@ -44,7 +44,13 @@ class Progress():
             'num_of_sessions' : 0,
             'longest_session' : 0,
             'total_session_duration' : 0,
+
+            'upgrades': {}
         }
+
+        for upgrade in self.game.upgrades.values():
+            data['upgrades'][upgrade.name] = upgrade.level
+        
         return data
     
     def _load_data(self, path):
@@ -56,16 +62,29 @@ class Progress():
             return False
         
         data = self._defaults()
+        
         try:
             loaded_data = json.loads(path.read_text())
-            for key in data:
-                if key in loaded_data:
-                    data[key] = loaded_data[key]
+            self._copy_values(loaded_data, data, ['upgrades'])
+            self._copy_values(loaded_data['upgrades'], data['upgrades'])
         except Exception as e:
             print(f"\t\tEncountered an error while loading progress data: {e}.")
             return False
         
         return data
+
+    def _copy_values(self, from_dict, to_dict, exclude_keys=None):
+        """
+        Copies to the destination dict the values from the source dict,
+        if the source contains them.
+        """
+
+        if exclude_keys is None:
+            exclude_keys = []
+        
+        for key in to_dict:
+            if key not in exclude_keys and key in from_dict:
+                to_dict[key] = from_dict[key]
 
     def save_data(self, save_as_backup=False):
         """Save the current progress data to a .json file."""

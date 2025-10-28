@@ -82,7 +82,6 @@ class ImproveStat(PowerUp):
                 stat.modify_stat(self.magnitude)
                 return super().apply()
 
-
 class AddAbility(PowerUp):
     """A class representing a powerup that grants the ship an ability."""
 

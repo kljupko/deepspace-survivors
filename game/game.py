@@ -10,6 +10,7 @@ from .entities import *
 from .input import *
 from .ui import *
 from .utils import config, events
+from .mechanics import upgrades
 
 class Game:
     """Class that represents the game object."""
@@ -40,10 +41,41 @@ class Game:
         self.dt = 0
         self.fps = 0
         self.state = State()
+        self._make_upgrades()
         self.progress = Progress(self)
+        self._load_saved_upgrades()
+        
+        for upgrade in self.upgrades.values():
+            print(upgrade.name, upgrade.level)
 
         self.music_player = MusicPlayer(self)
         self.drop_manager = RandomDropManager(self)
+
+        self._make_menus()
+    
+    # region INIT HELPER FUNCTIONS
+    # -------------------------------------------------------------------
+
+    def _make_upgrades(self):
+        """Load the ship upgrades."""
+
+        self.upgrades = {}
+        self.upgrades['hp'] = upgrades.HitPointUpgrade(self)
+        self.upgrades['thrust'] = upgrades.ThrustUpgrade(self)
+        self.upgrades['fp'] = upgrades.FirePowerUpgrade(self)
+        self.upgrades['fr'] = upgrades.FireRateUpgrade(self)
+
+    def _load_saved_upgrades(self):
+        """Loads upgrades from self.progress."""
+
+        saved = self.progress.data['upgrades']
+
+        for upgrade in self.upgrades.values():
+            if upgrade.name in saved:
+                upgrade.level = saved[upgrade.name]
+
+    def _make_menus(self):
+        """Load all the menus."""
 
         self.menus = {}
         self.menus['main'] = MainMenu(self)
@@ -53,6 +85,9 @@ class Game:
         self.menus['remap'] = RemapKeyMenu(self)
         self.menus['info'] = InfoMenu(self)
         self.menus['pause'] = PauseMenu(self)
+
+    # -------------------------------------------------------------------
+    # endregion INIT HELPER FUNCTIONS
     
     def run(self):
         """Run the game loop."""

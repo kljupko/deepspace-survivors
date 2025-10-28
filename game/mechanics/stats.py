@@ -14,9 +14,15 @@ class Stat():
         self.set_value(value)
 
         if image is None:
-            image = helper_funcs.load_image(None, 'gray', (10, 10))
+            image = Stat.get_image()
         
         self.image = image
+    
+    @staticmethod
+    def get_image():
+        """Get the image representing the stat."""
+
+        return helper_funcs.load_image(None, 'gray', (10, 10))
     
     def set_value(self, value):
         """Sets the value for the stat."""
@@ -41,11 +47,17 @@ class HitPoints(Stat):
         """Initialize hit points."""
 
         if image is None:
-            image = helper_funcs.load_image(None, 'pink', (10, 10))
+            image = HitPoints.get_image()
 
         super().__init__(entity, value, image)
 
         self.name = "Hit Points"
+    
+    @staticmethod
+    def get_image():
+        """Get the image representing the stat."""
+
+        return helper_funcs.load_image(None, 'pink', (10, 10))
 
 class Thrust(Stat):
     """A class representing the player ship's speed."""
@@ -54,11 +66,17 @@ class Thrust(Stat):
         """Initialize thrust."""
 
         if image is None:
-            image = helper_funcs.load_image(None, 'yellow', (10, 10))
+            image = Thrust.get_image()
 
         super().__init__(entity, value, image)
 
         self.name = "Thrust"
+    
+    @staticmethod
+    def get_image():
+        """Get the image representing the stat."""
+
+        return helper_funcs.load_image(None, 'yellow', (10, 10))
 
     def set_value(self, value):
         """Sets the ship's thrust and recalculates speed."""
@@ -77,11 +95,17 @@ class FirePower(Stat):
         """Initialize fire power."""
 
         if image is None:
-            image = helper_funcs.load_image(None, 'red', (10, 10))
+            image = FirePower.get_image()
 
         super().__init__(entity, value, image)
 
         self.name = "Fire Power"
+    
+    @staticmethod
+    def get_image():
+        """Get the image representing the stat."""
+
+        return helper_funcs.load_image(None, 'red', (10, 10))
 
 class FireRate(Stat):
     """A class representing the speed of the player ship's bullets."""
@@ -90,10 +114,16 @@ class FireRate(Stat):
         """Initialize fire rate."""
 
         if image is None:
-            image = helper_funcs.load_image(None, 'orange', (10, 10))
+            image = FireRate.get_image()
 
         super().__init__(entity, value, image)
 
         self.name = "Fire Rate"
+    
+    @staticmethod
+    def get_image():
+        """Get the image representing the stat."""
+
+        return helper_funcs.load_image(None, 'orange', (10, 10))
 
 __all__ = ["HitPoints", "Thrust", "FirePower", "FireRate"]

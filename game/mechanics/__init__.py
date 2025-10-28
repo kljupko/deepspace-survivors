@@ -2,3 +2,4 @@
 
 from .abilities import *
 from .stats import *
+from .upgrades import *

@@ -11,15 +11,25 @@ from ..utils import config, helper_funcs
 class Ship(Entity):
     """Base class that manages the player ship."""
 
-    def __init__(self, game):
+    def __init__(self, game, image=None, base_stats=None):
         """Initialize the ship."""
         
         super().__init__(game)
 
-        self.image = helper_funcs.load_image(
-            dflt_color="green"
-        )
+
+        if image is None:
+            image = helper_funcs.load_image(None, 'green')
+        self.image = image
         self.rect = self.image.get_rect()
+
+        if base_stats is None:
+            base_stats = {
+                'Hit Points': 3,
+                'Thrust': 3,
+                'Fire Power': 1,
+                'Fire Rate': 3
+            }
+        self.base_stats = base_stats
 
         # overwrite Entity's center position
         self.rect.midtop = self.game.play_rect.centerx, self.bounds["bottom"]
@@ -27,12 +37,9 @@ class Ship(Entity):
         self.y = float(self.rect.y)
 
         # ship stats
-        self.stats = {
-            'Hit Points': stats.HitPoints(self, 3),
-            'Thrust': stats.Thrust(self, 3),
-            'Fire Rate': stats.FireRate(self, 3),
-            'Fire Power': stats.FirePower(self, 1)
-        }
+        self._load_stats()
+        for stat in self.stats.values():
+            print(stat.name, stat.value)
 
         self.bullet_delay_ms = 1000 * 3
         self.bullet_cooldown_ms = self.bullet_delay_ms
@@ -54,6 +61,24 @@ class Ship(Entity):
             abilities.Locked(self.game),
             abilities.Locked(self.game)
         ]
+    
+    def _load_stats(self):
+        """Load stats with upgrades."""
+
+        self.stats = {
+            'Hit Points': stats.HitPoints(
+                self, self.base_stats['Hit Points'] + self.game.upgrades['hp'].level
+            ),
+            'Thrust': stats.Thrust(
+                self, self.base_stats['Thrust'] + self.game.upgrades['thrust'].level
+            ),
+            'Fire Power': stats.FirePower(
+                self, self.base_stats['Fire Power'] + self.game.upgrades['fp'].level
+            ),
+            'Fire Rate': stats.FireRate(
+                self, self.base_stats['Fire Rate'] + self.game.upgrades['fr'].level
+            )
+        }
 
     # override Entity update method
     def update(self):

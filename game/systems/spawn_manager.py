@@ -51,7 +51,7 @@ class SpawnManager():
         for _ in range (self.random_spawn_count):
             alien_class = choice(self.random_spawns[level])
             alien = alien_class(self.game)
-            alien.x = randint(0, self.game.play_surf.width)
+            alien.x = randint(0, self.game.play_surf.width - alien.rect.width)
             self.game.aliens.add(alien)
         
         self.random_spawn_cooldown = 0

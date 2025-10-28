@@ -5,7 +5,7 @@ specifying the names, types, positions, and actions
 of their respective UI Elements.
 """
 import pygame
-from ..utils import config
+from ..utils import config, helper_funcs
 
 def build_main_menu_elements(menu):
     """Return the collection of dicts for the main menu UI Elements."""
@@ -61,7 +61,7 @@ def build_upgrade_menu_elements(menu):
     Return the collection of dicts for the upgrade menu UI Elements.
     """
 
-    elements = (
+    elements = [
             {
                 'type': 'label',
                 'name': 'back_btn',
@@ -75,8 +75,66 @@ def build_upgrade_menu_elements(menu):
                 'x_offset' : menu.rect.width // 2,
                 'y_offset': 22,
                 'anchor': 'midtop'
-            },
-        )
+            }, {
+                'type' : 'icon',
+                'name': 'credits_icon',
+                'content': helper_funcs.load_image(None, 'gold', (10, 10)),
+                'linked_to': 'title',
+                'ignore_linked_x': True,
+                'y_offset': 3
+            }, {
+                'type': 'label',
+                'name': 'credits_amount',
+                'content': menu.game.progress.data['credits'],
+                'linked_to': 'credits_icon',
+                'linked_anchor': 'topright',
+                'x_offset': 1
+            }
+    ]
+
+    linked_to = "credits_icon"
+    for upgrade in menu.game.upgrades.values():
+        upgrade_dict = {}
+        upgrade_dict['type'] = 'icon'
+        upgrade_dict['name'] = upgrade.name.lower().replace(" ", "_") + "_icon"
+        upgrade_dict['content'] = upgrade.image
+        upgrade_dict['linked_to'] = linked_to
+        upgrade_dict['y_offset'] = 3
+        elements.append(upgrade_dict)
+
+        linked_to = upgrade_dict['name']
+        upgrade_dict = {}
+        upgrade_dict['type'] = 'textbox'
+        upgrade_dict['name'] = upgrade.name.lower().replace(" ", "_") + "_name"
+        upgrade_dict['content'] = upgrade.name
+        upgrade_dict['linked_to'] = linked_to
+        upgrade_dict['linked_anchor'] = 'topright'
+        elements.append(upgrade_dict)
+
+        upgrade_dict = {}
+        content = upgrade.description
+        content += f"\nLevel: {upgrade.level}"
+        if upgrade.max_level is not None:
+            content += f"\nMax Level: {upgrade.max_level}"
+        content += f"\nCost: {upgrade.get_cost()}"
+        upgrade_dict['type'] = 'textbox'
+        upgrade_dict['name'] = upgrade.name.lower().replace(" ", "_") + "_desc"
+        upgrade_dict['content'] = content
+        upgrade_dict['linked_to'] = linked_to
+        elements.append(upgrade_dict)
+
+        linked_to = upgrade_dict['name']
+        upgrade_dict = {}
+        content = "Upgrade" if upgrade.is_available() else "   x   "
+        upgrade_dict['type'] = 'label'
+        upgrade_dict['name'] = upgrade.name.lower().replace(" ", "_") + "_btn"
+        upgrade_dict['content'] = content
+        upgrade_dict['linked_to'] = linked_to
+        upgrade_dict['y_offset'] = 1
+        upgrade_dict['action'] = lambda un=upgrade.name : menu._buy_upgrade(un)
+        elements.append(upgrade_dict)
+
+        linked_to = upgrade_dict['name']
 
     return elements
 

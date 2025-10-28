@@ -44,14 +44,13 @@ class Game:
         self._make_upgrades()
         self.progress = Progress(self)
         self._load_saved_upgrades()
-        
-        for upgrade in self.upgrades.values():
-            print(upgrade.name, upgrade.level)
 
         self.music_player = MusicPlayer(self)
         self.drop_manager = RandomDropManager(self)
 
         self._make_menus()
+
+        self.ship = None
     
     # region INIT HELPER FUNCTIONS
     # -------------------------------------------------------------------
@@ -158,6 +157,7 @@ class Game:
         self.progress.update()
 
         # TODO: clear the game objects
+        self.ship = None
         self.menus["main"].open()
         self.music_player.load_sequence("main_menu.json", True)
     

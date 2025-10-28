@@ -38,8 +38,6 @@ class Ship(Entity):
 
         # ship stats
         self._load_stats()
-        for stat in self.stats.values():
-            print(stat.name, stat.value)
 
         self.bullet_delay_ms = 1000 * 3
         self.bullet_cooldown_ms = self.bullet_delay_ms

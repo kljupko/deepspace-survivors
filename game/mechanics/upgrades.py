@@ -16,8 +16,17 @@ class Upgrade():
         self.max_level = max_level
         self.base_cost = base_cost
 
+        self.description = "Description for the upgrade."
+
         if image is None:
             image = helper_funcs.load_image(None, 'gray', (10, 10))
+        
+        self.image = image
+
+    def get_cost(self):
+        """Returns the number of credits needed to buy the upgrade."""
+
+        return self.base_cost * 2**self.level
 
     def is_available(self):
         """
@@ -25,8 +34,8 @@ class Upgrade():
         Return False if max level is reached.
         """
 
-        cost = self.base_cost * 2**self.level
-        if self.game.progress.data['credits'] < cost:
+        available = self.game.progress.data['credits']
+        if available < self.get_cost():
             return False
         
         if self.max_level is not None and self.level >= self.max_level:
@@ -40,8 +49,13 @@ class Upgrade():
         if not self.is_available():
             return False
         
+        cost = self.get_cost()
         self.level += 1
+        self.game.progress.data['upgrades'][self.name] = self.level
+        self.game.progress.data['credits'] -= cost
+        self.game.progress.save_data()
         # child classes will do additional things
+        return True
     
 class HitPointUpgrade(Upgrade):
     """A class representing the ship's Hit Point upgrades."""
@@ -53,13 +67,16 @@ class HitPointUpgrade(Upgrade):
         if image is None:
             image = stats.HitPoints.get_image()
 
-        super().__init__(game, name, max_level, base_cost)
+        super().__init__(game, name, max_level, base_cost, image)
+
+        self.description = "Permanently increase the ship's HP by 1."
     
     def do_upgrade(self):
         """Upgrade and apply to ship."""
 
         super().do_upgrade()
-        self.game.ship.load_stats()
+        if self.game.ship:
+            self.game.ship.load_stats()
     
 class ThrustUpgrade(Upgrade):
     """A class representing the ship's Thrust upgrades."""
@@ -71,13 +88,16 @@ class ThrustUpgrade(Upgrade):
         if image is None:
             image = stats.Thrust.get_image()
 
-        super().__init__(game, name, max_level, base_cost)
+        super().__init__(game, name, max_level, base_cost, image)
+
+        self.description = "Permanently increase the ship's Thrust by 1."
     
     def do_upgrade(self):
         """Upgrade and apply to ship."""
 
         super().do_upgrade()
-        self.game.ship.load_stats()
+        if self.game.ship:
+            self.game.ship.load_stats()
     
 class FirePowerUpgrade(Upgrade):
     """A class representing the ship's Fire Power upgrades."""
@@ -89,13 +109,16 @@ class FirePowerUpgrade(Upgrade):
         if image is None:
             image = stats.FirePower.get_image()
 
-        super().__init__(game, name, max_level, base_cost)
+        super().__init__(game, name, max_level, base_cost, image)
+
+        self.description = "Permanently increase the ship's Fire Power by 1."
     
     def do_upgrade(self):
         """Upgrade and apply to ship."""
 
         super().do_upgrade()
-        self.game.ship.load_stats()
+        if self.game.ship:
+            self.game.ship.load_stats()
     
 class FireRateUpgrade(Upgrade):
     """A class representing the ship's Fire Rate upgrades."""
@@ -107,13 +130,16 @@ class FireRateUpgrade(Upgrade):
         if image is None:
             image = stats.FireRate.get_image()
 
-        super().__init__(game, name, max_level, base_cost)
+        super().__init__(game, name, max_level, base_cost, image)
+
+        self.description = "Permanently increase the ship's Fire Rate by 1."
     
     def do_upgrade(self):
         """Upgrade and apply to ship."""
 
         super().do_upgrade()
-        self.game.ship.load_stats()
+        if self.game.ship:
+            self.game.ship.load_stats()
 
 __all__ = [
     "HitPointUpgrade", "ThrustUpgrade", "FirePowerUpgrade", "FireRateUpgrade"

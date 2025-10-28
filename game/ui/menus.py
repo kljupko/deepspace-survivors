@@ -35,6 +35,17 @@ class UpgradeMenu(Menu):
 
         self._add_elements_from_dicts(build_upgrade_menu_elements(self))
         self._expand_height()
+    
+    def _buy_upgrade(self, upgrade_name):
+        """Attempts to buy the upgrade with the given name."""
+
+        for upgrade in self.game.upgrades.values():
+            if upgrade.name != upgrade_name:
+                continue
+            upgrade.do_upgrade()
+            self.update()
+            return True
+        return False
 
 class AchievementsMenu(Menu):
     """A class representing the achievements menu."""

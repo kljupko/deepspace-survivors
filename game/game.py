@@ -47,7 +47,7 @@ class Game:
         self.menus = {}
         self.menus['main'] = MainMenu(self)
         self.menus['upgrade'] = UpgradeMenu(self)
-        self.menus['unlock'] = UnlockMenu(self)
+        self.menus['achievements'] = AchievementsMenu(self)
         self.menus['settings'] = SettingsMenu(self)
         self.menus['remap'] = RemapKeyMenu(self)
         self.menus['info'] = InfoMenu(self)

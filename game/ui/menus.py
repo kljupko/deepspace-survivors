@@ -22,49 +22,41 @@ class MainMenu(Menu):
                 'type': 'label',
                 'name': 'play_btn',
                 'content': 'Play',
-                'font': None, 'wraplen': None,
-                'x': 0, 'y': 0,
-                'anchor': None,
                 'action': self.game.start_session
             }, {
                 'type': 'label',
                 'name': 'upgrade_btn',
                 'content': 'Upgrade',
-                'font': None, 'wraplen': None,
-                'x': 0, 'y': 11,
-                'anchor': None,
+                'linked_to' : 'play_btn',
+                'y_offset': 1,
                 'action': lambda: self.game.menus['upgrade'].open()
             }, {
                 'type': 'label',
-                'name': 'unlock_btn',
-                'content': 'Unlock',
-                'font': None, 'wraplen': None,
-                'x': 0, 'y': 12,
-                'anchor': None,
-                'action': lambda: self.game.menus['unlock'].open()
+                'name': 'achievements_btn',
+                'content': 'Achievements',
+                'linked_to' : 'upgrade_btn',
+                'y_offset': 1,
+                'action': lambda: self.game.menus['achievements'].open()
             }, {
                 'type': 'label',
                 'name': 'settings_btn',
                 'content': 'Settings',
-                'font': None, 'wraplen': None,
-                'x': 0, 'y': 11,
-                'anchor': None,
+                'linked_to' : 'achievements_btn',
+                'y_offset': 1,
                 'action': lambda: self.game.menus['settings'].open()
             }, {
                 'type': 'label',
                 'name': 'info_btn',
                 'content': 'Info',
-                'font': None, 'wraplen': None,
-                'x': 0, 'y': 12,
-                'anchor': None,
+                'linked_to' : 'settings_btn',
+                'y_offset': 1,
                 'action': lambda: self.game.menus['info'].open()
             }, {
                 'type': 'label',
                 'name': 'quit_btn',
                 'content': 'Quit',
-                'font': None, 'wraplen': None,
-                'x': 0, 'y': 11,
-                'anchor': None,
+                'linked_to' : 'info_btn',
+                'y_offset': 1,
                 'action': self.game.quit
             },
         )
@@ -89,53 +81,47 @@ class UpgradeMenu(Menu):
                 'type': 'label',
                 'name': 'back_btn',
                 'content': '< BACK',
-                'font': None, 'wraplen': None,
-                'x': 0, 'y': 0,
-                'anchor': None,
                 'action': lambda: self.close('main')
             }, {
                 'type': 'label',
                 'name': 'title',
                 'content': 'Upgrades',
-                'font': None, 'wraplen': None,
-                'x': 0, 'y': 22,
-                'anchor': None,
-                'action': None
+                'font': config.font_large,
+                'x_offset' : self.rect.width // 2,
+                'y_offset': 22,
+                'anchor': 'midtop'
             },
         )
 
         self._add_elements_from_dicts(element_dicts)
         self._expand_height()
 
-class UnlockMenu(Menu):
-    """A class representing the unlock menu."""
+class AchievementsMenu(Menu):
+    """A class representing the achievements menu."""
 
-    def __init__(self, game, name="unlock", background=None,
+    def __init__(self, game, name="achievements", background=None,
                  width=None, height=None, padding=None):
-        """Initialize the unlock menu."""
+        """Initialize the achievements menu."""
 
         super().__init__(game, name, background, width, height, padding)
     
     def _load_elements(self):
-        """Populate the menu with unlockables."""
+        """Populate the menu with achievements."""
 
         element_dicts = (
             {
                 'type': 'label',
                 'name': 'back_btn',
                 'content': '< BACK',
-                'font': None, 'wraplen': None,
-                'x': 0, 'y': 0,
-                'anchor': None,
                 'action': lambda: self.close('main')
             }, {
                 'type': 'label',
                 'name': 'title',
-                'content': 'Unlocks',
-                'font': None, 'wraplen': None,
-                'x': 0, 'y': 22,
-                'anchor': None,
-                'action': None
+                'content': 'Achievements',
+                'font': config.font_large,
+                'x_offset' : self.rect.width // 2,
+                'y_offset': 22,
+                'anchor': 'midtop'
             },
         )
 
@@ -161,273 +147,262 @@ class SettingsMenu(Menu):
                 'type': 'label',
                 'name': 'back_btn',
                 'content': '< BACK',
-                'font': None, 'wraplen': None,
-                'x': 0, 'y': 0,
-                'anchor': None,
                 'action': lambda: self.close('main')
+            }, {
+                'type': 'label',
+                'name': 'title',
+                'content': 'Settings',
+                'font': config.font_large,
+                'x_offset' : self.rect.width // 2,
+                'y_offset': 22,
+                'anchor': 'midtop'
             }, {
                 'type': 'label',
                 'name': 'fps_label',
                 'content': 'Target FPS',
-                'font': None, 'wraplen': None,
-                'x': 0, 'y': 22,
-                'anchor': None,
-                'action': None
+                'linked_to': 'title',
+                'ignore_linked_x': True,
+                'y_offset': 7
             }, {
                 'type': 'label',
                 'name': 'fps_value',
                 'content': data['fps'],
-                'font': None, 'wraplen': None,
-                'x': self.rect.width, 'y': 0,
-                'anchor': 'topright',
-                'action': None
+                'linked_to': 'fps_label',
+                'linked_anchor': 'topright',
+                'x_offset': self.rect.width,
+                'anchor': 'topright'
             }, {
                 'type': 'label',
                 'name': 'show_fps_label',
                 'content': 'Show FPS',
-                'font': None, 'wraplen': None,
-                'x': 0, 'y': 12,
-                'anchor': None,
-                'action': None
+                'linked_to': 'fps_label',
+                'y_offset': 1
             }, {
                 'type': 'label',
                 'name': 'show_fps_value',
                 'content': data['show_fps'],
-                'font': None, 'wraplen': None,
-                'x': self.rect.width, 'y': 0,
-                'anchor': 'topright',
-                'action': None
+                'linked_to': 'show_fps_label',
+                'linked_anchor': 'topright',
+                'x_offset': self.rect.width,
+                'anchor': 'topright'
             }, {
                 'type': 'label',
                 'name': 'keybinds_header',
                 'content': 'Keybinds',
-                'font': None, 'wraplen': None,
-                'x': 0, 'y': 22,
-                'anchor': None,
-                'action': None
+                'linked_to': 'show_fps_label',
+                'ignore_linked_x': True,
+                'x_offset' : self.rect.width // 2,
+                'y_offset': 7,
+                'anchor': 'midtop'
             }, {
                 'type': 'label',
                 'name': 'key_confirm_label',
                 'content': 'Confirm',
-                'font': None, 'wraplen': None,
-                'x': 0, 'y': 22,
-                'anchor': None,
-                'action': None
+                'linked_to': 'keybinds_header',
+                'x_offset': -self.rect.width,
+                'y_offset': 3
             }, {
                 'type': 'label',
                 'name': 'key_confirm_value',
                 'content': pygame.key.name(data['key_confirm']),
-                'font': None, 'wraplen': None,
-                'x': self.rect.width, 'y': 0,
-                'anchor': 'topright',
-                'action': None
+                'linked_to': 'key_confirm_label',
+                'linked_anchor': 'topright',
+                'x_offset': self.rect.width,
+                'anchor': 'topright'
             }, {
                 'type': 'label',
                 'name': 'key_cancel_label',
                 'content': 'Cancel',
-                'font': None, 'wraplen': None,
-                'x': 0, 'y': 11,
-                'anchor': None,
-                'action': None
+                'linked_to': 'key_confirm_label',
+                'y_offset': 1
             }, {
                 'type': 'label',
                 'name': 'key_cancel_value',
                 'content': pygame.key.name(data['key_cancel']),
-                'font': None, 'wraplen': None,
-                'x': self.rect.width, 'y': 0,
-                'anchor': 'topright',
-                'action': None
+                'linked_to': 'key_cancel_label',
+                'linked_anchor': 'topright',
+                'x_offset': self.rect.width,
+                'anchor': 'topright'
             }, {
                 'type': 'label',
                 'name': 'key_move_left_label',
                 'content': 'Move Left',
-                'font': None, 'wraplen': None,
-                'x': 0, 'y': 11,
-                'anchor': None,
-                'action': None
+                'linked_to': 'key_cancel_label',
+                'y_offset': 1
             }, {
                 'type': 'label',
                 'name': 'key_move_left_value',
                 'content': pygame.key.name(data['key_move_left']),
-                'font': None, 'wraplen': None,
-                'x': self.rect.width, 'y': 0,
-                'anchor': 'topright',
-                'action': None
+                'linked_to': 'key_move_left_label',
+                'linked_anchor': 'topright',
+                'x_offset': self.rect.width,
+                'anchor': 'topright'
             }, {
                 'type': 'label',
                 'name': 'key_move_right_label',
                 'content': 'Move Right',
-                'font': None, 'wraplen': None,
-                'x': 0, 'y': 11,
-                'anchor': None,
-                'action': None
+                'linked_to': 'key_move_left_label',
+                'y_offset': 1
             }, {
                 'type': 'label',
                 'name': 'key_move_right_value',
                 'content': pygame.key.name(data['key_move_right']),
-                'font': None, 'wraplen': None,
-                'x': self.rect.width, 'y': 0,
-                'anchor': 'topright',
-                'action': None
+                'linked_to': 'key_move_right_label',
+                'linked_anchor': 'topright',
+                'x_offset': self.rect.width,
+                'anchor': 'topright'
             }, {
                 'type': 'label',
                 'name': 'key_fire_label',
                 'content': 'Fire',
-                'font': None, 'wraplen': None,
-                'x': 0, 'y': 12,
-                'anchor': None,
-                'action': None
+                'linked_to': 'key_move_right_label',
+                'y_offset': 1
             }, {
                 'type': 'label',
                 'name': 'key_fire_value',
                 'content': pygame.key.name(data['key_fire']),
-                'font': None, 'wraplen': None,
-                'x': self.rect.width, 'y': 0,
-                'anchor': 'topright',
-                'action': None
+                'linked_to': 'key_fire_label',
+                'linked_anchor': 'topright',
+                'x_offset': self.rect.width,
+                'anchor': 'topright'
             }, {
                 'type': 'label',
                 'name': 'key_active_1_label',
                 'content': 'Toggle Active 1',
-                'font': None, 'wraplen': None,
-                'x': 0, 'y': 11,
-                'anchor': None,
-                'action': None
+                'linked_to': 'key_fire_label',
+                'y_offset': 1
             }, {
                 'type': 'label',
                 'name': 'key_active_1_value',
                 'content': pygame.key.name(data['key_active_1']),
-                'font': None, 'wraplen': None,
-                'x': self.rect.width, 'y': 0,
-                'anchor': 'topright',
-                'action': None
+                'linked_to': 'key_active_1_label',
+                'linked_anchor': 'topright',
+                'x_offset': self.rect.width,
+                'anchor': 'topright'
             }, {
                 'type': 'label',
                 'name': 'key_active_2_label',
                 'content': 'Toggle Active 2',
-                'font': None, 'wraplen': None,
-                'x': 0, 'y': 12,
-                'anchor': None,
-                'action': None
+                'linked_to': 'key_active_1_label',
+                'y_offset': 1
             }, {
                 'type': 'label',
                 'name': 'key_active_2_value',
                 'content': pygame.key.name(data['key_active_2']),
-                'font': None, 'wraplen': None,
-                'x': self.rect.width, 'y': 0,
-                'anchor': 'topright',
-                'action': None
+                'linked_to': 'key_active_2_label',
+                'linked_anchor': 'topright',
+                'x_offset': self.rect.width,
+                'anchor': 'topright'
             }, {
                 'type': 'label',
                 'name': 'key_active_3_label',
                 'content': 'Toggle Active 3',
-                'font': None, 'wraplen': None,
-                'x': 0, 'y': 12,
-                'anchor': None,
-                'action': None
+                'linked_to': 'key_active_2_label',
+                'y_offset': 1
             }, {
                 'type': 'label',
                 'name': 'key_active_3_value',
                 'content': pygame.key.name(data['key_active_3']),
-                'font': None, 'wraplen': None,
-                'x': self.rect.width, 'y': 0,
-                'anchor': 'topright',
-                'action': None
+                'linked_to': 'key_active_3_label',
+                'linked_anchor': 'topright',
+                'x_offset': self.rect.width,
+                'anchor': 'topright'
             }, {
                 'type': 'label',
                 'name': 'key_passive_1_label',
                 'content': 'Toggle Passive 1',
-                'font': None, 'wraplen': None,
-                'x': 0, 'y': 12,
-                'anchor': None,
-                'action': None
+                'linked_to': 'key_active_3_label',
+                'y_offset': 1
             }, {
                 'type': 'label',
                 'name': 'key_passive_1_value',
                 'content': pygame.key.name(data['key_passive_1']),
-                'font': None, 'wraplen': None,
-                'x': self.rect.width, 'y': 0,
-                'anchor': 'topright',
-                'action': None
+                'linked_to': 'key_passive_1_label',
+                'linked_anchor': 'topright',
+                'x_offset': self.rect.width,
+                'anchor': 'topright'
             }, {
                 'type': 'label',
                 'name': 'key_passive_2_label',
                 'content': 'Toggle Passive 2',
-                'font': None, 'wraplen': None,
-                'x': 0, 'y': 12,
-                'anchor': None,
-                'action': None
+                'linked_to': 'key_passive_1_label',
+                'y_offset': 1
             }, {
                 'type': 'label',
                 'name': 'key_passive_2_value',
                 'content': pygame.key.name(data['key_passive_2']),
-                'font': None, 'wraplen': None,
-                'x': self.rect.width, 'y': 0,
-                'anchor': 'topright',
-                'action': None
+                'linked_to': 'key_passive_2_label',
+                'linked_anchor': 'topright',
+                'x_offset': self.rect.width,
+                'anchor': 'topright'
             }, {
                 'type': 'label',
                 'name': 'key_passive_3_label',
                 'content': 'Toggle Passive 3',
-                'font': None, 'wraplen': None,
-                'x': 0, 'y': 12,
-                'anchor': None,
-                'action': None
+                'linked_to': 'key_passive_2_label',
+                'y_offset': 1
             }, {
                 'type': 'label',
                 'name': 'key_passive_3_value',
                 'content': pygame.key.name(data['key_passive_3']),
-                'font': None, 'wraplen': None,
-                'x': self.rect.width, 'y': 0,
-                'anchor': 'topright',
-                'action': None
+                'linked_to': 'key_passive_3_label',
+                'linked_anchor': 'topright',
+                'x_offset': self.rect.width,
+                'anchor': 'topright'
             }, {
                 'type': 'label',
                 'name': 'key_passive_4_label',
                 'content': 'Toggle Passive 4',
-                'font': None, 'wraplen': None,
-                'x': 0, 'y': 12,
-                'anchor': None,
-                'action': None
+                'linked_to': 'key_passive_3_label',
+                'y_offset': 1
             }, {
                 'type': 'label',
                 'name': 'key_passive_4_value',
                 'content': pygame.key.name(data['key_passive_4']),
-                'font': None, 'wraplen': None,
-                'x': self.rect.width, 'y': 0,
-                'anchor': 'topright',
-                'action': None
+                'linked_to': 'key_passive_4_label',
+                'linked_anchor': 'topright',
+                'x_offset': self.rect.width,
+                'anchor': 'topright'
             }, {
                 'type': 'label',
                 'name': 'audio_header',
                 'content': 'Audio',
-                'font': None, 'wraplen': None,
-                'x': 0, 'y': 22,
-                'anchor': None,
-                'action': None
+                'linked_to': 'key_passive_4_label',
+                'ignore_linked_x': True,
+                'x_offset' : self.rect.width // 2,
+                'y_offset': 7,
+                'anchor': 'midtop'
             }, {
                 'type': 'label',
                 'name': 'music_vol_label',
                 'content': 'Music Volume',
-                'font': None, 'wraplen': None,
-                'x': 0, 'y': 22,
-                'anchor': None,
-                'action': None
+                'linked_to': 'audio_header',
+                'x_offset': -self.rect.width,
+                'y_offset': 3
             }, {
                 'type': 'label',
                 'name': 'music_vol_value',
                 'content': data['music_volume'],
-                'font': None, 'wraplen': None,
-                'x': self.rect.width, 'y': 0,
-                'anchor': 'topright',
-                'action': None
+                'linked_to': 'music_vol_label',
+                'linked_anchor': 'topright',
+                'x_offset': self.rect.width,
+                'anchor': 'topright'
+            }, {
+                'type': 'label',
+                'name': 'other_header',
+                'content': 'Other',
+                'linked_to': 'music_vol_label',
+                'ignore_linked_x': True,
+                'x_offset' : self.rect.width // 2,
+                'y_offset': 7,
+                'anchor': 'midtop'
             }, {
                 'type': 'label',
                 'name': 'restore_defaults_btn',
                 'content': 'Restore Defaults',
-                'font': None, 'wraplen': None,
-                'x': 0, 'y': 22,
-                'anchor': None,
+                'linked_to': 'other_header',
+                'ignore_linked_x': True,
+                'y_offset': 3,
                 'action': self._trigger_restore_defaults
             },
         )
@@ -622,18 +597,22 @@ class InfoMenu(Menu):
                 'type': 'label',
                 'name': 'back_btn',
                 'content': '< BACK',
-                'font': None, 'wraplen': None,
-                'x': 0, 'y': 0,
-                'anchor': None,
                 'action': lambda: self.close('main')
             }, {
-                'type': 'textbox',
+                'type': 'label',
                 'name': 'title',
+                'content': 'Info',
+                'font': config.font_large,
+                'x_offset' : self.rect.width // 2,
+                'y_offset': 22,
+                'anchor': 'midtop'
+            }, {
+                'type': 'textbox',
+                'name': 'about',
                 'content': 'Created by @kljupko as a demo project.',
-                'font': None, 'wraplen': None,
-                'x': 0, 'y': 22,
-                'anchor': None,
-                'action': None
+                'linked_to': 'title',
+                'ignore_linked_x': True,
+                'y_offset': 7
             },
         )
 
@@ -650,41 +629,33 @@ class PauseMenu(Menu):
         super().__init__(game, name, background, width, height, padding)
     
     def _load_elements(self):
-        """Populate the menu with buttons."""
-
-        y = self.rect.centery
 
         element_dicts = (
             {
                 'type': 'label',
                 'name': 'continue_btn',
                 'content': 'Continue',
-                'font': None, 'wraplen': None,
-                'x': 0, 'y': y - 11,
-                'anchor': 'midleft',
                 'action': self._continue_session
             },
             {
                 'type': 'label',
                 'name': 'restart_btn',
                 'content': 'Restart',
-                'font': None, 'wraplen': None,
-                'x': 0, 'y': y,
-                'anchor': 'midleft',
+                'linked_to': 'continue_btn',
+                'y_offset': 1,
                 'action': self._restart_session
             },
             {
                 'type': 'label',
                 'name': 'quit_btn',
                 'content': 'Quit to Main Menu',
-                'font': None, 'wraplen': None,
-                'x': 0, 'y': y + 11,
-                'anchor': 'midleft',
+                'linked_to': 'restart_btn',
+                'y_offset': 1,
                 'action': self.game.quit_session
             },
         )
 
-        self._add_elements_from_dicts(element_dicts, y_incremental=False)
+        self._add_elements_from_dicts(element_dicts)
         self._expand_height()
     
     def open(self):
@@ -712,6 +683,6 @@ class PauseMenu(Menu):
         self.close()
 
 __all__ = [
-    "MainMenu", "UpgradeMenu", "UnlockMenu", "SettingsMenu",
+    "MainMenu", "UpgradeMenu", "AchievementsMenu", "SettingsMenu",
     "RemapKeyMenu", "InfoMenu", "PauseMenu"
 ]

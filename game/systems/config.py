@@ -17,7 +17,7 @@ images_path = "game/images/"
 # TODO: add other file paths
 
 font_normal = pygame.font.SysFont(None, 14)
-font_large = pygame.font.SysFont(None, 21)
+font_large = pygame.font.SysFont(None, 20)
 
 framerates = (30, 60, 120, 144, 240)
 music_volumes = range(11)

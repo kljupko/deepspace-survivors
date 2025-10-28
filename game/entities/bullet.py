@@ -2,7 +2,7 @@
 
 import pygame
 from .entity import Entity
-from ..systems import config, helper_funcs
+from ..utils import config, helper_funcs
 
 class Bullet(Entity):
     """A class that represents a bullet fired from the ship."""

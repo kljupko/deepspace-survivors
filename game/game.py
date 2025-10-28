@@ -9,6 +9,7 @@ from .systems import *
 from .entities import *
 from .input import *
 from .ui import *
+from .utils import config, events
 
 class Game:
     """Class that represents the game object."""

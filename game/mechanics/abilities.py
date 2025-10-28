@@ -2,7 +2,7 @@
 A module containing the classes for the active and passive abilities.
 """
 
-from ..systems import helper_funcs
+from ..utils import helper_funcs
 
 class Ability():
     """A grandparent class representing a ship's ability."""

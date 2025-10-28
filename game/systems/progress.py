@@ -5,7 +5,7 @@ which saves, loads, and keeps track of player progress.
 
 from pathlib import Path
 import json
-from . import config
+from ..utils import config
 
 class Progress():
     """A class which handles saving and loading the player's progress."""

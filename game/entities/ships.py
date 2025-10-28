@@ -6,7 +6,7 @@ import pygame
 from .entity import Entity
 from .bullet import Bullet
 from ..mechanics import abilities, stats
-from ..systems import config, helper_funcs
+from ..utils import config, helper_funcs
 
 class Ship(Entity):
     """Base class that manages the player ship."""

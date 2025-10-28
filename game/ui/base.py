@@ -2,7 +2,7 @@
 
 import pygame
 
-from ..systems import config, helper_funcs
+from ..utils import config, helper_funcs
 
 class UIElement():
     """A class that represents a single element of the user interface."""

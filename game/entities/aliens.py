@@ -3,9 +3,7 @@ A module containing all the aliens.
 """
 
 from .entity import Entity
-from ..mechanics import abilities
-from . import powerups
-from ..systems import config, helper_funcs
+from ..utils import config, helper_funcs
 
 class Alien(Entity):
     """Base class that manages the aliens."""

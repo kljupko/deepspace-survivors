@@ -7,7 +7,7 @@ from pathlib import Path
 import json
 import pygame
 
-from . import config
+from ..utils import config
 
 class Settings():
     """A class representing the user settings and controls."""

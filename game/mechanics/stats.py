@@ -1,7 +1,6 @@
 """A module containing the Stat class for the ship's HP, Thrust, etc."""
 
-from ..systems import helper_funcs
-from ..systems import config
+from ..utils import config, helper_funcs
 
 class Stat():
     """A base class representing one of the ship's stats."""

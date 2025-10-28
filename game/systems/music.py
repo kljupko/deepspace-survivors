@@ -8,8 +8,7 @@ import json
 import pygame
 from pygame.mixer import Channel, Sound
 
-from ..systems import events
-from . import config
+from ..utils import config, events
 
 class MusicPlayer():
     """A class which handles playing music from a sequence of sounds."""

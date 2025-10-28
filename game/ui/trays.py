@@ -1,7 +1,7 @@
 """A module containing the classes for the top and bottom tray."""
 
 from .base import Tray
-from ..systems import helper_funcs
+from ..utils import helper_funcs
 
 class TopTray(Tray):
     """A class representing the top tray."""

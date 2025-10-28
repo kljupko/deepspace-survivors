@@ -1,7 +1,5 @@
 """Initialize the game systems package."""
 
-from .config import *
-from . import events
 from .music import *
 from .progress import *
 from .random_drop import *

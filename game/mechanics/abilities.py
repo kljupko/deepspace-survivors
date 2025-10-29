@@ -13,7 +13,7 @@ class Ability():
         self.game = game
         self.name = "Base Ability"
         self.description = "Ability description."
-        self.enabled = False
+        self.is_enabled = False
     
     def toggle(self):
         """
@@ -21,7 +21,7 @@ class Ability():
         Overridden by child classes.
         """
 
-        self.enabled = False
+        self.is_enabled = False
     
     def fire(self):
         """
@@ -46,7 +46,8 @@ class Active(Ability):
     def toggle(self):
         """Toggle the ability On/Off."""
 
-        self.enabled = not self.enabled
+        self.is_enabled = not self.is_enabled
+        print(f"Ability: {self.name} set to {self.is_enabled}")
     
     def _remove(self):
         """Remove the active ability from the ship."""
@@ -66,13 +67,13 @@ class Passive(Ability):
         self.description = "Passive ability description."
         self.is_active = False
         self.level = 1
-        self.enabled = True
+        self.is_enabled = True
 
     # override the Ability method
     def toggle(self):
         """Toggle the ability On/Off."""
 
-        self.enabled = not self.enabled
+        self.is_enabled = not self.is_enabled
     
     def _remove(self):
         """Remove the passive ability from the ship."""

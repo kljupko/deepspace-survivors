@@ -46,8 +46,9 @@ class Ship(Entity):
         self.moving_right = False
 
         # abilities
-        self.charge = None
-        self.required_charge = None
+        self.charging_ability = False
+        self.load_req_charge_time()
+        self.charge_time = 0
         if base_abils is None:
             base_abils = {
                 'active': [
@@ -63,7 +64,7 @@ class Ship(Entity):
                 ]
             }
         self.base_abils = base_abils
-        self._load_abilities()
+        self.load_abilities()
     
     def load_stats(self):
         """Load stats with upgrades."""
@@ -83,7 +84,7 @@ class Ship(Entity):
             )
         }
 
-    def _load_abilities(self):
+    def load_abilities(self):
         """
         Loads the ability slots, along with ones unlocked by upgrades.
         """
@@ -110,6 +111,16 @@ class Ship(Entity):
             else:
                 self.passive_abilities.append(abilities.Locked(self.game))
 
+    def load_req_charge_time(self):
+        """
+        Loads the time required to charge an active ability, with
+        applied upgrades.
+        """
+
+        base_time = config.required_ability_charge
+        upgrade_level = self.game.upgrades['charge_time'].level
+        self.req_charge_time = base_time * 0.9**upgrade_level
+
     # override Entity update method
     def update(self):
         """Update the ship."""
@@ -118,7 +129,7 @@ class Ship(Entity):
         self._steer()
         # TODO: use thrust for speed
         self._move()
-        self._fire_active_abilities()
+        self._charge_abilities()
         self._fire_passive_abilities()
         self._check_powerup_collisions()
         self._check_alien_collisions()
@@ -235,35 +246,36 @@ class Ship(Entity):
     def start_ability_charge(self):
         """Start charging active abilities."""
 
-        if self.charge is None:
-            req = config.required_ability_charge
-            self.charge = pygame.time.get_ticks()
-            self.required_charge = self.charge + req
-            return True
-        return False
+        self.charging_ability = True
+        self.charge_time = 0
     
-    def cancel_ability_charge(self):
-        """Cancel charging active abilities."""
+    def _charge_abilities(self):
+        """Charge up the active abilities and fire if fully charged."""
 
-        self.charge = None
-        self.required_charge = None
+        if not self.charging_ability:
+            return False
+        
+        self.charge_time += self.game.dt * 1000
+        if self.charge_time < self.req_charge_time:
+            return False
+        
+        self._fire_active_abilities()
     
     def _fire_active_abilities(self):
-        """Fire enabled active abilities if the charge is complete."""
-
-        if self.charge is None:
-            return False
-        
-        if self.charge < self.required_charge:
-            self.charge = pygame.time.get_ticks()
-            return False
+        """Fire enabled active abilities."""
         
         for ability in self.active_abilities:
-            if ability.enabled:
+            if ability.is_enabled:
                 ability.fire()
-        self.cancel_ability_charge()
+        self.stop_ability_charge()
         self.game.bot_tray.update()
         return True
+    
+    def stop_ability_charge(self):
+        """Stop charging active abilities and reset charge time to 0."""
+
+        self.charging_ability = False
+        self.charge_time = 0
     
     # -------------------------------------------------------------------
     # endregion
@@ -301,7 +313,7 @@ class Ship(Entity):
         # otherwise, check if there are disabled abilities
         for ability in abils:
             idx = abils.index(ability)
-            if not ability.enabled:
+            if not ability.is_enabled:
                 old = ability.name
                 abils[idx] = new_ability
                 self.game.bot_tray.update()
@@ -327,7 +339,7 @@ class Ship(Entity):
         """Fire all the enabled passive abilities."""
 
         for ability in self.passive_abilities:
-            if ability and ability.enabled:
+            if ability and ability.is_enabled:
                 ability.fire()
     
     # -------------------------------------------------------------------

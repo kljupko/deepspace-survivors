@@ -116,10 +116,12 @@ def build_upgrade_menu_elements(menu):
         upgrade_dict = {}
         content = upgrade.description
         content += f"\nLevel: {upgrade.level}"
+        cost = f"\nCost: {helper_funcs.shorten_number(upgrade.get_cost())}"
         if upgrade.max_level is not None:
             content += f"\nMax Level: {upgrade.max_level}"
-            if upgrade.level < upgrade.max_level:
-                content += f"\nCost: {helper_funcs.shorten_number(upgrade.get_cost())}"
+            if upgrade.level >= upgrade.max_level:
+                cost = ""
+        content += cost
         upgrade_dict['type'] = 'textbox'
         upgrade_dict['name'] = upgrade.name.lower().replace(" ", "_") + "_desc"
         upgrade_dict['content'] = content

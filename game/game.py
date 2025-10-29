@@ -59,12 +59,14 @@ class Game:
         """Load the ship upgrades."""
 
         self.upgrades = {}
-        self.upgrades['hp'] = upgrades.HitPointUpgrade(self)
-        self.upgrades['thrust'] = upgrades.ThrustUpgrade(self)
-        self.upgrades['fp'] = upgrades.FirePowerUpgrade(self)
-        self.upgrades['fr'] = upgrades.FireRateUpgrade(self)
-        self.upgrades['active'] = upgrades.ActiveAbilUpgrade(self)
-        self.upgrades['passive'] = upgrades.PassiveAbilUpgrade(self)
+        self.upgrades['hp'] = upgrades.UpgradeHitPoints(self)
+        self.upgrades['thrust'] = upgrades.UpgradeThrust(self)
+        self.upgrades['fp'] = upgrades.UpgradeFirePower(self)
+        self.upgrades['fr'] = upgrades.UpgradeFireRate(self)
+        self.upgrades['active'] = upgrades.UpgradeActiveSlots(self)
+        self.upgrades['passive'] = upgrades.UpgradePassiveSlots(self)
+        self.upgrades['charge_time'] = upgrades.UpgradeChargeTime(self)
+        self.upgrades['luck'] = upgrades.UpgradeLuck(self)
 
     def _load_saved_upgrades(self):
         """Loads upgrades from self.progress."""
@@ -326,7 +328,7 @@ class Game:
         if event.key == self.settings.data["key_move_right"]:
             self.ship.moving_right = False
         if event.key == self.settings.data["key_fire"]:
-            self.ship.cancel_ability_charge()
+            self.ship.stop_ability_charge()
     
     def _handle_resize_event(self):
         """Handle what happens when the window is resized."""
@@ -400,7 +402,7 @@ class Game:
         if not self.state.session_running:
             return False
         
-        self.ship.cancel_ability_charge()
+        self.ship.stop_ability_charge()
         self.ship.destination = None
     
     def _handle_mousewheel_event(self, event):

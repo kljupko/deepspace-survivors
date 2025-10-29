@@ -45,12 +45,14 @@ class Game:
         self._make_rewards()
         self.progress = Progress(self)
         self._load_saved_upgrades()
+        self._load_saved_rewards()
 
         self.music_player = MusicPlayer(self)
         self.drop_manager = RandomDropManager(self)
 
         self._make_menus()
 
+        self.default_ship_class = ships.Ship
         self.ship_class = ships.Ship
         self.ship = None
     
@@ -74,10 +76,10 @@ class Game:
         """Set up the rewards with default values."""
 
         self.rewards = {}
-        self.rewards['bakers_dozen'] = rewards.BakersDozen(self)
-        self.rewards['spearfish'] = rewards.SpearFishReward(self)
+        self.rewards["Baker's Dozen"] = rewards.BakersDozen(self)
+        self.rewards['SpearFish Reward'] = rewards.SpearFishReward(self)
 
-        self.toggleable_ships = self.rewards['spearfish']
+        self.toggleable_ships = self.rewards['SpearFish Reward']
 
     def _load_saved_upgrades(self):
         """Loads upgrades from self.progress."""
@@ -87,6 +89,19 @@ class Game:
         for upgrade in self.upgrades.values():
             if upgrade.name in saved:
                 upgrade.level = saved[upgrade.name]
+
+    def _load_saved_rewards(self):
+        """Load rewards from self.progress."""
+
+        saved = self.progress.data['rewards']
+
+        for reward in self.rewards.values():
+            if reward.name in saved:
+                reward.is_unlocked = saved[reward.name][0]
+                if hasattr(reward, 'is_claimed'):
+                    reward.is_claimed = saved[reward.name][1]
+                elif hasattr(reward, 'is_toggled_on'):
+                    reward.is_toggled_on = saved[reward.name][1]
 
     def _make_menus(self):
         """Load all the menus."""

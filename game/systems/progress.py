@@ -45,11 +45,21 @@ class Progress():
             'longest_session' : 0,
             'total_session_duration' : 0,
 
-            'upgrades': {}
+            'upgrades': {},
+            'rewards': {}
         }
 
         for upgrade in self.game.upgrades.values():
             data['upgrades'][upgrade.name] = upgrade.level
+        
+        for reward in self.game.rewards.values():
+            is_unlocked = False
+            is_claimed_or_toggled = False
+            if hasattr(reward, 'is_claimed'):
+                is_claimed_or_toggled = reward.is_claimed
+            elif hasattr(reward, 'is_toggled_on'):
+                is_claimed_or_toggled = reward.is_toggled_on
+            data['rewards'][reward.name] = (is_unlocked, is_claimed_or_toggled)
         
         return data
     
@@ -65,8 +75,9 @@ class Progress():
         
         try:
             loaded_data = json.loads(path.read_text())
-            self._copy_values(loaded_data, data, ['upgrades'])
+            self._copy_values(loaded_data, data, ['upgrades', 'rewards'])
             self._copy_values(loaded_data['upgrades'], data['upgrades'])
+            self._copy_values(loaded_data['rewards'], data['rewards'])
         except Exception as e:
             print(f"\t\tEncountered an error while loading progress data: {e}.")
             return False
@@ -95,7 +106,7 @@ class Progress():
             path = Path(config.main_save_path)
         
         try:
-            data = json.dumps(self.data)
+            data = json.dumps(self.data, indent=4)
             path.parent.mkdir(parents=True, exist_ok=True)
             path.write_text(data)
         except Exception as e:

@@ -28,6 +28,8 @@ class Reward():
 
         if self.check_availability():
             self.is_unlocked = True
+            self.game.progress.data['rewards'][self.name][0] = True
+            self.game.progress.save_data()
             return True
         return False
 
@@ -49,10 +51,12 @@ class ClaimableReward(Reward):
             return False
 
         if self.credits is not None:
-            self.game.data['credits'] += self.credits
+            self.game.progress.data['credits'] += self.credits
         
         # to be augmented by child classes maybe
         self.is_claimed = True
+        self.game.progress.data['rewards'][self.name][1] = True
+        self.game.progress.save_data()
         return True
 
 class ToggleableReward(Reward):
@@ -72,15 +76,19 @@ class ToggleableReward(Reward):
     def toggle_on(self):
         """Turn the reward on."""
 
-        self.is_toggled_on = True
         # to be augmented by child classes
+        self.is_toggled_on = True
+        self.game.progress.data['rewards'][self.name][1] = True
+        self.game.progress.save_data()
         return True
     
     def toggle_off(self):
         """Turn the reward off."""
 
-        self.is_toggled_on = False
         # to be augmented by child classes
+        self.is_toggled_on = False
+        self.game.progress.data['rewards'][self.name][1] = False
+        self.game.progress.save_data()
         return False
 
     def toggle(self):
@@ -137,18 +145,18 @@ class SpearFishReward(ToggleableReward):
     def toggle_on(self):
         """Enable the SpearFish and disable other ships."""
 
+
         for ship_reward in self.game.toggleable_ships.values():
             ship_reward.toggle_off()
         
-        # TODO: figure out how to avoid circular imports
+        from ..entities import SpearFish
         self.game.ship_class = SpearFish
         return super().toggle_on()
     
     def toggle_off(self):
         """Disable the SpearFish."""
 
-        # TODO: figure out how to avoid circular imports
-        self.game.ship_class = Ship
+        self.game.ship_class = self.game.default_ship_class
         return super().toggle_off()
 
 __all__ = ["BakersDozen", "SpearFishReward"]

@@ -66,11 +66,13 @@ class RewardsMenu(Menu):
         """Claim the reward with the given name."""
 
         self.game.rewards[reward_name].claim()
+        self.update()
     
     def _toggle_reward(self, reward_name):
         """Toggle the reward with the given name."""
 
         self.game.rewards[reward_name].toggle()
+        self.update()
 
 class SettingsMenu(Menu):
     """A class representing the game's settings menu."""

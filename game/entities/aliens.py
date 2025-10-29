@@ -74,6 +74,7 @@ class Alien(Entity):
         if powerup:
             self.game.powerups.add(powerup)
         
+        self.game.state.killcount += 1
         self.game.state.credits_earned += self.credits
         self.game.top_tray.update()
 

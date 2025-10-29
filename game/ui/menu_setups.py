@@ -25,16 +25,16 @@ def build_main_menu_elements(menu):
                 'action': lambda: menu.game.menus['upgrade'].open()
             }, {
                 'type': 'label',
-                'name': 'achievements_btn',
-                'content': 'Achievements',
+                'name': 'rewards_btn',
+                'content': 'Rewards',
                 'linked_to' : 'upgrade_btn',
                 'y_offset': 1,
-                'action': lambda: menu.game.menus['achievements'].open()
+                'action': lambda: menu.game.menus['rewards'].open()
             }, {
                 'type': 'label',
                 'name': 'settings_btn',
                 'content': 'Settings',
-                'linked_to' : 'achievements_btn',
+                'linked_to' : 'rewards_btn',
                 'y_offset': 1,
                 'action': lambda: menu.game.menus['settings'].open()
             }, {
@@ -96,6 +96,7 @@ def build_upgrade_menu_elements(menu):
 
     linked_to = "credits_icon"
     for upgrade in menu.game.upgrades.values():
+
         upgrade_dict = {}
         upgrade_dict['type'] = 'icon'
         upgrade_dict['name'] = upgrade.name.lower().replace(" ", "_") + "_icon"
@@ -129,11 +130,11 @@ def build_upgrade_menu_elements(menu):
         elements.append(upgrade_dict)
 
         linked_to = upgrade_dict['name']
-        if upgrade.max_level is not None and upgrade.level >= upgrade.max_level:
-            continue
         
         upgrade_dict = {}
         content = "Upgrade" if upgrade.is_available() else "   x   "
+        if upgrade.max_level is not None and upgrade.level >= upgrade.max_level:
+            content = "Maxxed out"
         upgrade_dict['type'] = 'label'
         upgrade_dict['name'] = upgrade.name.lower().replace(" ", "_") + "_btn"
         upgrade_dict['content'] = content
@@ -146,12 +147,12 @@ def build_upgrade_menu_elements(menu):
 
     return elements
 
-def build_achievements_menu_elements(menu):
+def build_rewards_menu_elements(menu):
     """
-    Return the collection of dicts for the achievements menu UI Elements.
+    Return the collection of dicts for the rewards menu UI Elements.
     """
 
-    elements = (
+    elements = [
             {
                 'type': 'label',
                 'name': 'back_btn',
@@ -160,13 +161,65 @@ def build_achievements_menu_elements(menu):
             }, {
                 'type': 'label',
                 'name': 'title',
-                'content': 'Achievements',
+                'content': 'Rewards',
                 'font': config.font_large,
                 'x_offset' : menu.rect.width // 2,
                 'y_offset': 22,
                 'anchor': 'midtop'
             },
-        )
+    ]
+
+    linked_to = 'title'
+    for reward in menu.game.rewards.values():
+        
+        reward_dict = {}
+        reward_dict['type'] = 'icon'
+        reward_dict['name'] = reward.name.lower().replace(" ", "_") + "_icon"
+        reward_dict['content'] = reward.image
+        reward_dict['linked_to'] = linked_to
+        reward_dict['ignore_linked_x'] = True
+        reward_dict['y_offset'] = 3
+        elements.append(reward_dict)
+
+        linked_to = reward_dict['name']
+        reward_dict = {}
+        reward_dict['type'] = 'textbox'
+        reward_dict['name'] = reward.name.lower().replace(" ", "_") + "_name"
+        reward_dict['content'] = reward.name
+        reward_dict['linked_to'] = linked_to
+        reward_dict['linked_anchor'] = 'topright'
+        elements.append(reward_dict)
+
+        reward_dict = {}
+        reward_dict['type'] = 'textbox'
+        reward_dict['name'] = reward.name.lower().replace(" ", "_") + "_instr"
+        reward_dict['content'] = reward.instructions
+        reward_dict['linked_to'] = linked_to
+        elements.append(reward_dict)
+        
+        linked_to = reward_dict['name']
+        reward_dict = {}
+        content = "Locked"
+        action = None
+        if reward.is_unlocked:
+            if hasattr(reward, 'is_claimed') and not reward.is_claimed:
+                content = "Claim"
+                action = lambda rn=reward.name : menu._claim_reward(rn)
+            elif hasattr(reward, 'is_toggled_on'):
+                action = lambda rn=reward.name : menu._toggle_reward(rn)
+                if reward.is_toggled_on:
+                    content = "Disable"
+                else:
+                    content = "Enable"
+        reward_dict['type'] = 'label'
+        reward_dict['name'] = reward.name.lower().replace(" ", "_") + "_btn"
+        reward_dict['content'] = content
+        reward_dict['linked_to'] = linked_to
+        reward_dict['y_offset'] = 1
+        reward_dict['action'] = action
+        elements.append(reward_dict)
+
+        linked_to = reward_dict['name']
 
     return elements
 

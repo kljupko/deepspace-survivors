@@ -14,8 +14,7 @@ class Ship(Entity):
     def __init__(self, game, image=None, base_stats=None, base_abils=None):
         """Initialize the ship."""
         
-        super().__init__(game)
-
+        super().__init__(game, image)
 
         if image is None:
             image = helper_funcs.load_image(None, 'green')
@@ -345,4 +344,37 @@ class Ship(Entity):
     # -------------------------------------------------------------------
     # endregion
 
-__all__ = ["Ship"]
+class SpearFish(Ship):
+    """A class representing a ship with the Spear ability."""
+
+    def __init__(self, game, image=None, base_stats=None, base_abils=None):
+        """Initialize the SpearFish."""
+
+        if image is None:
+            image = helper_funcs.load_image(None, 'darkslategray3', (20, 28)) #?
+        
+        if base_stats is None:
+            base_stats = {
+                'Hit Points': 10,
+                'Thrust': 5,
+                'Fire Power': 5,
+                'Fire Rate': 5
+            }
+        
+        if base_abils is None:
+            base_abils = {
+                'active': [
+                    abilities.Blank,
+                    abilities.Locked,
+                    abilities.Locked
+                ],
+                'passive': [
+                    abilities.Spear,
+                    abilities.Locked,
+                    abilities.Locked,
+                    abilities.Locked
+                ]
+            }
+        super().__init__(game, image, base_stats, base_abils)
+
+__all__ = ["Ship", "SpearFish"]

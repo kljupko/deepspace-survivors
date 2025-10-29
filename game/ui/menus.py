@@ -47,20 +47,30 @@ class UpgradeMenu(Menu):
             return True
         return False
 
-class AchievementsMenu(Menu):
-    """A class representing the achievements menu."""
+class RewardsMenu(Menu):
+    """A class representing the rewards menu."""
 
-    def __init__(self, game, name="achievements", background=None,
+    def __init__(self, game, name="rewards", background=None,
                  width=None, height=None, padding=None):
-        """Initialize the achievements menu."""
+        """Initialize the rewards menu."""
 
         super().__init__(game, name, background, width, height, padding)
     
     def _load_elements(self):
-        """Populate the menu with achievements."""
+        """Populate the menu with rewards."""
 
-        self._add_elements_from_dicts(build_achievements_menu_elements(self))
+        self._add_elements_from_dicts(build_rewards_menu_elements(self))
         self._expand_height()
+    
+    def _claim_reward(self, reward_name):
+        """Claim the reward with the given name."""
+
+        self.game.rewards[reward_name].claim()
+    
+    def _toggle_reward(self, reward_name):
+        """Toggle the reward with the given name."""
+
+        self.game.rewards[reward_name].toggle()
 
 class SettingsMenu(Menu):
     """A class representing the game's settings menu."""
@@ -223,6 +233,6 @@ class PauseMenu(Menu):
         self.close()
 
 __all__ = [
-    "MainMenu", "UpgradeMenu", "AchievementsMenu", "SettingsMenu",
+    "MainMenu", "UpgradeMenu", "RewardsMenu", "SettingsMenu",
     "RemapKeyMenu", "InfoMenu", "PauseMenu"
 ]

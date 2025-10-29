@@ -10,7 +10,7 @@ from .entities import *
 from .input import *
 from .ui import *
 from .utils import config, events
-from .mechanics import upgrades
+from .mechanics import upgrades, rewards
 
 class Game:
     """Class that represents the game object."""
@@ -42,6 +42,7 @@ class Game:
         self.fps = 0
         self.state = State()
         self._make_upgrades()
+        self._make_rewards()
         self.progress = Progress(self)
         self._load_saved_upgrades()
 
@@ -50,13 +51,14 @@ class Game:
 
         self._make_menus()
 
+        self.ship_class = ships.Ship
         self.ship = None
     
     # region INIT HELPER FUNCTIONS
     # -------------------------------------------------------------------
 
     def _make_upgrades(self):
-        """Load the ship upgrades."""
+        """Set up the upgrades with default values."""
 
         self.upgrades = {}
         self.upgrades['hp'] = upgrades.UpgradeHitPoints(self)
@@ -67,6 +69,15 @@ class Game:
         self.upgrades['passive'] = upgrades.UpgradePassiveSlots(self)
         self.upgrades['charge_time'] = upgrades.UpgradeChargeTime(self)
         self.upgrades['luck'] = upgrades.UpgradeLuck(self)
+
+    def _make_rewards(self):
+        """Set up the rewards with default values."""
+
+        self.rewards = {}
+        self.rewards['bakers_dozen'] = rewards.BakersDozen(self)
+        self.rewards['spearfish'] = rewards.SpearFishReward(self)
+
+        self.toggleable_ships = self.rewards['spearfish']
 
     def _load_saved_upgrades(self):
         """Loads upgrades from self.progress."""
@@ -83,7 +94,7 @@ class Game:
         self.menus = {}
         self.menus['main'] = MainMenu(self)
         self.menus['upgrade'] = UpgradeMenu(self)
-        self.menus['achievements'] = AchievementsMenu(self)
+        self.menus['rewards'] = RewardsMenu(self)
         self.menus['settings'] = SettingsMenu(self)
         self.menus['remap'] = RemapKeyMenu(self)
         self.menus['info'] = InfoMenu(self)
@@ -123,7 +134,7 @@ class Game:
         ))
         self.play_rect = self.play_surf.get_rect()
 
-        self.ship = Ship(self)
+        self.ship = self.ship_class(self)
         # TODO: add ship to group, after adding image loading
 
         self.top_tray = TopTray(self)
@@ -159,6 +170,10 @@ class Game:
 
         self.state.session_running = False
         self.progress.update()
+
+        # check for unlocked rewards
+        for reward in self.rewards.values():
+            reward.unlock()
 
         # TODO: clear the game objects
         self.ship = None

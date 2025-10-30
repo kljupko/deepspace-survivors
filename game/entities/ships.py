@@ -5,91 +5,98 @@ A module containing all the playable ships.
 import pygame
 from .entity import Entity
 from .bullet import Bullet
-from ..mechanics import abilities, stats
+from ..mechanics import abilities, stats, upgrades
 from ..utils import config, helper_funcs
 
 class Ship(Entity):
     """Base class that manages the player ship."""
 
-    def __init__(self, game, image=None, base_stats=None, base_abils=None):
+    name = "Base Ship"
+    description = "The basic ship. Parent class to other ships."
+    image = helper_funcs.load_image(None, 'green')
+    base_stats = {
+        stats.HitPoints: 3,
+        stats.Thrust: 3,
+        stats.FirePower: 1,
+        stats.FireRate: 3
+    }
+    base_abils = {
+        'active': [
+            abilities.Blank,
+            abilities.Locked,
+            abilities.Locked
+        ],
+        'passive': [
+            abilities.Blank,
+            abilities.Locked,
+            abilities.Locked,
+            abilities.Locked
+        ]
+    }
+
+    def __init__(self, game, name=None, description=None, image=None,
+                 base_abils=None, base_stats=None):
         """Initialize the ship."""
+
+        if image is None:
+            image = Ship.image
         
         super().__init__(game, image)
 
-        if image is None:
-            image = helper_funcs.load_image(None, 'green')
-        self.image = image
-        self.rect = self.image.get_rect()
+        if name is None:
+            name = Ship.name
+        self.name = name
+
+        if description is None:
+            description = Ship.description
+        self.description = description
 
         if base_stats is None:
-            base_stats = {
-                'Hit Points': 3,
-                'Thrust': 3,
-                'Fire Power': 1,
-                'Fire Rate': 3
-            }
+            base_stats = Ship.base_stats
         self.base_stats = base_stats
+        self.load_stats()
+
+        if base_abils is None:
+            base_abils = Ship.base_abils
+        self.base_abils = base_abils
+        self.load_abilities()
+        self.charging_ability = False
+        self.load_req_charge_time()
+        self.charge_time = 0
+
+        self.bullet_delay_ms = 1000 * 3
+        self.bullet_cooldown_ms = self.bullet_delay_ms
 
         # overwrite Entity's center position
         self.rect.midtop = self.game.play_rect.centerx, self.bounds["bottom"]
         self.x = float(self.rect.x)
         self.y = float(self.rect.y)
 
-        # ship stats
-        self.load_stats()
-
-        self.bullet_delay_ms = 1000 * 3
-        self.bullet_cooldown_ms = self.bullet_delay_ms
-
         self.moving_left = False
         self.moving_right = False
 
-        # abilities
-        self.charging_ability = False
-        self.load_req_charge_time()
-        self.charge_time = 0
-        if base_abils is None:
-            base_abils = {
-                'active': [
-                    abilities.Blank,
-                    abilities.Locked,
-                    abilities.Locked
-                ],
-                'passive': [
-                    abilities.Blank,
-                    abilities.Locked,
-                    abilities.Locked,
-                    abilities.Locked
-                ]
-            }
-        self.base_abils = base_abils
-        self.load_abilities()
-    
+    # region INIT HELPER FUNCTIONS
+    # -------------------------------------------------------------------
+     
     def load_stats(self):
         """Load stats with upgrades."""
 
-        self.stats = {
-            'Hit Points': stats.HitPoints(
-                self, self.base_stats['Hit Points'] + self.game.upgrades['hp'].level
-            ),
-            'Thrust': stats.Thrust(
-                self, self.base_stats['Thrust'] + self.game.upgrades['thrust'].level
-            ),
-            'Fire Power': stats.FirePower(
-                self, self.base_stats['Fire Power'] + self.game.upgrades['fp'].level
-            ),
-            'Fire Rate': stats.FireRate(
-                self, self.base_stats['Fire Rate'] + self.game.upgrades['fr'].level
+        ups = self.game.upgrades
+        self.stats = {}
+
+        for stat_class, value in self.base_stats.items():
+            stat_name = stat_class.name
+            self.stats[stat_name] = stat_class(
+                self, value + ups[stat_name + " Upgrade"].level
             )
-        }
 
     def load_abilities(self):
         """
         Loads the ability slots, along with ones unlocked by upgrades.
         """
 
-        active_unlocked = self.game.upgrades['active'].level # max. 2
-        passive_unlocked = self.game.upgrades['passive'].level # max. 3
+        active_unlocked = self.game.upgrades[upgrades.ActiveSlots.name].level
+        passive_unlocked = self.game.upgrades[upgrades.PassiveSlots.name].level
 
         self.active_abilities = [
             self.base_abils['active'][0](self.game)
@@ -117,8 +124,11 @@ class Ship(Entity):
         """
 
         base_time = config.required_ability_charge
-        upgrade_level = self.game.upgrades['charge_time'].level
+        upgrade_level = self.game.upgrades[upgrades.ChargeTime.name].level
         self.req_charge_time = base_time * 0.9**upgrade_level
+
+    # -------------------------------------------------------------------
+    # endregion init helper functions
 
     # override Entity update method
     def update(self):
@@ -347,34 +357,37 @@ class Ship(Entity):
 class SpearFish(Ship):
     """A class representing a ship with the Spear ability."""
 
-    def __init__(self, game, image=None, base_stats=None, base_abils=None):
+    name = "SpearFish"
+    description = "A ship with a high fire rate and the Spear passive ability."
+    image = helper_funcs.load_image(None, 'darkslategray3', (20, 28))
+    base_stats = {
+        stats.HitPoints: 10,
+        stats.Thrust: 5,
+        stats.FirePower: 5,
+        stats.FireRate: 5
+    }
+    base_abils = {
+        'active': [
+            abilities.Blank,
+            abilities.Locked,
+            abilities.Locked
+        ],
+        'passive': [
+            abilities.Spear,
+            abilities.Locked,
+            abilities.Locked,
+            abilities.Locked
+        ]
+    }
+
+    def __init__(self, game):
         """Initialize the SpearFish."""
 
-        if image is None:
-            image = helper_funcs.load_image(None, 'darkslategray3', (20, 28)) #?
-        
-        if base_stats is None:
-            base_stats = {
-                'Hit Points': 10,
-                'Thrust': 5,
-                'Fire Power': 5,
-                'Fire Rate': 5
-            }
-        
-        if base_abils is None:
-            base_abils = {
-                'active': [
-                    abilities.Blank,
-                    abilities.Locked,
-                    abilities.Locked
-                ],
-                'passive': [
-                    abilities.Spear,
-                    abilities.Locked,
-                    abilities.Locked,
-                    abilities.Locked
-                ]
-            }
-        super().__init__(game, image, base_stats, base_abils)
+        name = SpearFish.name
+        description = SpearFish.description
+        image = SpearFish.image
+        base_stats = SpearFish.base_stats
+        base_abils = SpearFish.base_abils
+        super().__init__(game, name, description, image, base_abils, base_stats)
 
 __all__ = ["Ship", "SpearFish"]

@@ -8,10 +8,13 @@ from ..utils import config, helper_funcs
 class Alien(Entity):
     """Base class that manages the aliens."""
 
+    name = "Base Alien"
+    image = helper_funcs.load_image(dflt_color="red")
+
     def __init__(self, game):
         """Initialize the alien."""
 
-        image = helper_funcs.load_image(dflt_color="red")
+        image = helper_funcs.copy_image(Alien.image)
         super().__init__(game, image)
 
         # spawn enemy above the screen
@@ -66,10 +69,8 @@ class Alien(Entity):
             return False
         
         # try dropping a random powerup
-        luck_bonus = self.game.upgrades['luck'].level
-        drop_chance = self.drop_chance + luck_bonus
         powerup = self.game.drop_manager.try_drop(
-            drop_chance, (self.rect.centerx, self.rect.centery)
+            self.drop_chance, self.rect.center
         )
         if powerup:
             self.game.powerups.add(powerup)

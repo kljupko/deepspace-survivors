@@ -7,10 +7,13 @@ from ..utils import config, helper_funcs
 class Bullet(Entity):
     """A class that represents a bullet fired from the ship."""
 
+    name = "Base Bullet"
+    image = helper_funcs.load_image(None, 'orange', (4, 4))
+
     def __init__(self, game):
         """Initialize the bullet."""
 
-        image = helper_funcs.load_image(dflt_color="orange", dflt_size=(4, 4))
+        image = helper_funcs.copy_image(Bullet.image)
         super().__init__(game, image)
 
         # spawn bullet on top of the ship

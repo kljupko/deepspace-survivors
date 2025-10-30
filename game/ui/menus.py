@@ -6,14 +6,16 @@ from .base import Menu, TextBox
 from ..utils import config
 from .menu_setups import *
 
-class MainMenu(Menu):
+class Main(Menu):
     """A class which represents the game's main menu."""
 
-    def __init__(self, game, name="main", background=None,
-                 width=None, height=None, padding=None):
+    name = "Main Menu"
+
+    def __init__(self, game):
         """Initialize the main menu."""
 
-        super().__init__(game, name, background, width, height, padding)
+        name = Main.name
+        super().__init__(game, name)
     
     def _load_elements(self):
         """Populate menu with UI Elements."""
@@ -21,14 +23,16 @@ class MainMenu(Menu):
         self._add_elements_from_dicts(build_main_menu_elements(self))
         self._expand_height()
 
-class UpgradeMenu(Menu):
+class Upgrade(Menu):
     """A class representing the upgrade menu."""
 
-    def __init__(self, game, name="upgrade", background=None,
-                 width=None, height=None, padding=None):
+    name = "Upgrade Menu"
+
+    def __init__(self, game):
         """Initialize the upgrade menu."""
 
-        super().__init__(game, name, background, width, height, padding)
+        name = Upgrade.name
+        super().__init__(game, name)
     
     def _load_elements(self):
         """Populate the menu with upgrades."""
@@ -47,14 +51,16 @@ class UpgradeMenu(Menu):
             return True
         return False
 
-class RewardsMenu(Menu):
+class Rewards(Menu):
     """A class representing the rewards menu."""
 
-    def __init__(self, game, name="rewards", background=None,
-                 width=None, height=None, padding=None):
+    name = "Rewards Menu"
+
+    def __init__(self, game):
         """Initialize the rewards menu."""
 
-        super().__init__(game, name, background, width, height, padding)
+        name = Rewards.name
+        super().__init__(game, name)
     
     def _load_elements(self):
         """Populate the menu with rewards."""
@@ -74,14 +80,16 @@ class RewardsMenu(Menu):
         self.game.rewards[reward_name].toggle()
         self.update()
 
-class SettingsMenu(Menu):
+class Settings(Menu):
     """A class representing the game's settings menu."""
 
-    def __init__(self, game, name="settings", background=None,
-                 width=None, height=None, padding=None):
+    name = "Settings Menu"
+
+    def __init__(self, game):
         """Initialize the settings menu."""
 
-        super().__init__(game, name, background, width, height, padding)
+        name = Settings.name
+        super().__init__(game, name)
     
     def _load_elements(self):
         """Populate the menu with the values from the settings."""
@@ -143,32 +151,39 @@ class SettingsMenu(Menu):
         self.game.settings.save_data()
         self.update()
 
-class RemapKeyMenu(Menu):
+class RemapKey(Menu):
     """A class representing the key remapping prompt."""
 
-    def __init__(self, game, name="remap", background=None,
-                 width=None, height=None, padding=None):
+    name = "Remap Key Menu"
+
+    def __init__(self, game):
         """Initialize the key remapping menu."""
 
-        super().__init__(game, name, background, width, height, padding)
-
+        name = RemapKey.name
+        self.control = None
         self.keybind = None
+        self.key_name = None
+        super().__init__(game, name)
+
     
     def open(self, control, keybind):
         """Show the menu with the correct prompt."""
 
+        self.control = control
         self.keybind = keybind
-        key_name = pygame.key.name(self.game.settings.data[self.keybind])
-
-        text = "Press a key to remap\n"
-        text += f'"{control}"\n'
-        text += f"\nCurrent keybinding: {key_name}"
-
-        self.elements = {}
-        tb = TextBox(self, 'prompt', text,
-                     position=self.rect.center, anchor='center')
+        self.key_name = pygame.key.name(self.game.settings.data[self.keybind])
         
         return super().open()
+    
+    def _load_elements(self):
+        """Load the remap prompt."""
+
+        self.elements = {}
+
+        text = f"Press a key to remap {self.control}"
+        text += f"Current keybinding: {self.key_name}"
+
+        TextBox(self, 'prompt', text, position=self.rect.center, anchor='center')
     
     def listen_for_key(self, key):
         """Listen for a keypress and remap the key."""
@@ -177,18 +192,20 @@ class RemapKeyMenu(Menu):
             return False
         
         self.game.settings.data[self.keybind] = key
-        self.game.menus['settings'].update()
+        self.game.menus[Settings.name].update()
         self.game.settings.save_data()
-        self.close(next_menu="settings")
+        self.close(next_menu=Settings.name)
 
-class InfoMenu(Menu):
+class Info(Menu):
     """A class representing the info page/ menu."""
 
-    def __init__(self, game, name="info", background=None,
-                 width=None, height=None, padding=None):
+    name = "Info Menu"
+
+    def __init__(self, game):
         """Initialize the info menu."""
 
-        super().__init__(game, name, background, width, height, padding)
+        name = Upgrade.name
+        super().__init__(game, name)
     
     def _load_elements(self):
         """Populate the menu with information."""
@@ -196,14 +213,16 @@ class InfoMenu(Menu):
         self._add_elements_from_dicts(build_info_menu_elements(self))
         self._expand_height()
 
-class PauseMenu(Menu):
+class Pause(Menu):
     """A class representing the game's pause menu."""
 
-    def __init__(self, game, name='pause', background=None,
-                 width=None, height=None, padding=None):
+    name = "Pause Menu"
+
+    def __init__(self, game):
         """Initialize the pause menu."""
 
-        super().__init__(game, name, background, width, height, padding)
+        name = Pause.name
+        super().__init__(game, name)
     
     def _load_elements(self):
 
@@ -235,6 +254,6 @@ class PauseMenu(Menu):
         self.close()
 
 __all__ = [
-    "MainMenu", "UpgradeMenu", "RewardsMenu", "SettingsMenu",
-    "RemapKeyMenu", "InfoMenu", "PauseMenu"
+    "Main", "Upgrade", "Rewards", "Settings",
+    "RemapKey", "Info", "Pause"
 ]

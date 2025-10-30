@@ -34,6 +34,13 @@ def load_image(filename=None, dflt_color="pink", dflt_size=(24, 24)):
         print("Returning with default.")
         return default
 
+def copy_image(surface):
+    """Return an identical copy of the given image (surface)."""
+
+    image = pygame.Surface(surface.get_size())
+    image.blit(surface, surface.get_rect())
+    return image
+
 def shorten_number(number):
     """Returnes a shortened number, so 1,200 becomes 1.2K."""
 

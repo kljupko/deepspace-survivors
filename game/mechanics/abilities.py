@@ -7,12 +7,17 @@ from ..utils import helper_funcs
 class Ability():
     """A grandparent class representing a ship's ability."""
 
+    name = "Base Ability"
+    description = "Base Ability description."
+    image = helper_funcs.load_image(None, 'gray', (10, 10))
+
     def __init__(self, game):
         """Initialize the ability."""
 
         self.game = game
-        self.name = "Base Ability"
-        self.description = "Ability description."
+        self.name = Ability.name
+        self.description = Ability.description
+        self.image = helper_funcs.copy_image(Ability.image)
         self.is_enabled = False
     
     def toggle(self):
@@ -34,13 +39,18 @@ class Ability():
 class Active(Ability):
     """A base class that represents a ship's active ability."""
 
+    name = "Base Active Ability"
+    description = "Base Active Ability description."
+    image = helper_funcs.load_image(None, 'gray', (10, 10))
+
     def __init__(self, game):
         """Initialize the ability."""
 
         super().__init__(game)
 
-        self.name = "Base Active Ability"
-        self.description = "Active ability description."
+        self.name = Active.name
+        self.description = Active.description
+        self.image = helper_funcs.copy_image(Active.image)
         self.is_active = True
     
     def toggle(self):
@@ -58,13 +68,18 @@ class Active(Ability):
 class Passive(Ability):
     """A class that represents a ship's passive ability."""
 
+    name = "Base Passive Ability"
+    description = "Base Passive Ability description."
+    image = helper_funcs.load_image(None, 'gray', (10, 10))
+
     def __init__(self, game):
         """Initialize the passive ability."""
 
         super().__init__(game)
 
-        self.name = "Base Passive Ability"
-        self.description = "Passive ability description."
+        self.name = Passive.name
+        self.description = Passive.description
+        self.image = helper_funcs.copy_image(Passive.image)
         self.is_active = False
         self.level = 1
         self.is_enabled = True
@@ -89,32 +104,34 @@ class Passive(Ability):
 class Blank(Ability):
     """A class that represents a blank ability. Does nothing."""
 
+    name = "Blank Ability Slot"
+    description = "Collect a powerup to add an ability to this slot."
+    image = helper_funcs.load_image(None, 'gray', (10, 10))
+
     def __init__(self, game):
         """Initialize the blank ability."""
 
         super().__init__(game)
 
-        self.name = "Blank Ability"
-        self.description = "Collect a powerup to add an ability to this slot."
-
-        self.icon = helper_funcs.load_image(
-            dflt_color="gray", dflt_size=(10, 10)
-        )
+        self.name = Blank.name
+        self.description = Blank.description
+        self.image = helper_funcs.copy_image(Blank.image)
         
 class Locked(Ability):
     """A class that represents a locked ability. Does nothing."""
+
+    name = "Locked Ability Slot"
+    description = "Unlock this ability slot in the progress menu."
+    image = helper_funcs.load_image(None, 'black', (10, 10))
 
     def __init__(self, game):
         """Initialize the locked ability."""
 
         super().__init__(game)
 
-        self.name = "Locked Ability"
-        self.description = "Unlock this ability slot in the progress menu."
-
-        self.icon = helper_funcs.load_image(
-            dflt_color="black", dflt_size=(10, 10)
-        )
+        self.name = Locked.name
+        self.description = Locked.description
+        self.image = helper_funcs.copy_image(Locked.image)
 
 # region ACTIVE ABILITIES
 # -----------------------------------------------------------------------
@@ -125,19 +142,20 @@ class DeathPulse(Active):
     a large amount of damage to all enemies on the screen.
     """
 
+    name = "Death Pulse"
+    description = "Deals damage to all enemies on screen."
+    image = helper_funcs.load_image(None, 'red', (10, 10))
+
     def __init__(self, game):
         """Initialize the Death Pulse ability."""
 
         super().__init__(game)
 
-        self.name = "Death Pulse"
+        self.name = DeathPulse.name
         self.fp_bonus = 50
         self.description = f"Deals {self.fp_bonus}x Fire Power to all enemies" \
         " on the screen."
-
-        self.icon = helper_funcs.load_image(
-            dflt_color="red", dflt_size=(10, 10)
-        )
+        self.image = DeathPulse.image
     
     def fire(self):
         """Fire the Death Pulse ability."""
@@ -161,19 +179,20 @@ class Spear(Passive):
     the ship's fire rate and allows it to continuously fire.
     """
 
+    name = "Spear"
+    description = "Fires a continuous stream of bullets."
+    image = helper_funcs.load_image(None, 'purple', (10, 10))
+
     def __init__(self, game):
         """Initialize the Spear ability."""
 
         super().__init__(game)
 
-        self.name = "Spear"
+        self.name = Spear.name
         self.fr_bonus = 1
         self.description = "Fires a continuous stream of bullets." \
         f" Each level increases fire rate by {self.fr_bonus}."
-
-        self.icon = helper_funcs.load_image(
-            dflt_color="purple", dflt_size=(10, 10)
-        )
+        self.image = Spear.image
     
     def fire(self):
         """Fire the Spear ability."""

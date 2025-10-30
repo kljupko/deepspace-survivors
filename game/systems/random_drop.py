@@ -6,7 +6,7 @@ the random drops of powerups.
 from random import randint, choices
 
 from ..entities import powerups
-from ..mechanics import abilities
+from ..mechanics import abilities, stats, upgrades
 
 class RandomDropManager():
     """A class which manages random powerup drops."""
@@ -29,10 +29,10 @@ class RandomDropManager():
         }
 
         self.stat_choices = {
-            'Hit Points': 3,
-            'Thrust': 1,
-            'Fire Power': 3,
-            'Fire Rate': 2
+            stats.HitPoints: 3,
+            stats.Thrust: 1,
+            stats.FirePower: 3,
+            stats.FireRate: 2
         }
 
     def try_drop(self, chance, position):
@@ -57,6 +57,7 @@ class RandomDropManager():
     def _is_dropping(self, chance):
         """Roll for a random drop."""
 
+        chance += self.game.upgrades[upgrades.Luck.name].level
         maximum = 100
         while chance % 1 != 0:
             chance *= 10
@@ -68,7 +69,6 @@ class RandomDropManager():
     
     def _drop_ability(self, position):
         """Drops an AddAbility powerup."""
-
         
         ability_class = choices(
             list(self.ability_choices.keys()),
@@ -80,11 +80,11 @@ class RandomDropManager():
     def _drop_stat(self, position):
         """Drops an ImproveStat powerup."""
         
-        stat_name = choices(
+        stat_class = choices(
             list(self.stat_choices.keys()),
             list(self.stat_choices.values())
         )[0]
         
-        return powerups.ImproveStat(self.game, position, stat_name)
+        return powerups.ImproveStat(self.game, position, stat_class)
 
 __all__ = ["RandomDropManager"]

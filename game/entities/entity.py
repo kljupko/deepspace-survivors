@@ -11,6 +11,9 @@ class Entity(Sprite):
     which other game objects inherit methods and properties.
     """
 
+    name = "Base Entity"
+    image = helper_funcs.load_image()
+
     def __init__(self, game, image=None):
         """Initialize the entity."""
         
@@ -18,7 +21,7 @@ class Entity(Sprite):
         self.game = game
 
         if image is None:
-            image = helper_funcs.load_image()
+            image = helper_funcs.copy_image(Entity.image)
         self.image = image
         self.rect = self.image.get_rect()
 

@@ -59,7 +59,7 @@ class Progress():
                 is_claimed_or_toggled = reward.is_claimed
             elif hasattr(reward, 'is_toggled_on'):
                 is_claimed_or_toggled = reward.is_toggled_on
-            data['rewards'][reward.name] = (is_unlocked, is_claimed_or_toggled)
+            data['rewards'][reward.name] = [is_unlocked, is_claimed_or_toggled]
         
         return data
     

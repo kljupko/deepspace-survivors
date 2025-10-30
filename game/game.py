@@ -8,7 +8,7 @@ import pygame
 from .systems import *
 from .entities import *
 from .input import *
-from .ui import *
+from .ui import menus, trays
 from .utils import config, events
 from .mechanics import upgrades, rewards
 
@@ -53,7 +53,12 @@ class Game:
         self._make_menus()
 
         self.default_ship_class = ships.Ship
-        self.ship_class = ships.Ship
+        self.ship_class = self.default_ship_class
+        for ship_reward in self.toggleable_ships:
+            if ship_reward.is_toggled_on:
+                # re-toggle to start with the correct ship
+                ship_reward.toggle_on()
+                break
         self.ship = None
     
     # region INIT HELPER FUNCTIONS
@@ -63,23 +68,24 @@ class Game:
         """Set up the upgrades with default values."""
 
         self.upgrades = {}
-        self.upgrades['hp'] = upgrades.UpgradeHitPoints(self)
-        self.upgrades['thrust'] = upgrades.UpgradeThrust(self)
-        self.upgrades['fp'] = upgrades.UpgradeFirePower(self)
-        self.upgrades['fr'] = upgrades.UpgradeFireRate(self)
-        self.upgrades['active'] = upgrades.UpgradeActiveSlots(self)
-        self.upgrades['passive'] = upgrades.UpgradePassiveSlots(self)
-        self.upgrades['charge_time'] = upgrades.UpgradeChargeTime(self)
-        self.upgrades['luck'] = upgrades.UpgradeLuck(self)
+        self.upgrades[upgrades.HitPoints.name] = upgrades.HitPoints(self)
+        self.upgrades[upgrades.Thrust.name] = upgrades.Thrust(self)
+        self.upgrades[upgrades.FirePower.name] = upgrades.FirePower(self)
+        self.upgrades[upgrades.FireRate.name] = upgrades.FireRate(self)
+        self.upgrades[upgrades.ActiveSlots.name] = upgrades.ActiveSlots(self)
+        self.upgrades[upgrades.PassiveSlots.name] = upgrades.PassiveSlots(self)
+        self.upgrades[upgrades.ChargeTime.name] = upgrades.ChargeTime(self)
+        self.upgrades[upgrades.Luck.name] = upgrades.Luck(self)
 
     def _make_rewards(self):
         """Set up the rewards with default values."""
 
         self.rewards = {}
-        self.rewards["Baker's Dozen"] = rewards.BakersDozen(self)
-        self.rewards['SpearFish Reward'] = rewards.SpearFishReward(self)
+        self.rewards[rewards.BakersDozen.name] = rewards.BakersDozen(self)
+        self.rewards[rewards.SpearFish.name] = rewards.SpearFish(self)
 
-        self.toggleable_ships = self.rewards['SpearFish Reward']
+        self.toggleable_ships = []
+        self.toggleable_ships.append(self.rewards[rewards.SpearFish.name])
 
     def _load_saved_upgrades(self):
         """Loads upgrades from self.progress."""
@@ -107,13 +113,13 @@ class Game:
         """Load all the menus."""
 
         self.menus = {}
-        self.menus['main'] = MainMenu(self)
-        self.menus['upgrade'] = UpgradeMenu(self)
-        self.menus['rewards'] = RewardsMenu(self)
-        self.menus['settings'] = SettingsMenu(self)
-        self.menus['remap'] = RemapKeyMenu(self)
-        self.menus['info'] = InfoMenu(self)
-        self.menus['pause'] = PauseMenu(self)
+        self.menus[menus.Main.name] = menus.Main(self)
+        self.menus[menus.Upgrade.name] = menus.Upgrade(self)
+        self.menus[menus.Rewards.name] = menus.Rewards(self)
+        self.menus[menus.Settings.name] = menus.Settings(self)
+        self.menus[menus.RemapKey.name] = menus.RemapKey(self)
+        self.menus[menus.Info.name] = menus.Info(self)
+        self.menus[menus.Pause.name] = menus.Pause(self)
 
     # -------------------------------------------------------------------
     # endregion INIT HELPER FUNCTIONS
@@ -121,7 +127,7 @@ class Game:
     def run(self):
         """Run the game loop."""
 
-        self.menus['main'].open()
+        self.menus[menus.Main.name].open()
         self.music_player.load_sequence("main_menu.json", True)
 
         while self.game_running:
@@ -152,9 +158,9 @@ class Game:
         self.ship = self.ship_class(self)
         # TODO: add ship to group, after adding image loading
 
-        self.top_tray = TopTray(self)
+        self.top_tray = trays.TopTray(self)
         self.top_tray.update()
-        self.bot_tray = BottomTray(self)
+        self.bot_tray = trays.BottomTray(self)
         self.bot_tray.update()
 
         self.bullets = pygame.sprite.Group()
@@ -163,7 +169,7 @@ class Game:
 
         self.spawn_manager = SpawnManager(self)
 
-        self.menus["main"].close()
+        self.menus[menus.Main.name].close()
         self.music_player.load_sequence("test.json", True)
     
     def _level_up(self, seconds):
@@ -192,7 +198,7 @@ class Game:
 
         # TODO: clear the game objects
         self.ship = None
-        self.menus["main"].open()
+        self.menus[menus.Main.name].open()
         self.music_player.load_sequence("main_menu.json", True)
     
     def quit(self):
@@ -316,13 +322,13 @@ class Game:
     def _handle_keydown_events(self, event):
         """Handle what happens when certain keys are pressed."""
         
-        self.menus['remap'].listen_for_key(event.key)
+        self.menus[menus.RemapKey.name].listen_for_key(event.key)
 
         if not self.state.session_running:
             return False
         
         if event.key == self.settings.data["key_cancel"]:
-            self.menus['pause'].open()
+            self.menus[menus.Pause.name].open()
 
         if event.key == self.settings.data["key_move_left"]:
             self.ship.moving_left = True

@@ -8,11 +8,14 @@ from ..utils import config, helper_funcs
 class PowerUp(Entity):
     """A base class representing a powerup."""
 
+    name = "Base Powerup"
+    image = helper_funcs.load_image(None, "teal", (12, 12))
+
     def __init__(self, game, position, image=None):
         """Initialize the powerup."""
 
         if image is None:
-            image = helper_funcs.load_image(dflt_color="teal", dflt_size=(12, 12))
+            image = helper_funcs.copy_image(PowerUp.image)
         super().__init__(game, image)
 
         self.name = "Base Powerup"
@@ -57,22 +60,22 @@ class ImproveStat(PowerUp):
     A class representing a powerup that improves one of the ship's stats.
     """
 
-    def __init__(self, game, position, stat_name, magnitude=1):
+    name = "Improve Stat"
+    image = helper_funcs.load_image(None, "cadetblue1", (12, 12))
+
+    def __init__(self, game, position, stat_class, magnitude=1):
         """Initialize the powerup."""
 
-        image = helper_funcs.load_image(dflt_color="cadetblue1", dflt_size=(12, 12))
+        image = helper_funcs.copy_image(ImproveStat.image)
         super().__init__(game, position, image)
 
-        self.stat_name = stat_name
+        self.stat_name = stat_class.name
         self.magnitude = magnitude
         self.name = f"Increase {self.stat_name}"
-        self.description = f"Increases a player ship's {stat_name.lower()} "
-        self.description += f"by {self.magnitude}."
+        self.description = f"Increases a player ship's {self.stat_name} " \
+            f"by {self.magnitude}."
 
-        for stat in self.game.ship.stats.values():
-            if stat.name == self.stat_name:
-                self.image.blit(stat.image, (1, 1))
-                return
+        self.image.blit(stat_class.image, (1, 1))
 
     def apply(self):
         """Apply the powerup on pickup."""
@@ -85,10 +88,13 @@ class ImproveStat(PowerUp):
 class AddAbility(PowerUp):
     """A class representing a powerup that grants the ship an ability."""
 
+    name = "Add Ability"
+    image = helper_funcs.load_image(None, "peru", (12, 12))
+
     def __init__(self, game, position, ability_class):
         """Initialize the powerup."""
 
-        image = helper_funcs.load_image(dflt_color="peru", dflt_size=(12, 12))
+        image = helper_funcs.copy_image(AddAbility.image)
         super().__init__(game, position, image)
 
         self.ability = ability_class(self.game)
@@ -96,7 +102,7 @@ class AddAbility(PowerUp):
         self.description = f"Gives the player the "
         self.description += f"{self.ability.name} ability."
 
-        self.image.blit(self.ability.icon, (1, 1))
+        self.image.blit(self.ability.image, (1, 1))
     
     def apply(self):
         """Apply the powerup on pickup."""

@@ -7,13 +7,15 @@ from .menu_setups import build_bot_tray_unions
 class TopTray(Tray):
     """A class representing the top tray."""
 
-    def __init__(self, game, name='top_tray', background=None,
-                 width=None, height=None, padding=None):
+    name = "Top Tray"
+    height = 23
+
+    def __init__(self, game):
         """Initialize the top tray."""
 
-        height = 23
-
-        super().__init__(game, name, background, width, height, padding)
+        name = TopTray.name
+        height = TopTray.height
+        super().__init__(game, name, height=height)
     
     def _load_elements(self):
         """Populate the tray with UI Elements."""
@@ -42,13 +44,15 @@ class TopTray(Tray):
 class BottomTray(Tray):
     """A class representing the bottom tray."""
 
-    def __init__(self, game, name='bot_tray', background=None,
-                 width=None, height=None, padding=None):
+    name = "Bottom Tray"
+
+    def __init__(self, game):
         """Initialize the bottom tray."""
 
+        name = BottomTray.name
         height = game.screen.height - game.play_surf.height + 11
 
-        super().__init__(game, name, background, width, height, padding)
+        super().__init__(game, name, height=height)
         self.rect.y = self.game.screen.height - self.rect.height
     
     def _load_elements(self):

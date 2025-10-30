@@ -5,7 +5,9 @@ specifying the names, types, positions, and actions
 of their respective UI Elements.
 """
 import pygame
+from ..mechanics import stats
 from ..utils import config, helper_funcs
+from . import menus
 
 def build_main_menu_elements(menu):
     """Return the collection of dicts for the main menu UI Elements."""
@@ -22,28 +24,28 @@ def build_main_menu_elements(menu):
                 'content': 'Upgrade',
                 'linked_to' : 'play_btn',
                 'y_offset': 1,
-                'action': lambda: menu.game.menus['upgrade'].open()
+                'action': lambda: menu.game.menus[menus.Upgrade.name].open()
             }, {
                 'type': 'label',
                 'name': 'rewards_btn',
                 'content': 'Rewards',
                 'linked_to' : 'upgrade_btn',
                 'y_offset': 1,
-                'action': lambda: menu.game.menus['rewards'].open()
+                'action': lambda: menu.game.menus[menus.Rewards.name].open()
             }, {
                 'type': 'label',
                 'name': 'settings_btn',
                 'content': 'Settings',
                 'linked_to' : 'rewards_btn',
                 'y_offset': 1,
-                'action': lambda: menu.game.menus['settings'].open()
+                'action': lambda: menu.game.menus[menus.Settings.name].open()
             }, {
                 'type': 'label',
                 'name': 'info_btn',
                 'content': 'Info',
                 'linked_to' : 'settings_btn',
                 'y_offset': 1,
-                'action': lambda: menu.game.menus['info'].open()
+                'action': lambda: menu.game.menus[menus.Info.name].open()
             }, {
                 'type': 'label',
                 'name': 'quit_btn',
@@ -66,7 +68,7 @@ def build_upgrade_menu_elements(menu):
                 'type': 'label',
                 'name': 'back_btn',
                 'content': '< BACK',
-                'action': lambda: menu.close('main')
+                'action': lambda: menu.close(menus.Main.name)
             }, {
                 'type': 'label',
                 'name': 'title',
@@ -157,7 +159,7 @@ def build_rewards_menu_elements(menu):
                 'type': 'label',
                 'name': 'back_btn',
                 'content': '< BACK',
-                'action': lambda: menu.close('main')
+                'action': lambda: menu.close(menus.Main.name)
             }, {
                 'type': 'label',
                 'name': 'title',
@@ -202,8 +204,11 @@ def build_rewards_menu_elements(menu):
         content = "Locked"
         action = None
         if reward.is_unlocked:
-            if hasattr(reward, 'is_claimed') and not reward.is_claimed:
-                content = "Claim"
+            if hasattr(reward, 'is_claimed'):
+                if not reward.is_claimed:
+                    content = "Claim"
+                else:
+                    content = "Claimed"
                 action = lambda rn=reward.name : menu._claim_reward(rn)
             elif hasattr(reward, 'is_toggled_on'):
                 action = lambda rn=reward.name : menu._toggle_reward(rn)
@@ -233,7 +238,7 @@ def build_settings_menu_elements(menu, settings_data):
                 'type': 'label',
                 'name': 'back_btn',
                 'content': '< BACK',
-                'action': lambda: menu.close('main')
+                'action': lambda: menu.close(menus.Main.name)
             }, {
                 'type': 'label',
                 'name': 'title',
@@ -514,62 +519,62 @@ def build_settings_menu_unions(menu):
             {
                 'name': 'remap_confirm_btn',
                 'elem_names': ['key_confirm_label', 'key_confirm_value'],
-                'action': (lambda: menu.game.menus['remap'].open('Confirm', 'key_confirm'))
+                'action': (lambda: menu.game.menus[menus.RemapKey.name].open('Confirm', 'key_confirm'))
             },
             {
                 'name': 'remap_cancel_btn',
                 'elem_names': ['key_cancel_label', 'key_cancel_value'],
-                'action': (lambda: menu.game.menus['remap'].open('Cancel', 'key_cancel'))
+                'action': (lambda: menu.game.menus[menus.RemapKey.name].open('Cancel', 'key_cancel'))
             },
             {
                 'name': 'remap_move_left_btn',
                 'elem_names': ['key_move_left_label', 'key_move_left_value'],
-                'action': (lambda: menu.game.menus['remap'].open('Move Left', 'key_move_left'))
+                'action': (lambda: menu.game.menus[menus.RemapKey.name].open('Move Left', 'key_move_left'))
             },
             {
                 'name': 'remap_move_right_btn',
                 'elem_names': ['key_move_right_label', 'key_move_right_value'],
-                'action': (lambda: menu.game.menus['remap'].open('Move Right', 'key_move_right'))
+                'action': (lambda: menu.game.menus[menus.RemapKey.name].open('Move Right', 'key_move_right'))
             },
             {
                 'name': 'remap_fire_btn',
                 'elem_names': ['key_fire_label', 'key_fire_value'],
-                'action': (lambda: menu.game.menus['remap'].open('Fire', 'key_fire'))
+                'action': (lambda: menu.game.menus[menus.RemapKey.name].open('Fire', 'key_fire'))
             },
             {
                 'name': 'remap_active_1_btn',
                 'elem_names': ['key_active_1_label', 'key_active_1_value'],
-                'action': (lambda: menu.game.menus['remap'].open('Toggle Active 1', 'key_active_1'))
+                'action': (lambda: menu.game.menus[menus.RemapKey.name].open('Toggle Active 1', 'key_active_1'))
             },
             {
                 'name': 'remap_active_2_btn',
                 'elem_names': ['key_active_2_label', 'key_active_2_value'],
-                'action': (lambda: menu.game.menus['remap'].open('Toggle Active 2', 'key_active_2'))
+                'action': (lambda: menu.game.menus[menus.RemapKey.name].open('Toggle Active 2', 'key_active_2'))
             },
             {
                 'name': 'remap_active_3_btn',
                 'elem_names': ['key_active_3_label', 'key_active_3_value'],
-                'action': (lambda: menu.game.menus['remap'].open('Toggle Active 3', 'key_active_3'))
+                'action': (lambda: menu.game.menus[menus.RemapKey.name].open('Toggle Active 3', 'key_active_3'))
             },
             {
                 'name': 'remap_passive_1_btn',
                 'elem_names': ['key_passive_1_label', 'key_passive_1_value'],
-                'action': (lambda: menu.game.menus['remap'].open('Toggle Passive 1', 'key_passive_1'))
+                'action': (lambda: menu.game.menus[menus.RemapKey.name].open('Toggle Passive 1', 'key_passive_1'))
             },
             {
                 'name': 'remap_passive_2_btn',
                 'elem_names': ['key_passive_2_label', 'key_passive_2_value'],
-                'action': (lambda: menu.game.menus['remap'].open('Toggle Passive 2', 'key_passive_2'))
+                'action': (lambda: menu.game.menus[menus.RemapKey.name].open('Toggle Passive 2', 'key_passive_2'))
             },
             {
                 'name': 'remap_passive_3_btn',
                 'elem_names': ['key_passive_3_label', 'key_passive_3_value'],
-                'action': (lambda: menu.game.menus['remap'].open('Toggle Passive 3', 'key_passive_3'))
+                'action': (lambda: menu.game.menus[menus.RemapKey.name].open('Toggle Passive 3', 'key_passive_3'))
             },
             {
                 'name': 'remap_passive_4_btn',
                 'elem_names': ['key_passive_4_label', 'key_passive_4_value'],
-                'action': (lambda: menu.game.menus['remap'].open('Toggle Passive 4', 'key_passive_4'))
+                'action': (lambda: menu.game.menus[menus.RemapKey.name].open('Toggle Passive 4', 'key_passive_4'))
             },
             {
                 'name': 'cycle_music_vol_btn',
@@ -590,7 +595,7 @@ def build_info_menu_elements(menu):
                 'type': 'label',
                 'name': 'back_btn',
                 'content': '< BACK',
-                'action': lambda: menu.close('main')
+                'action': lambda: menu.close(menus.Main.name)
             }, {
                 'type': 'label',
                 'name': 'title',
@@ -652,23 +657,23 @@ def build_top_tray_elements(tray):
             {
                 'type': 'icon',
                 'name': 'fire_power_icon',
-                'content': tray.game.ship.stats['Fire Power'].image,
+                'content': stats.FirePower.image
             }, {
                 'type': 'label',
                 'name': 'fire_power_value',
-                'content': tray.game.ship.stats['Fire Power'].value,
+                'content': tray.game.ship.stats[stats.FirePower.name].value,
                 'linked_to' : 'fire_power_icon',
                 'linked_anchor': 'topright'
             }, {
                 'type': 'icon',
                 'name': 'fire_rate_icon',
-                'content': tray.game.ship.stats['Fire Rate'].image,
+                'content': stats.FireRate.image,
                 'x_offset': tray.rect.width,
                 'anchor': 'topright'
             }, {
                 'type': 'label',
                 'name': 'fire_rate_value',
-                'content': tray.game.ship.stats['Fire Rate'].value,
+                'content': tray.game.ship.stats[stats.FireRate.name].value,
                 'linked_to': 'fire_rate_icon',
                 'linked_anchor': 'topleft',
                 'anchor': 'topright'
@@ -678,7 +683,7 @@ def build_top_tray_elements(tray):
                 'content': tray._get_session_duration(),
                 'x_offset': tray.rect.width // 2,
                 'anchor': 'midtop',
-                'action': lambda: tray.game.menus['pause'].open()
+                'action': lambda: tray.game.menus[menus.Pause.name].open()
             }, {
                 'type': 'label',
                 'name': 'credits_earned',
@@ -688,7 +693,7 @@ def build_top_tray_elements(tray):
                 'x_offset': 5,
                 'y_offset': 1,
                 'anchor': 'midtop',
-                'action': lambda: tray.game.menus['pause'].open()
+                'action': lambda: tray.game.menus[menus.Pause.name].open()
             }, {
                 'type': 'icon',
                 'name': 'credits_icon',
@@ -720,7 +725,7 @@ def build_bot_tray_elements(tray):
             {
                 'type': 'icon',
                 'name': 'ship_hp_icon',
-                'content': tray.game.ship.stats['Hit Points'].image,
+                'content': stats.HitPoints.image,
             }, {
                 'type': 'label',
                 'name': 'ship_hp_value',
@@ -730,7 +735,7 @@ def build_bot_tray_elements(tray):
             }, {
                 'type': 'icon',
                 'name': 'ship_thrust_icon',
-                'content': tray.game.ship.stats['Thrust'].image,
+                'content': stats.Thrust.image,
                 'x_offset': tray.rect.width,
                 'anchor': 'topright'
             }, {
@@ -752,7 +757,7 @@ def build_bot_tray_elements(tray):
             }, {
                 'type': 'icon',
                 'name': 'active_1_icon',
-                'content': tray.game.ship.active_abilities[0].icon,
+                'content': tray.game.ship.active_abilities[0].image,
                 'linked_to': 'active_1_bg',
                 'linked_anchor': 'center',
                 'anchor': 'center'
@@ -768,7 +773,7 @@ def build_bot_tray_elements(tray):
             }, {
                 'type': 'icon',
                 'name': 'active_2_icon',
-                'content': tray.game.ship.active_abilities[1].icon,
+                'content': tray.game.ship.active_abilities[1].image,
                 'linked_to': 'active_2_bg',
                 'linked_anchor': 'center',
                 'anchor': 'center'
@@ -784,7 +789,7 @@ def build_bot_tray_elements(tray):
             }, {
                 'type': 'icon',
                 'name': 'active_3_icon',
-                'content': tray.game.ship.active_abilities[2].icon,
+                'content': tray.game.ship.active_abilities[2].image,
                 'linked_to': 'active_3_bg',
                 'linked_anchor': 'center',
                 'anchor': 'center'
@@ -800,7 +805,7 @@ def build_bot_tray_elements(tray):
             }, {
                 'type': 'icon',
                 'name': 'passive_1_icon',
-                'content': tray.game.ship.passive_abilities[0].icon,
+                'content': tray.game.ship.passive_abilities[0].image,
                 'linked_to': 'passive_1_bg',
                 'linked_anchor': 'center',
                 'anchor': 'center'
@@ -816,7 +821,7 @@ def build_bot_tray_elements(tray):
             }, {
                 'type': 'icon',
                 'name': 'passive_2_icon',
-                'content': tray.game.ship.passive_abilities[1].icon,
+                'content': tray.game.ship.passive_abilities[1].image,
                 'linked_to': 'passive_2_bg',
                 'linked_anchor': 'center',
                 'anchor': 'center'
@@ -832,7 +837,7 @@ def build_bot_tray_elements(tray):
             }, {
                 'type': 'icon',
                 'name': 'passive_3_icon',
-                'content': tray.game.ship.passive_abilities[2].icon,
+                'content': tray.game.ship.passive_abilities[2].image,
                 'linked_to': 'passive_3_bg',
                 'linked_anchor': 'center',
                 'anchor': 'center'
@@ -848,7 +853,7 @@ def build_bot_tray_elements(tray):
             }, {
                 'type': 'icon',
                 'name': 'passive_4_icon',
-                'content': tray.game.ship.passive_abilities[3].icon,
+                'content': tray.game.ship.passive_abilities[3].image,
                 'linked_to': 'passive_4_bg',
                 'linked_anchor': 'center',
                 'anchor': 'center'

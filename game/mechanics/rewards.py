@@ -5,17 +5,28 @@ from ..utils import helper_funcs
 class Reward():
     """A base class representing a reward."""
 
-    def __init__(self, game, name="Base Reward", image=None):
+    name = "Base Reward"
+    instructions = "You can't earn this base reward."
+    image = helper_funcs.load_image(None, 'gray', (10, 10))
+
+    def __init__(self, game, name=None, instructions=None, image=None):
         """Initialize the reward."""
 
         self.game = game
+
+        if name is None:
+            name = Reward.name
         self.name = name
-        self.instructions = "You can't earn this base reward."
-        self.is_unlocked = False
+
+        if instructions is None:
+            instructions = Reward.instructions
+        self.instructions = instructions
 
         if image is None:
-            image = helper_funcs.load_image(None, 'gray', (10, 10))
+            image = helper_funcs.copy_image(Reward.image)
         self.image = image
+
+        self.is_unlocked = False
     
     def check_availability(self):
         """Return True if conditions are met for the reward to unlock."""
@@ -36,11 +47,21 @@ class Reward():
 class ClaimableReward(Reward):
     """A class representing a reward that can be claimed once."""
 
-    def __init__(self, game, name="Claimable Reward", credits=None, image=None):
+    name = "Base Claimable Reward"
+    instructions = "You can't earn this base claimable reward."
+    image = helper_funcs.load_image(None, 'gray', (10, 10))
+
+    def __init__(self, game, name=None, instructions=None, image=None, credits=0):
         """Initialize the reward."""
-        
-        super().__init__(game, name, image)
-        self.instructions = "You can't earn this base claimable reward."
+
+        if name is None:
+            name = ClaimableReward.name
+        if instructions is None:
+            instructions = ClaimableReward.instructions
+        if image is None:
+            image = ClaimableReward.image
+
+        super().__init__(game, name, instructions, image)
         self.is_claimed = False
         self.credits = credits
     
@@ -66,11 +87,21 @@ class ToggleableReward(Reward):
     ship, after it is unlocked.
     """
 
-    def __init__(self, game, name="Toggleable Reward", image=None):
+    name = "Base Toggleable Reward"
+    instructions = "You can't earn this base toggleable reward."
+    image = helper_funcs.load_image(None, 'gray', (10, 10))
+
+    def __init__(self, game, name=None, instructions=None, image=None):
         """Initialize the reward."""
 
-        super().__init__(game, name, image)
-        self.instructions = "You can't earn this base toggleable reward."
+        if name is None:
+            name = ToggleableReward.name
+        if instructions is None:
+            instructions = ToggleableReward.instructions
+        if image is None:
+            image = ToggleableReward.image
+
+        super().__init__(game, name, instructions, image)
         self.is_toggled_on = False
 
     def toggle_on(self):
@@ -103,14 +134,18 @@ class ToggleableReward(Reward):
 class BakersDozen(ClaimableReward):
     """Claimable reward for destroying 13 aliens in one session."""
 
-    def __init__(self, game, name="Baker's Dozen", credits=1300, image=None):
-        """Initialize the reward."""
+    name = "Baker's Dozen"
+    instructions = "Kill at least 13 aliens in a single session."
+    image = helper_funcs.load_image(None, 'gold', (10, 10))
 
-        if image is None:
-            image = helper_funcs.load_image(None, 'gold', (10, 10))
+    def __init__(self, game):
+        """Initialize the reward."""
         
-        super().__init__(game, name, credits, image)
-        self.instructions = "Kill 13 aliens in a single session."
+        name = BakersDozen.name
+        instructions = BakersDozen.instructions
+        image = BakersDozen.image
+        credits = 1300
+        super().__init__(game, name, instructions, image, credits)
 
     # override the grandparent method
     def check_availability(self):
@@ -122,17 +157,21 @@ class BakersDozen(ClaimableReward):
     
     # no need to override the claim method, it's just a monetary reward
 
-class SpearFishReward(ToggleableReward):
+class SpearFish(ToggleableReward):
     """Toggleable reward, granting you the SpearFish class ship."""
 
-    def __init__(self, game, name="SpearFish", image=None):
+    name = "SpearFish"
+    instructions = "End a session with a Fire Rate of 10 or more."
+    # TODO: load the ship's image, without circular imports
+    image = helper_funcs.load_image(None, 'darkslategray3', (10, 10))
+
+    def __init__(self, game):
         """Initialize the reward."""
 
-        if image is None:
-            image = helper_funcs.load_image(None, 'darkslategray3', (10, 10))
-        
-        super().__init__(game, name, image)
-        self.instructions = "End the session with a Fire Rate of 10 or more."
+        name = SpearFish.name
+        instructions = SpearFish.instructions
+        image = SpearFish.image
+        super().__init__(game, name, instructions, image)
     
     # override the grandparent method
     def check_availability(self):
@@ -146,7 +185,7 @@ class SpearFishReward(ToggleableReward):
         """Enable the SpearFish and disable other ships."""
 
 
-        for ship_reward in self.game.toggleable_ships.values():
+        for ship_reward in self.game.toggleable_ships:
             ship_reward.toggle_off()
         
         from ..entities import SpearFish
@@ -159,4 +198,4 @@ class SpearFishReward(ToggleableReward):
         self.game.ship_class = self.game.default_ship_class
         return super().toggle_off()
 
-__all__ = ["BakersDozen", "SpearFishReward"]
+__all__ = ["BakersDozen", "SpearFish"]

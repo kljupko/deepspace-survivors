@@ -333,7 +333,7 @@ class Menu():
             menu.close()
 
         self.is_visible = True
-        self.update() # TODO: remove this?
+        self.update()
 
     def close(self, next_menu=None):
         """Make the menu hidden and non-interactive."""
@@ -436,6 +436,7 @@ class Menu():
             self.rect.x, top,
             self.background.width, self.background.height
         )
+        self.surface.blit(self.background, self.rect)
         self.game.screen.blit(self.background, back_draw_rect)
 
         from . import trays

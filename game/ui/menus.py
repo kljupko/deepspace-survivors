@@ -181,7 +181,7 @@ class RemapKey(Menu):
         self.elements = {}
 
         text = f"Press a key to remap {self.control}"
-        text += f"Current keybinding: {self.key_name}"
+        text += f"\nCurrent keybinding: {self.key_name}"
 
         TextBox(self, 'prompt', text, position=self.rect.center, anchor='center')
     

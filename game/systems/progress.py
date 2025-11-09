@@ -3,39 +3,65 @@ A module containing the Progress class,
 which saves, loads, and keeps track of player progress.
 """
 
+from __future__ import annotations
+from typing import TYPE_CHECKING, TypedDict
+if TYPE_CHECKING:
+    from ..game import Game
+
 from pathlib import Path
 import json
 from ..utils import config
+from ..mechanics import rewards
+
+class DataDict(TypedDict):
+    """
+    A class representing the dictionary containing data
+    about saved game progress.
+    """
+
+    credits: int
+    max_credits_owned: int
+    max_credits_session: int
+    credits_spent: int
+
+    num_of_sessions: int
+    longest_session: int
+    total_session_duration: int
+
+    upgrades: dict[str, int]
+    rewards: dict[str, list[bool]]
 
 class Progress():
     """A class which handles saving and loading the player's progress."""
 
-    def __init__(self, game):
+    def __init__(self, game: Game):
         """Initialize the progress handler."""
 
         self.game = game
 
-        self.data = self._load_data(config.main_save_path)
-        if self.data:
+        data = self._load_data(config.main_save_path)
+        if data:
             # loading main file successful
+            self.data = data
             self.save_data(True) # save current data as backup
             return
         
         # otherwise, try loading the backup
         print("Failed to load the main save. Loading backup...")
-        self.data = self._load_data(config.back_save_path)
-        if self.data:
+        data = self._load_data(config.back_save_path)
+        if data:
             # at least the backup worked
+            self.data = data
             return
         
         # otherwise, just use the defaults
         print("Failed to load backup save. Using defaults.")
         self.data = self._defaults()
     
-    def _defaults(self):
+    def _defaults(self) -> DataDict:
         """Returns default progress data (new game)."""
 
-        data = {
+        data: DataDict = {
             'credits': 0,
             'max_credits_owned' : 0,
             'max_credits_session' : 0,
@@ -55,49 +81,59 @@ class Progress():
         for reward in self.game.rewards.values():
             is_unlocked = False
             is_claimed_or_toggled = False
-            if hasattr(reward, 'is_claimed'):
+            if isinstance(reward, rewards.ClaimableReward):
                 is_claimed_or_toggled = reward.is_claimed
-            elif hasattr(reward, 'is_toggled_on'):
+            elif isinstance(reward, rewards.ToggleableReward):
                 is_claimed_or_toggled = reward.is_toggled_on
             data['rewards'][reward.name] = [is_unlocked, is_claimed_or_toggled]
         
         return data
     
-    def _load_data(self, path):
+    def _load_data(self, path: str) -> DataDict | None:
         """Load progress data from a .json file."""
 
-        path = Path(path)
-        if not path.exists():
-            print(f"\tFile not found at: {path}.")
-            return False
+        p = Path(path)
+        if not p.exists():
+            print(f"\tFile not found at: {p}.")
+            return None
         
         data = self._defaults()
         
         try:
-            loaded_data = json.loads(path.read_text())
-            self._copy_values(loaded_data, data, ['upgrades', 'rewards'])
-            self._copy_values(loaded_data['upgrades'], data['upgrades'])
-            self._copy_values(loaded_data['rewards'], data['rewards'])
+            loaded_data = json.loads(p.read_text())
+            self._copy_DataDict_values(loaded_data, data)
         except Exception as e:
             print(f"\t\tEncountered an error while loading progress data: {e}.")
-            return False
+            return None
         
         return data
 
-    def _copy_values(self, from_dict, to_dict, exclude_keys=None):
+    def _copy_DataDict_values(self,
+                     from_dict: DataDict,
+                     to_dict: DataDict
+                     ) -> None:
         """
-        Copies to the destination dict the values from the source dict,
-        if the source contains them.
+        Copies to the destination DataDict the values from
+        the source DataDict, if the source contains them.
         """
 
-        if exclude_keys is None:
-            exclude_keys = []
+        sub_dicts = ['upgrades', 'rewards']
         
         for key in to_dict:
-            if key not in exclude_keys and key in from_dict:
+            if key not in sub_dicts and key in from_dict:
                 to_dict[key] = from_dict[key]
 
-    def save_data(self, save_as_backup=False):
+        for key in to_dict['upgrades']:
+            if key in from_dict['upgrades']:
+                to_dict['upgrades'][key] = from_dict['upgrades'][key]
+
+        for key in to_dict['rewards']:
+            if key in from_dict['rewards']:
+                to_dict['rewards'][key] = from_dict['rewards'][key]
+
+    def save_data(self,
+                  save_as_backup: bool = False
+                  ) -> None:
         """Save the current progress data to a .json file."""
 
         if save_as_backup:
@@ -112,7 +148,7 @@ class Progress():
         except Exception as e:
             print(f"Encountered an error while saving progress: {e}.")
     
-    def update(self):
+    def update(self) -> None:
         """Updates the progress after the session ends, and saves."""
 
         self.data['credits'] += self.game.state.credits_earned

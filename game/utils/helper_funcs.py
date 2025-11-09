@@ -5,7 +5,10 @@ import pygame
 
 from . import config
 
-def load_image(filename=None, dflt_color="pink", dflt_size=(24, 24)):
+def load_image(filename: str | None = None,
+               dflt_color: str = "pink",
+               dflt_size: tuple[int, int] = (24, 24)
+               ) -> pygame.Surface:
     """
     Returns an image with the given name from the images directory.
     If the file name is not provided or the image cannot be loaded,
@@ -34,18 +37,18 @@ def load_image(filename=None, dflt_color="pink", dflt_size=(24, 24)):
         print("Returning with default.")
         return default
 
-def copy_image(surface):
+def copy_image(surface: pygame.Surface) -> pygame.Surface:
     """Return an identical copy of the given image (surface)."""
 
     image = pygame.Surface(surface.get_size())
     image.blit(surface, surface.get_rect())
     return image
 
-def shorten_number(number):
+def shorten_number(number: int) -> str:
     """Returnes a shortened number, so 1,200 becomes 1.2K."""
 
     if number < 1000:
-        return number
+        return str(number)
     
     n = number / 1000
     return f"{n:.2f}K"

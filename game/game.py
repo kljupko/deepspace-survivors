@@ -67,25 +67,29 @@ class Game:
     def _make_upgrades(self):
         """Set up the upgrades with default values."""
 
-        self.upgrades = {}
-        self.upgrades[upgrades.HitPoints.name] = upgrades.HitPoints(self)
-        self.upgrades[upgrades.Thrust.name] = upgrades.Thrust(self)
-        self.upgrades[upgrades.FirePower.name] = upgrades.FirePower(self)
-        self.upgrades[upgrades.FireRate.name] = upgrades.FireRate(self)
-        self.upgrades[upgrades.ActiveSlots.name] = upgrades.ActiveSlots(self)
-        self.upgrades[upgrades.PassiveSlots.name] = upgrades.PassiveSlots(self)
-        self.upgrades[upgrades.ChargeTime.name] = upgrades.ChargeTime(self)
-        self.upgrades[upgrades.Luck.name] = upgrades.Luck(self)
+        self.upgrades: dict[str, upgrades.Upgrade] = {
+            upgrades.HitPoints.name : upgrades.HitPoints(self),
+            upgrades.Thrust.name : upgrades.Thrust(self),
+            upgrades.FirePower.name : upgrades.FirePower(self),
+            upgrades.FireRate.name : upgrades.FireRate(self),
+            upgrades.ActiveSlots.name : upgrades.ActiveSlots(self),
+            upgrades.PassiveSlots.name : upgrades.PassiveSlots(self),
+            upgrades.ChargeTime.name : upgrades.ChargeTime(self),
+            upgrades.Luck.name : upgrades.Luck(self),
+        }
 
     def _make_rewards(self):
         """Set up the rewards with default values."""
 
-        self.rewards = {}
-        self.rewards[rewards.BakersDozen.name] = rewards.BakersDozen(self)
-        self.rewards[rewards.SpearFish.name] = rewards.SpearFish(self)
+        self.rewards: dict[str, rewards.Reward] = {        
+            rewards.BakersDozen.name : rewards.BakersDozen(self),
+            rewards.SpearFish.name : rewards.SpearFish(self)
+        }
 
-        self.toggleable_ships = []
-        self.toggleable_ships.append(self.rewards[rewards.SpearFish.name])
+        self.toggleable_ships: list[rewards.ToggleableReward] = []
+        for reward in self.rewards:
+            if isinstance(reward, rewards.ToggleableReward):
+                self.toggleable_ships.append(reward)
 
     def _load_saved_upgrades(self):
         """Loads upgrades from self.progress."""
@@ -104,22 +108,24 @@ class Game:
         for reward in self.rewards.values():
             if reward.name in saved:
                 reward.is_unlocked = saved[reward.name][0]
-                if hasattr(reward, 'is_claimed'):
+                if isinstance(reward, rewards.ClaimableReward):
                     reward.is_claimed = saved[reward.name][1]
-                elif hasattr(reward, 'is_toggled_on'):
+                elif isinstance(reward, rewards.ToggleableReward):
                     reward.is_toggled_on = saved[reward.name][1]
 
     def _make_menus(self):
         """Load all the menus."""
 
-        self.menus = {}
-        self.menus[menus.Main.name] = menus.Main(self)
-        self.menus[menus.Upgrade.name] = menus.Upgrade(self)
-        self.menus[menus.Rewards.name] = menus.Rewards(self)
-        self.menus[menus.Settings.name] = menus.Settings(self)
-        self.menus[menus.RemapKey.name] = menus.RemapKey(self)
-        self.menus[menus.Info.name] = menus.Info(self)
-        self.menus[menus.Pause.name] = menus.Pause(self)
+        self.menus: dict[str, menus.Menu] = {
+            menus.Main.name : menus.Main(self),
+            menus.Upgrade.name : menus.Upgrade(self),
+            menus.Rewards.name : menus.Rewards(self),
+            menus.Settings.name : menus.Settings(self),
+            menus.RemapKey.name : menus.RemapKey(self),
+            menus.Info.name : menus.Info(self),
+            menus.Pause.name : menus.Pause(self),
+        }
+
 
     # -------------------------------------------------------------------
     # endregion INIT HELPER FUNCTIONS
@@ -216,7 +222,9 @@ class Game:
     # region DISPLAY HELPER FUNCTIONS
     # -------------------------------------------------------------------
 
-    def _configure_display(self, resolution=None):
+    def _configure_display(self,
+                           resolution: tuple[int, int] | None = None
+                           ) -> None:
         """Scale the display to fit the screen."""
 
         if resolution is None:
@@ -238,7 +246,9 @@ class Game:
         )
         # ---
     
-    def _calculate_render_resolution(self, ship_width=24):
+    def _calculate_render_resolution(self,
+                                     ship_width: int = 24
+                                     ) -> tuple[int, int]:
         """
         Calculate the resolution that the game will be rendered at.
         Ideal width: 6x width of the player ship (in pixels).
@@ -270,12 +280,16 @@ class Game:
                 # current resolution not valid
                 continue
             
+            # ensure integers
+            res_x = int(current_resolution[0])
+            res_y = int(current_resolution[1])
+
             if current_resolution[0] > ideal_width:
-                max_resolution = current_resolution
+                max_resolution = (res_x, res_y)
                 continue
 
             if current_resolution[0] <= ideal_width:
-                min_resolution = current_resolution
+                min_resolution = (res_x, res_y)
                 break
     
         if max_resolution[0] - ideal_width <= min_resolution[0] - ideal_width:

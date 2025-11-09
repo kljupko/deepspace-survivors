@@ -1,5 +1,11 @@
 """A module containing the classes for the unlockable rewards."""
 
+from __future__ import annotations
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from ..game import Game
+
+import pygame
 from ..utils import helper_funcs
 
 class Reward():
@@ -9,7 +15,12 @@ class Reward():
     instructions = "You can't earn this base reward."
     image = helper_funcs.load_image(None, 'gray', (10, 10))
 
-    def __init__(self, game, name=None, instructions=None, image=None):
+    def __init__(self,
+                 game : Game,
+                 name: str | None = None,
+                 instructions: str | None = None,
+                 image: pygame.Surface | None = None
+                 ):
         """Initialize the reward."""
 
         self.game = game
@@ -28,7 +39,7 @@ class Reward():
 
         self.is_unlocked = False
     
-    def check_availability(self):
+    def check_availability(self) -> bool:
         """Return True if conditions are met for the reward to unlock."""
 
         # to be overwritten by child classes
@@ -51,7 +62,13 @@ class ClaimableReward(Reward):
     instructions = "You can't earn this base claimable reward."
     image = helper_funcs.load_image(None, 'gray', (10, 10))
 
-    def __init__(self, game, name=None, instructions=None, image=None, credits=0):
+    def __init__(self,
+                 game: Game,
+                 name: str | None = None,
+                 instructions: str | None = None,
+                 image: pygame.Surface | None = None,
+                 credits: int = 0
+                 ):
         """Initialize the reward."""
 
         if name is None:
@@ -70,9 +87,6 @@ class ClaimableReward(Reward):
 
         if self.is_claimed:
             return False
-
-        if self.credits is not None:
-            self.game.progress.data['credits'] += self.credits
         
         # to be augmented by child classes maybe
         self.is_claimed = True
@@ -91,7 +105,12 @@ class ToggleableReward(Reward):
     instructions = "You can't earn this base toggleable reward."
     image = helper_funcs.load_image(None, 'gray', (10, 10))
 
-    def __init__(self, game, name=None, instructions=None, image=None):
+    def __init__(self,
+                 game: Game,
+                 name: str | None = None,
+                 instructions: str | None = None,
+                 image: pygame.Surface | None = None
+                 ):
         """Initialize the reward."""
 
         if name is None:
@@ -138,7 +157,7 @@ class BakersDozen(ClaimableReward):
     instructions = "Kill at least 13 aliens in a single session."
     image = helper_funcs.load_image(None, 'gold', (10, 10))
 
-    def __init__(self, game):
+    def __init__(self, game: Game):
         """Initialize the reward."""
         
         name = BakersDozen.name
@@ -165,7 +184,7 @@ class SpearFish(ToggleableReward):
     # TODO: load the ship's image, without circular imports
     image = helper_funcs.load_image(None, 'darkslategray3', (10, 10))
 
-    def __init__(self, game):
+    def __init__(self, game: Game):
         """Initialize the reward."""
 
         name = SpearFish.name
@@ -177,7 +196,9 @@ class SpearFish(ToggleableReward):
     def check_availability(self):
         """Check if the reward can be unlocked."""
 
-        if self.game.ship.stats['Fire Rate'].value >= 10:
+        from ..mechanics import stats
+
+        if self.game.ship.stats[stats.FireRate.name].value >= 10:
             return True
         return False
     

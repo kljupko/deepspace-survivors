@@ -1,5 +1,11 @@
 """A module containing all the upgrades a ship can get."""
 
+from __future__ import annotations
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from ..game import Game
+    import pygame
+
 from ..utils import helper_funcs
 from . import abilities, stats
 
@@ -12,8 +18,14 @@ class Upgrade():
     base_cost = 0
     image = helper_funcs.load_image(None, 'gray', (10, 10))
 
-    def __init__(self, game, name=None, description=None,
-                 max_level=None, base_cost=None, image=None):
+    def __init__(self,
+                 game: Game,
+                 name: str | None = None,
+                 description: str | None = None,
+                 max_level: int | None = None,
+                 base_cost: int | None = None,
+                 image: pygame.Surface | None = None
+                 ):
         """Initialize the upgrade."""
 
         self.game = game
@@ -39,12 +51,12 @@ class Upgrade():
             image = Upgrade.image
         self.image = image
 
-    def get_cost(self):
+    def get_cost(self) -> int:
         """Returns the number of credits needed to buy the upgrade."""
 
         return self.base_cost * 2**self.level
 
-    def is_available(self):
+    def is_available(self) -> bool:
         """
         Return True if the player has enough credits to upgrade.
         Return False if max level is reached.
@@ -59,7 +71,7 @@ class Upgrade():
         
         return True
     
-    def do_upgrade(self):
+    def do_upgrade(self) -> bool:
         """Increase the level of the upgrade."""
 
         if not self.is_available():
@@ -76,8 +88,14 @@ class Upgrade():
 class StatUpgrade(Upgrade):
     """A base class representing an upgrade to one of the ship's stats."""
 
-    def __init__(self, game, name=None, description=None,
-                 max_level=None, base_cost=None, image=None):
+    def __init__(self,
+                 game: Game,
+                 name: str | None = None,
+                 description: str | None = None,
+                 max_level: int | None = None,
+                 base_cost: int | None = None,
+                 image: pygame.Surface | None = None
+                 ):
         """Initialize the upgrade."""
 
         super().__init__(game, name, description, max_level, base_cost, image)
@@ -85,9 +103,11 @@ class StatUpgrade(Upgrade):
     def do_upgrade(self):
         """Upgrade and apply to ship."""
 
-        super().do_upgrade()
+        success = super().do_upgrade()
         if self.game.ship:
             self.game.ship.load_stats()
+
+        return success
 
 class HitPoints(StatUpgrade):
     """A class representing the ship's Hit Point upgrades."""
@@ -98,7 +118,7 @@ class HitPoints(StatUpgrade):
     base_cost = 1200
     image = stats.HitPoints.image
 
-    def __init__(self, game):
+    def __init__(self, game: Game):
         """Initialize the upgrade."""
 
         name = HitPoints.name
@@ -117,7 +137,7 @@ class Thrust(StatUpgrade):
     base_cost = 1200
     image = stats.Thrust.image
 
-    def __init__(self, game):
+    def __init__(self, game: Game):
         """Initialize the upgrade."""
 
         name = Thrust.name
@@ -136,7 +156,7 @@ class FirePower(StatUpgrade):
     base_cost = 1200
     image = stats.FirePower.image
 
-    def __init__(self, game):
+    def __init__(self, game: Game):
         """Initialize the upgrade."""
 
         name = FirePower.name
@@ -155,7 +175,7 @@ class FireRate(StatUpgrade):
     base_cost = 1200
     image = stats.FireRate.image
 
-    def __init__(self, game):
+    def __init__(self, game: Game):
         """Initialize the upgrade."""
 
         name = FireRate.name
@@ -174,7 +194,7 @@ class ActiveSlots(Upgrade):
     base_cost = 36000
     image = abilities.Active.image
 
-    def __init__(self, game):
+    def __init__(self, game: Game):
         """Initialize the upgrade."""
 
         name = ActiveSlots.name
@@ -186,9 +206,12 @@ class ActiveSlots(Upgrade):
 
     def do_upgrade(self):
         """Upgrade and apply to ship."""
-        super().do_upgrade()
+
+        success = super().do_upgrade()
         if self.game.ship:
             self.game.ship.load_abilities()
+
+        return success
 
 class PassiveSlots(Upgrade):
     """A class representing the ship's Passive Ability Slot upgrades."""
@@ -199,7 +222,7 @@ class PassiveSlots(Upgrade):
     base_cost = 24000
     image = abilities.Passive.image
 
-    def __init__(self, game):
+    def __init__(self, game: Game):
         """Initialize the upgrade."""
 
         name = PassiveSlots.name
@@ -212,9 +235,11 @@ class PassiveSlots(Upgrade):
     def do_upgrade(self):
         """Upgrade and apply to ship."""
 
-        super().do_upgrade()
+        success = super().do_upgrade()
         if self.game.ship:
             self.game.ship.load_abilities()
+        
+        return success
 
 class ChargeTime(Upgrade):
     """
@@ -229,7 +254,7 @@ class ChargeTime(Upgrade):
     base_cost = 120
     image = helper_funcs.load_image(None, 'salmon', (10, 10))
 
-    def __init__(self, game):
+    def __init__(self, game: Game):
         """Initialize the upgrade."""
 
         name = ChargeTime.name
@@ -242,9 +267,11 @@ class ChargeTime(Upgrade):
     def do_upgrade(self):
         """Upgrade and apply to ship."""
 
-        super().do_upgrade()
+        success = super().do_upgrade()
         if self.game.ship:
-            self.game.ship.load_charge_time()
+            self.game.ship.load_req_charge_time()
+        
+        return success
 
 class Luck(Upgrade):
     """
@@ -258,7 +285,7 @@ class Luck(Upgrade):
     base_cost = 480
     image = helper_funcs.load_image(None, 'chartreuse3', (10, 10))
 
-    def __init__(self, game):
+    def __init__(self, game: Game):
         """Initialize the upgrade."""
 
         name = Luck.name

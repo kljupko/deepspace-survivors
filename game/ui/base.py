@@ -4,6 +4,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from ..game import Game
+    from .menu_setups import ElementDict, UnionDict
 
 import pygame
 
@@ -37,7 +38,7 @@ class Menu():
         self._set_padding(padding)
         self._set_background(background)
 
-        self.elements = {}
+        self.elements: dict[str, UIElement] = {}
         self._load_elements()
     
     def _set_surface(self,
@@ -87,7 +88,10 @@ class Menu():
         # this is just a hook to be overwritten by child classes
         pass
     
-    def _add_elements_from_dicts(self, dicts, origin=(0, 0)):
+    def _add_elements_from_dicts(self,
+                                 dicts: list[ElementDict],
+                                 origin: tuple[int, int] = (0, 0)
+                                 ):
         """
         To be used in _load_elements.
         Takes a sequence of dictionaries containing element data, and
@@ -99,40 +103,41 @@ class Menu():
             name = element['name']
             content = element['content']
 
-            font = element.get('font', None)
-            wraplength = element.get('wraplength', None)
+            font = element['font']
+            wraplength = element['wraplength']
 
-            x_offset = element.get('x_offset', 0)
-            y_offset = element.get('y_offset', 0)
+            x_offset = element['x_offset']
+            y_offset = element['y_offset']
             x = origin[0] + x_offset
             y = origin[1] + y_offset
 
             # region POSITION ACCORDING TO LINKED ELEMENT
             # -----------------------------------------------------------
 
-            linked_to = self.elements.get(element.get('linked_to', '?'), None)
-            # the linked element must be present in the menu's elements
-            # (meaning it had to have been added/ listed before this one)
-            ignore_linked_x = element.get('ignore_linked_x', False)
-            ignore_linked_y = element.get('ignore_linked_y', False)
-            linked_anchor = element.get('linked_anchor', 'bottomleft')
+            linked_elem_name = element['linked_to']
+            if linked_elem_name:
+                linked_to = self.elements.get(linked_elem_name, None)
 
-            if linked_to and not ignore_linked_x:
-                x = linked_to.rect.x + x_offset
-                # adjust x to anchor point in linked element
-                if linked_anchor in ["midtop", "center", "midbottom"]:
-                     x += linked_to.rect.width // 2
-                elif linked_anchor in ["topright", "midright", "bottomright"]:
-                    x += linked_to.rect.width
-            
-            if linked_to and not ignore_linked_y:
-                y = linked_to.rect.y + y_offset
-                # adjust y to anchor point in linked element
-                if linked_anchor in ["midleft", "center", "midright"]:
-                    y += linked_to.rect.height // 2
-                elif linked_anchor in ["bottomleft", "midbottom", "bottomright"]:
-                    y += linked_to.rect.height
-            
+                ignore_linked_x = element['ignore_linked_x']
+                ignore_linked_y = element['ignore_linked_y']
+                linked_anchor = element['linked_anchor']
+
+                if linked_to and not ignore_linked_x:
+                    x = linked_to.rect.x + x_offset
+                    # adjust x to anchor point in linked element
+                    if linked_anchor in ["midtop", "center", "midbottom"]:
+                        x += linked_to.rect.width // 2
+                    elif linked_anchor in ["topright", "midright", "bottomright"]:
+                        x += linked_to.rect.width
+                
+                if linked_to and not ignore_linked_y:
+                    y = linked_to.rect.y + y_offset
+                    # adjust y to anchor point in linked element
+                    if linked_anchor in ["midleft", "center", "midright"]:
+                        y += linked_to.rect.height // 2
+                    elif linked_anchor in ["bottomleft", "midbottom", "bottomright"]:
+                        y += linked_to.rect.height
+                
             # -----------------------------------------------------------
             # endregion POSITION ACCORDING TO LINKED ELEMENT
 
@@ -153,14 +158,14 @@ class Menu():
                 )
             elif el_type == 'label':
                 Label(
-                    self, name, content, font, wraplength, (x, y), anchor, action
+                    self, name, content, font, 0, (x, y), anchor, action
                 )
             elif el_type == 'textbox':
                 TextBox(
                     self, name, content, font, wraplength, (x, y), anchor, action
                 )
 
-    def _add_element_unions_from_dicts(self, dicts):
+    def _add_element_unions_from_dicts(self, dicts: list[UnionDict]):
         """
         To be used in _load_elemets.
         Takes a sequence of dictionaries containing union data, and adds
@@ -168,11 +173,11 @@ class Menu():
         """
 
         for d in dicts:
-            elems = []
+            elems: list[UIElement] = []
             for name in d['elem_names']:
                 elems.append(self.elements[name])
             
-            u = ElemUnion(self, d['name'], *elems, action=d['action'])
+            ElemUnion(self, d['name'], *elems, action=d['action'])
 
     def _expand_height(self):
         """
@@ -212,22 +217,26 @@ class Menu():
         self.is_visible = True
         self.update()
 
-    def close(self, next_menu=None):
+    def close(self,
+              next_menu: str | None = None
+              ):
         """Make the menu hidden and non-interactive."""
 
         if not self.is_visible:
-            return False
+            return
 
         self.is_visible = False
 
         if next_menu:
             self.game.menus[next_menu].open()
     
-    def start_touch(self, position):
+    def start_touch(self,
+                    position: tuple[int, int]
+                    ):
         """Register a touch on the menu."""
 
         if not self.is_visible:
-            return False
+            return
 
         self.inner_pos = (
             position[0] - self.rect.x,
@@ -265,7 +274,10 @@ class Menu():
 
         self.inner_pos = None
     
-    def scroll(self, position, is_mousewheel_scroll=False):
+    def scroll(self,
+               position: tuple[int, int],
+               is_mousewheel_scroll: bool = False
+               ):
         """Scroll the menu."""
 
         if not self.is_visible:

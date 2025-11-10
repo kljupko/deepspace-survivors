@@ -3,8 +3,14 @@ A module containing the MusicPlayer class
 for playing music from sequences of Sounds.
 """
 
+from __future__ import annotations
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from ..game import Game
+
 from pathlib import Path
 import json
+
 import pygame
 from pygame.mixer import Channel, Sound
 
@@ -13,7 +19,7 @@ from ..utils import config, events
 class MusicPlayer():
     """A class which handles playing music from a sequence of sounds."""
 
-    def __init__(self, game):
+    def __init__(self, game: Game):
         """Initialize the music player."""
 
         self.game = game
@@ -27,17 +33,21 @@ class MusicPlayer():
 
         self.set_volume()
 
-        self.current_step = None
+        self.current_step = 0
 
         self.drum_snd = None
         self.bass_snd = None
         self.chrd_snd = None
         self.mldy_snd = None
 
-        self.sequence_sounds = None
-        self.sequence = None
+        self.sequence_sounds: list[str] = []
+        self.sequence: list[list[int]] = []
     
-    def load_sequence(self, file_name, loop_sequence=False, autoplay=True):
+    def load_sequence(self,
+                      file_name: str,
+                      loop_sequence: bool = False,
+                      autoplay: bool = True
+                      ) -> bool:
         """Load a sequence of sounds."""
 
         path = Path(config.sequences_path, file_name)
@@ -66,8 +76,9 @@ class MusicPlayer():
 
         if autoplay:
             self.update()
+        return True
     
-    def _load_step(self, step=None):
+    def _load_step(self, step: int | None = None):
         """Load the sounds for the given step."""
 
         if step is None:
@@ -145,7 +156,7 @@ class MusicPlayer():
         self.chrd_ch.stop()
         self.mldy_ch.stop()
     
-    def set_volume(self, volume=None):
+    def set_volume(self, volume: int | None = None):
         """Sets the volume for all channels."""
 
         if volume is None:

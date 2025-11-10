@@ -3,23 +3,56 @@ A module which contains the Settings class
 for user-defined settings and keybindings.
 """
 
+from __future__ import annotations
+from typing import TYPE_CHECKING, TypedDict
+if TYPE_CHECKING:
+    from ..game import Game
+
 from pathlib import Path
 import json
+
 import pygame
 
 from ..utils import config
 
+class SettingsDict(TypedDict):
+    """
+    A class representing the dictionary containing user-defined settings.
+    """
+
+    fps: int
+    show_fps: bool
+
+    # keybinds
+    key_confirm: int
+    key_cancel: int
+
+    key_move_left: int
+    key_move_right: int
+    key_fire: int
+
+    key_active_1: int
+    key_active_2: int
+    key_active_3: int
+    key_passive_1: int
+    key_passive_2: int
+    key_passive_3: int
+    key_passive_4: int
+
+    music_volume: int
+
 class Settings():
     """A class representing the user settings and controls."""
 
-    def __init__(self, game):
+    def __init__(self, game: Game):
         """Initialize the user settings object."""
 
         self.game = game
 
-        self.data = self._load_data(config.settings_path)
+        data = self._load_data(config.settings_path)
 
-        if self.data:
+        if data:
+            self.data = data
             return
         
         # otherwise, loading saved settings failed
@@ -27,10 +60,10 @@ class Settings():
         self.data = self._defaults()
         self.save_data()
     
-    def _defaults(self):
+    def _defaults(self) -> SettingsDict:
         """Return a dictionary containing the default settings data."""
 
-        data = {
+        data: SettingsDict = {
             'fps' : 60,
             'show_fps' : False,
 
@@ -54,23 +87,23 @@ class Settings():
         }
         return data
     
-    def _load_data(self, path):
+    def _load_data(self, path: str) -> SettingsDict | None:
         """Load the settings and controls from a .json file."""
 
-        path = Path(path)
-        if not path.exists():
-            print(f"\t\tSettings not found at: {path}.")
-            return False
+        p = Path(path)
+        if not p.exists():
+            print(f"\t\tSettings not found at: {p}.")
+            return None
         
         data = self._defaults()
         try:
-            loaded_data = json.loads(path.read_text())
+            loaded_data = json.loads(p.read_text())
             for key in data:
                 if key in loaded_data:
                     data[key] = loaded_data[key]
         except Exception as e:
             print(f"\t\tEncountered an error while loading settings data: {e}")
-            return False
+            return None
         
         return data
     

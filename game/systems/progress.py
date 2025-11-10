@@ -13,7 +13,7 @@ import json
 from ..utils import config
 from ..mechanics import rewards
 
-class DataDict(TypedDict):
+class ProgressDict(TypedDict):
     """
     A class representing the dictionary containing data
     about saved game progress.
@@ -58,10 +58,10 @@ class Progress():
         print("Failed to load backup save. Using defaults.")
         self.data = self._defaults()
     
-    def _defaults(self) -> DataDict:
+    def _defaults(self) -> ProgressDict:
         """Returns default progress data (new game)."""
 
-        data: DataDict = {
+        data: ProgressDict = {
             'credits': 0,
             'max_credits_owned' : 0,
             'max_credits_session' : 0,
@@ -89,7 +89,7 @@ class Progress():
         
         return data
     
-    def _load_data(self, path: str) -> DataDict | None:
+    def _load_data(self, path: str) -> ProgressDict | None:
         """Load progress data from a .json file."""
 
         p = Path(path)
@@ -101,20 +101,20 @@ class Progress():
         
         try:
             loaded_data = json.loads(p.read_text())
-            self._copy_DataDict_values(loaded_data, data)
+            self._copy_ProgressDict_values(loaded_data, data)
         except Exception as e:
             print(f"\t\tEncountered an error while loading progress data: {e}.")
             return None
         
         return data
 
-    def _copy_DataDict_values(self,
-                     from_dict: DataDict,
-                     to_dict: DataDict
+    def _copy_ProgressDict_values(self,
+                     from_dict: ProgressDict,
+                     to_dict: ProgressDict
                      ) -> None:
         """
-        Copies to the destination DataDict the values from
-        the source DataDict, if the source contains them.
+        Copies to the destination ProgressDict the values from
+        the source ProgressDict, if the source contains them.
         """
 
         sub_dicts = ['upgrades', 'rewards']

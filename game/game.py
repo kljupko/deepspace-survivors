@@ -4,6 +4,7 @@ which manages the game as a whole.
 """
 
 import pygame
+from pygame import sprite
 
 from .systems import *
 from .entities import *
@@ -169,9 +170,9 @@ class Game:
         self.bot_tray = trays.BottomTray(self)
         self.bot_tray.update()
 
-        self.bullets = pygame.sprite.Group()
-        self.aliens = pygame.sprite.Group()
-        self.powerups = pygame.sprite.Group()
+        self.bullets: sprite.Group[sprite.Sprite] = sprite.Group()
+        self.aliens: sprite.Group[sprite.Sprite] = sprite.Group()
+        self.powerups: sprite.Group[sprite.Sprite] = sprite.Group()
 
         self.spawn_manager = SpawnManager(self)
 

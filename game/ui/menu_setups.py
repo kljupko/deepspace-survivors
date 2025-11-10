@@ -4,119 +4,160 @@ filled with key-value pairs
 specifying the names, types, positions, and actions
 of their respective UI Elements.
 """
+
+from typing import TypedDict
+
 import pygame
+
 from ..mechanics import stats
 from ..utils import config, helper_funcs
 from . import menus
 
-def build_main_menu_elements(menu):
+class ElementDict(TypedDict):
+    """A class representing a dictionary containing UIElement info."""
+
+    type: str
+    name: str
+    content: str | pygame.Surface
+    font: pygame.Font
+    linked_to: str | None
+    x_offset: int
+    y_offset: int
+    ignore_linked_x: bool
+    ignore_linked_y: bool
+    linked_anchor: str
+    anchor: str
+    action: object | None
+
+def _create_ElementDict(type: str,
+                        name: str,
+                        content: str | pygame.Surface,
+                        font: pygame.Font = config.font_normal,
+                        linked_to: str | None = None,
+                        x_offset: int = 0,
+                        y_offset: int = 0,
+                        ignore_linked_x: bool = False,
+                        ignore_linked_y: bool = False,
+                        linked_anchor: str = 'bottomleft',
+                        anchor: str = 'topleft',
+                        action: object | None = None
+                        ) -> ElementDict:
+    """Return an ElementDict containing the data provided."""
+
+    elem_dict: ElementDict = {
+        'type': type,
+        'name': name,
+        'content': content,
+        'font': font,
+        'linked_to': linked_to,
+        'x_offset': x_offset,
+        'y_offset': y_offset,
+        'ignore_linked_x': ignore_linked_x,
+        'ignore_linked_y': ignore_linked_y,
+        'linked_anchor': linked_anchor,
+        'anchor': anchor,
+        'action': action
+    }
+
+    return elem_dict
+
+def build_main_menu_elements(menu: menus.Menu) -> list[ElementDict]:
     """Return the collection of dicts for the main menu UI Elements."""
 
-    elements = (
-            {
-                'type': 'label',
-                'name': 'play_btn',
-                'content': 'Play',
-                'action': menu.game.start_session
-            }, {
-                'type': 'label',
-                'name': 'upgrade_btn',
-                'content': 'Upgrade',
-                'linked_to' : 'play_btn',
-                'y_offset': 1,
-                'action': lambda: menu.game.menus[menus.Upgrade.name].open()
-            }, {
-                'type': 'label',
-                'name': 'rewards_btn',
-                'content': 'Rewards',
-                'linked_to' : 'upgrade_btn',
-                'y_offset': 1,
-                'action': lambda: menu.game.menus[menus.Rewards.name].open()
-            }, {
-                'type': 'label',
-                'name': 'settings_btn',
-                'content': 'Settings',
-                'linked_to' : 'rewards_btn',
-                'y_offset': 1,
-                'action': lambda: menu.game.menus[menus.Settings.name].open()
-            }, {
-                'type': 'label',
-                'name': 'info_btn',
-                'content': 'Info',
-                'linked_to' : 'settings_btn',
-                'y_offset': 1,
-                'action': lambda: menu.game.menus[menus.Info.name].open()
-            }, {
-                'type': 'label',
-                'name': 'quit_btn',
-                'content': 'Quit',
-                'linked_to' : 'info_btn',
-                'y_offset': 1,
-                'action': menu.game.quit
-            },
-        )
+    elements: list[ElementDict] = [
+        _create_ElementDict(
+                'label', 'play_btn', 'Play',
+                action=menu.game.start_session
+            ),
+        _create_ElementDict(
+                'label', 'upgrade_btn', 'Upgrade',
+                linked_to='play_btn',
+                y_offset=1,
+                action=lambda: menu.game.menus[menus.Upgrade.name].open()
+            ),
+        _create_ElementDict(
+                'label', 'rewards_btn', 'Rewards',
+                linked_to='upgrade_btn',
+                y_offset=1,
+                action=lambda: menu.game.menus[menus.Rewards.name].open()
+            ),
+        _create_ElementDict(
+                'label', 'settings_btn', 'Settings',
+                linked_to='rewards_btn',
+                y_offset=1,
+                action=lambda: menu.game.menus[menus.Settings.name].open()
+            ),
+        _create_ElementDict(
+                'label', 'info_btn', 'Info',
+                linked_to='settings_btn',
+                y_offset=1,
+                action=lambda: menu.game.menus[menus.Info.name].open()
+            ),
+        _create_ElementDict(
+                'label', 'quit_btn', 'Quit',
+                linked_to='info_btn',
+                y_offset=1,
+                action=menu.game.quit
+            )
+    ]
     
     return elements
 
-def build_upgrade_menu_elements(menu):
+def build_upgrade_menu_elements(menu: menus.Menu) -> list[ElementDict]:
     """
     Return the collection of dicts for the upgrade menu UI Elements.
     """
 
-    elements = [
-            {
-                'type': 'label',
-                'name': 'back_btn',
-                'content': '< BACK',
-                'action': lambda: menu.close(menus.Main.name)
-            }, {
-                'type': 'label',
-                'name': 'title',
-                'content': 'Upgrades',
-                'font': config.font_large,
-                'x_offset' : menu.rect.width // 2,
-                'y_offset': 22,
-                'anchor': 'midtop'
-            }, {
-                'type' : 'icon',
-                'name': 'credits_icon',
-                'content': helper_funcs.load_image(None, 'gold', (10, 10)),
-                'linked_to': 'title',
-                'ignore_linked_x': True,
-                'y_offset': 3
-            }, {
-                'type': 'label',
-                'name': 'credits_amount',
-                'content': helper_funcs.shorten_number(
-                    menu.game.progress.data['credits']
-                    ),
-                'linked_to': 'credits_icon',
-                'linked_anchor': 'topright',
-                'x_offset': 1
-            }
+    elements: list[ElementDict] = [
+        _create_ElementDict(
+                'label', 'back_btn', '< BACK',
+                action=lambda: menu.close(menus.Main.name)
+            ),
+        _create_ElementDict(
+                'label', 'title', 'Upgrades',
+                config.font_large,
+                x_offset=menu.rect.width // 2, y_offset=22,
+                anchor='midtop',
+            ),
+        _create_ElementDict(
+                'icon', 'credits_icon',
+                helper_funcs.load_image(None, 'gold', (10, 10)),
+                linked_to='title',
+                ignore_linked_x=True,
+                y_offset=3,
+            ),
+        _create_ElementDict(
+                'label', 'credits_amount',
+                helper_funcs.shorten_number(menu.game.progress.data['credits']),
+                linked_to='credits_icon',
+                x_offset=1,
+                linked_anchor='topright'
+            ),
     ]
 
     linked_to = "credits_icon"
     for upgrade in menu.game.upgrades.values():
 
-        upgrade_dict = {}
-        upgrade_dict['type'] = 'icon'
-        upgrade_dict['name'] = upgrade.name.lower().replace(" ", "_") + "_icon"
-        upgrade_dict['content'] = upgrade.image
-        upgrade_dict['linked_to'] = linked_to
-        upgrade_dict['y_offset'] = 3
+        # add upgrade icon
+        upgrade_dict = _create_ElementDict(
+            'icon', upgrade.name.lower().replace(" ", "_") + "_icon",
+            upgrade.image,
+            linked_to=linked_to,
+            y_offset=3
+        )
         elements.append(upgrade_dict)
 
+        # add upgrade name
         linked_to = upgrade_dict['name']
-        upgrade_dict = {}
-        upgrade_dict['type'] = 'textbox'
-        upgrade_dict['name'] = upgrade.name.lower().replace(" ", "_") + "_name"
-        upgrade_dict['content'] = upgrade.name
-        upgrade_dict['linked_to'] = linked_to
-        upgrade_dict['linked_anchor'] = 'topright'
+        upgrade_dict = _create_ElementDict(
+            'textbox', upgrade.name.lower().replace(" ", "_") + "_name",
+            upgrade.name,
+            linked_to=linked_to,
+            linked_anchor='topright'
+        )
         elements.append(upgrade_dict)
 
-        upgrade_dict = {}
+        # add upgrade textbox
         content = upgrade.description
         content += f"\nLevel: {upgrade.level}"
         cost = f"\nCost: {helper_funcs.shorten_number(upgrade.get_cost())}"
@@ -125,24 +166,26 @@ def build_upgrade_menu_elements(menu):
             if upgrade.level >= upgrade.max_level:
                 cost = ""
         content += cost
-        upgrade_dict['type'] = 'textbox'
-        upgrade_dict['name'] = upgrade.name.lower().replace(" ", "_") + "_desc"
-        upgrade_dict['content'] = content
-        upgrade_dict['linked_to'] = linked_to
+        upgrade_dict = _create_ElementDict(
+            'textbox', upgrade.name.lower().replace(" ", "_") + "_desc",
+            content,
+            linked_to=linked_to
+        )
         elements.append(upgrade_dict)
 
         linked_to = upgrade_dict['name']
         
-        upgrade_dict = {}
+        # add upgrade purchase button
         content = "Upgrade" if upgrade.is_available() else "   x   "
         if upgrade.max_level is not None and upgrade.level >= upgrade.max_level:
             content = "Maxxed out"
-        upgrade_dict['type'] = 'label'
-        upgrade_dict['name'] = upgrade.name.lower().replace(" ", "_") + "_btn"
-        upgrade_dict['content'] = content
-        upgrade_dict['linked_to'] = linked_to
-        upgrade_dict['y_offset'] = 1
-        upgrade_dict['action'] = lambda un=upgrade.name : menu._buy_upgrade(un)
+        upgrade_dict = _create_ElementDict(
+            'label', upgrade.name.lower().replace(" ", "_") + "_btn",
+            content,
+            linked_to=linked_to,
+            y_offset=1,
+            action=lambda un=upgrade.name : menu._buy_upgrade(un)
+        )
         elements.append(upgrade_dict)
 
         linked_to = upgrade_dict['name']

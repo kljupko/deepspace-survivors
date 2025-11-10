@@ -1,163 +1,33 @@
 """A module containing the base classes for the User Interface."""
 
+from __future__ import annotations
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from ..game import Game
+
 import pygame
 
 from ..utils import config, helper_funcs
 
-class UIElement():
-    """A class that represents a single element of the user interface."""
-
-    def __init__(self, container, name, content=None, position=(0, 0),
-                 anchor="topleft", action=None):
-        """Initialize the UI element."""
-
-        self.container = container
-        self.game = self.container.game
-        self.name = name
-        self.content = content
-
-        self.anchor_pos = position
-        self.anchor = anchor
-        self._set_rect()
-        self._set_rect_position()
-
-        self.content = content
-        self.action = action
-
-        self.container.elements[self.name] = self # does this work?
-    
-    def _set_rect(self):
-        """Set the rect for the UI Element based on the content."""
-
-        self.rect = self.content.get_rect()
-    
-    def _set_rect_position(self):
-        """
-        Calculate the position at which the UI element will be drawn,
-        based on the anchor.
-        """
-
-        draw_x = self.anchor_pos[0]
-        if self.anchor in ["midtop", "center", "midbottom"]:
-            draw_x -= self.rect.width // 2
-        elif self.anchor in ["topright", "midright", "bottomright"]:
-            draw_x -= self.rect.width
-        
-        draw_y = self.anchor_pos[1]
-        if self.anchor in ["midleft", "center", "midright"]:
-            draw_y -= self.rect.height // 2
-        elif self.anchor in ["bottomleft", "midbottom", "bottomright"]:
-            draw_y -= self.rect.height
-        
-        self.rect.x = draw_x
-        self.rect.y = draw_y
-    
-    def trigger(self):
-        """Hook for doing something when the element is activated."""
-
-        if self.action is None:
-            return False
-        
-        self.action()
-        return True
-    
-    def draw(self):
-        """Draw the element to the container surface."""
-
-        self.container.surface.blit(self.content, self.rect)
-
-class Icon(UIElement):
-    """A class representing an icon in the UI."""
-
-    def __init__(self, container, name, content=None, position=(0, 0),
-                 anchor="topleft", action=None):
-        """Initialize the icon."""
-
-        if content is None:
-            content = helper_funcs.load_image(content, "pink", (10, 10))
-        super().__init__(container, name, content, position, anchor, action)
-
-class TextBox(UIElement):
-    """A class representing a text box, with text wrapping."""
-
-    def __init__(self, container, name, content, font=None, wraplength=None,
-                 position=(0, 0), anchor="topleft", action=None):
-        """Initialize the text box."""
-
-        if font is None:
-            font = config.font_normal
-        
-        if wraplength is None:
-            wraplength = container.rect.width - \
-                container.padding['left'] - container.padding['right']
-        
-        content = font.render(
-            str(content), False, 'white', 'black', wraplength
-        )
-        
-        super().__init__(container, name, content, position, anchor, action)
-
-class Label(TextBox):
-    """A class representing a label, with no text wrap."""
-
-    def __init__(self, container, name, content, font=None, wraplength=0,
-                 position=(0, 0), anchor="topleft", action=None):
-        """Initialize the label."""
-
-        super().__init__(container, name, content, font, wraplength, position, anchor, action)
-
-class ElemUnion():
-    """A class representing a union of multiple UI Elements."""
-
-    def __init__(self, container, name, *elems, action=None):
-        """Initialize the union."""
-
-        self.name = name
-        self.container = container
-        self.game = self.container.game
-        self.elems = elems
-        self.action = action
-
-        self._unify_elements()
-
-        self.container.elements[self.name] = self
-
-    
-    def _unify_elements(self):
-        """Create the rectangle around the elements."""
-
-        self.rect = self.elems[0].rect
-        for element in self.elems[1:]:
-            self.rect = pygame.Rect.union(self.rect, element.rect)
-
-    def trigger(self):
-        """Hook for doing something when the element is activated."""
-
-        if self.action is None:
-            return False
-        
-        self.action()
-        return True
-    
-    def draw(self):
-        """Hook for drawing the union. Does nothing currently."""
-
-        # does nothing; exists so the code does not break
-        # may have some other functional use in the future
-        return
-
 class Menu():
     """A base class representing a menu."""
 
-    def __init__(self, game, name, background=None,
-                 width=None, height=None, padding=None):
+    def __init__(self,
+                 game: Game,
+                 name: str,
+                 background: pygame.Surface | None = None,
+                 width: int | None = None,
+                 height: int | None = None,
+                 padding: tuple[int, int, int, int] | None = None
+                 ):
         """Initialize the menu."""
 
         self.game = game
         self.name = name
         self.is_visible = False # determines if menu is shown
 
-        self.inner_pos = None # inner coordinates where the user clicked
+        # inner coordinates where the user clicked
+        self.inner_pos: tuple[int, int] | None = None
         self.was_scrolled = False
         self.needs_redraw = True
 
@@ -170,7 +40,10 @@ class Menu():
         self.elements = {}
         self._load_elements()
     
-    def _set_surface(self, width=None, height=None):
+    def _set_surface(self,
+                     width: int | None = None,
+                     height: int | None = None
+                     ):
         """Set the surface for menu and derive the size."""
 
         if width is None:
@@ -184,7 +57,9 @@ class Menu():
         self.surface.set_colorkey(ck)
         pygame.draw.rect(self.surface, ck, self.rect)
 
-    def _set_padding(self, padding=None):
+    def _set_padding(self,
+                     padding: tuple[int, int, int, int] | None = None
+                     ):
         """Sets the padding for the menu: (top, bottom, left, right)."""
 
         if padding is None:
@@ -195,7 +70,9 @@ class Menu():
             'left': padding[2], 'right': padding[3]
         }
     
-    def _set_background(self, background=None):
+    def _set_background(self,
+                        background: pygame.Surface | None = None
+                        ):
         """Set the background for the menu."""
 
         if background is None:
@@ -469,3 +346,145 @@ class Tray(Menu):
 
         super().__init__(game, name, background, width, height, padding)
         self.is_visible = True
+
+class UIElement():
+    """A class that represents a single element of the user interface."""
+
+    def __init__(self, container, name, content=None, position=(0, 0),
+                 anchor="topleft", action=None):
+        """Initialize the UI element."""
+
+        self.container = container
+        self.game = self.container.game
+        self.name = name
+        self.content = content
+
+        self.anchor_pos = position
+        self.anchor = anchor
+        self._set_rect()
+        self._set_rect_position()
+
+        self.content = content
+        self.action = action
+
+        self.container.elements[self.name] = self # does this work?
+    
+    def _set_rect(self):
+        """Set the rect for the UI Element based on the content."""
+
+        self.rect = self.content.get_rect()
+    
+    def _set_rect_position(self):
+        """
+        Calculate the position at which the UI element will be drawn,
+        based on the anchor.
+        """
+
+        draw_x = self.anchor_pos[0]
+        if self.anchor in ["midtop", "center", "midbottom"]:
+            draw_x -= self.rect.width // 2
+        elif self.anchor in ["topright", "midright", "bottomright"]:
+            draw_x -= self.rect.width
+        
+        draw_y = self.anchor_pos[1]
+        if self.anchor in ["midleft", "center", "midright"]:
+            draw_y -= self.rect.height // 2
+        elif self.anchor in ["bottomleft", "midbottom", "bottomright"]:
+            draw_y -= self.rect.height
+        
+        self.rect.x = draw_x
+        self.rect.y = draw_y
+    
+    def trigger(self):
+        """Hook for doing something when the element is activated."""
+
+        if self.action is None:
+            return False
+        
+        self.action()
+        return True
+    
+    def draw(self):
+        """Draw the element to the container surface."""
+
+        self.container.surface.blit(self.content, self.rect)
+
+class Icon(UIElement):
+    """A class representing an icon in the UI."""
+
+    def __init__(self, container, name, content=None, position=(0, 0),
+                 anchor="topleft", action=None):
+        """Initialize the icon."""
+
+        if content is None:
+            content = helper_funcs.load_image(content, "pink", (10, 10))
+        super().__init__(container, name, content, position, anchor, action)
+
+class TextBox(UIElement):
+    """A class representing a text box, with text wrapping."""
+
+    def __init__(self, container, name, content, font=None, wraplength=None,
+                 position=(0, 0), anchor="topleft", action=None):
+        """Initialize the text box."""
+
+        if font is None:
+            font = config.font_normal
+        
+        if wraplength is None:
+            wraplength = container.rect.width - \
+                container.padding['left'] - container.padding['right']
+        
+        content = font.render(
+            str(content), False, 'white', 'black', wraplength
+        )
+        
+        super().__init__(container, name, content, position, anchor, action)
+
+class Label(TextBox):
+    """A class representing a label, with no text wrap."""
+
+    def __init__(self, container, name, content, font=None, wraplength=0,
+                 position=(0, 0), anchor="topleft", action=None):
+        """Initialize the label."""
+
+        super().__init__(container, name, content, font, wraplength, position, anchor, action)
+
+class ElemUnion():
+    """A class representing a union of multiple UI Elements."""
+
+    def __init__(self, container, name, *elems, action=None):
+        """Initialize the union."""
+
+        self.name = name
+        self.container = container
+        self.game = self.container.game
+        self.elems = elems
+        self.action = action
+
+        self._unify_elements()
+
+        self.container.elements[self.name] = self
+
+    
+    def _unify_elements(self):
+        """Create the rectangle around the elements."""
+
+        self.rect = self.elems[0].rect
+        for element in self.elems[1:]:
+            self.rect = pygame.Rect.union(self.rect, element.rect)
+
+    def trigger(self):
+        """Hook for doing something when the element is activated."""
+
+        if self.action is None:
+            return False
+        
+        self.action()
+        return True
+    
+    def draw(self):
+        """Hook for drawing the union. Does nothing currently."""
+
+        # does nothing; exists so the code does not break
+        # may have some other functional use in the future
+        return

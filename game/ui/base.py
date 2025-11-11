@@ -38,7 +38,7 @@ class Menu():
         self._set_padding(padding)
         self._set_background(background)
 
-        self.elements: dict[str, UIElement] = {}
+        self.elements: dict[str, UIElement | ElemUnion] = {}
         self._load_elements()
     
     def _set_surface(self,
@@ -152,18 +152,21 @@ class Menu():
             anchor = element.get('anchor', None)
             action = element.get('action', None)
 
-            if el_type == 'icon':
+            if el_type == 'icon' and type(content) == pygame.Surface:
                 Icon(
                     self, name, content, (x, y), anchor, action
                 )
-            elif el_type == 'label':
+            elif el_type == 'label' and type(content) == str:
                 Label(
                     self, name, content, font, 0, (x, y), anchor, action
                 )
-            elif el_type == 'textbox':
+            elif el_type == 'textbox' and type(content) == str:
                 TextBox(
                     self, name, content, font, wraplength, (x, y), anchor, action
                 )
+            else:
+                print(f"Failed to add element{name}!")
+                print("\tPerhaps the content or element type is invalid?")
 
     def _add_element_unions_from_dicts(self, dicts: list[UnionDict]):
         """
@@ -175,7 +178,9 @@ class Menu():
         for d in dicts:
             elems: list[UIElement] = []
             for name in d['elem_names']:
-                elems.append(self.elements[name])
+                el = self.elements[name]
+                if isinstance(el, UIElement):
+                    elems.append(el)
             
             ElemUnion(self, d['name'], *elems, action=d['action'])
 
@@ -342,12 +347,21 @@ class Menu():
 class Tray(Menu):
     """A base class for the top and bottom trays."""
 
-    def __init__(self, game, name,background=None,
-                 width=None, height=None, padding=None):
+    def __init__(self,
+                 game: Game,
+                 name: str,
+                 background: pygame.Surface | None = None,
+                 width: int | None = None,
+                 height: int | None = None,
+                 padding: tuple[int, int, int, int] | None = None
+                 ):
         """Initialize the tray with a surface."""
 
         if width is None:
             width = game.play_surf.width
+        
+        if height is None:
+            height = game.play_surf.height
 
         if background is None:
             background = pygame.Surface((width, height))
@@ -362,8 +376,14 @@ class Tray(Menu):
 class UIElement():
     """A class that represents a single element of the user interface."""
 
-    def __init__(self, container, name, content=None, position=(0, 0),
-                 anchor="topleft", action=None):
+    def __init__(self,
+                 container: Menu,
+                 name: str,
+                 content: pygame.Surface,
+                 position: tuple[int, int] = (0, 0),
+                 anchor: str = "topleft",
+                 action: object | None = None
+                 ):
         """Initialize the UI element."""
 
         self.container = container
@@ -410,7 +430,7 @@ class UIElement():
     def trigger(self):
         """Hook for doing something when the element is activated."""
 
-        if self.action is None:
+        if not callable(self.action):
             return False
         
         self.action()
@@ -424,8 +444,14 @@ class UIElement():
 class Icon(UIElement):
     """A class representing an icon in the UI."""
 
-    def __init__(self, container, name, content=None, position=(0, 0),
-                 anchor="topleft", action=None):
+    def __init__(self,
+                 container: Menu,
+                 name: str,
+                 content: pygame.Surface | None = None,
+                 position: tuple[int, int] = (0, 0),
+                 anchor: str = "topleft",
+                 action: object | None = None
+                 ):
         """Initialize the icon."""
 
         if content is None:
@@ -435,8 +461,16 @@ class Icon(UIElement):
 class TextBox(UIElement):
     """A class representing a text box, with text wrapping."""
 
-    def __init__(self, container, name, content, font=None, wraplength=None,
-                 position=(0, 0), anchor="topleft", action=None):
+    def __init__(self,
+                 container: Menu,
+                 name: str,
+                 content: str,
+                 font: pygame.Font | None = None,
+                 wraplength: int | None = None,
+                 position: tuple[int, int] = (0, 0),
+                 anchor: str = "topleft",
+                 action: object | None = None
+                 ):
         """Initialize the text box."""
 
         if font is None:
@@ -446,17 +480,25 @@ class TextBox(UIElement):
             wraplength = container.rect.width - \
                 container.padding['left'] - container.padding['right']
         
-        content = font.render(
+        rendered_content = font.render(
             str(content), False, 'white', 'black', wraplength
         )
         
-        super().__init__(container, name, content, position, anchor, action)
+        super().__init__(container, name, rendered_content, position, anchor, action)
 
 class Label(TextBox):
     """A class representing a label, with no text wrap."""
 
-    def __init__(self, container, name, content, font=None, wraplength=0,
-                 position=(0, 0), anchor="topleft", action=None):
+    def __init__(self,
+                 container: Menu,
+                 name: str,
+                 content: str,
+                 font: pygame.Font | None = None,
+                 wraplength: int = 0,
+                 position: tuple[int, int] = (0, 0),
+                 anchor: str = "topleft",
+                 action: object | None = None
+                 ):
         """Initialize the label."""
 
         super().__init__(container, name, content, font, wraplength, position, anchor, action)
@@ -464,7 +506,12 @@ class Label(TextBox):
 class ElemUnion():
     """A class representing a union of multiple UI Elements."""
 
-    def __init__(self, container, name, *elems, action=None):
+    def __init__(self,
+                 container: Menu,
+                 name: str,
+                 *elems: UIElement,
+                 action: object | None = None
+                 ):
         """Initialize the union."""
 
         self.name = name
@@ -488,7 +535,7 @@ class ElemUnion():
     def trigger(self):
         """Hook for doing something when the element is activated."""
 
-        if self.action is None:
+        if not callable(self.action):
             return False
         
         self.action()

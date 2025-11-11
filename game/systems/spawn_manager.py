@@ -2,6 +2,11 @@
 A module which contains classes for spawning aliens randomly or in waves.
 """
 
+from __future__ import annotations
+from typing import TYPE_CHECKING, TypedDict
+if TYPE_CHECKING:
+    from ..game import Game
+
 from random import randint, choice
 
 from ..entities import Alien
@@ -9,7 +14,7 @@ from ..entities import Alien
 class SpawnManager():
     """A class which manages the spawning of aliens."""
 
-    def __init__(self, game):
+    def __init__(self, game: Game):
         """Initialize the spawn manager."""
 
         self.game = game
@@ -28,7 +33,7 @@ class SpawnManager():
             # TODO: add more waves when more alien classes are made
         }
     
-    def level_up(self, level=None):
+    def level_up(self, level: int | None = None):
         """Reduces spawn delay and/or increases spawn count."""
 
         if level is None:
@@ -42,7 +47,7 @@ class SpawnManager():
 
         if self.random_spawn_cooldown < self.random_spawn_delay:
             self.random_spawn_cooldown += self.game.dt * 1000
-            return False
+            return
 
         level = self.game.state.level
         if level > max(self.random_spawns.keys()):
@@ -56,7 +61,7 @@ class SpawnManager():
         
         self.random_spawn_cooldown = 0
     
-    def spawn_wave(self, level=None):
+    def spawn_wave(self, level: int | None = None):
         """Spawns a preset wave of aliens all at once."""
         
         if level is None:
@@ -66,27 +71,37 @@ class SpawnManager():
             wave = self.waves[level](self.game)
             wave.deploy()
 
+class WaveSetup(TypedDict):
+    """
+    A class representing a dictionary containing information on a
+    single alien in a presest wave.
+    """
+
+    alien_class: type[Alien]
+    x_mod: int
+    y_mod: int
+    
 class AlienWave():
     """A class representing a preset spawn of aliens."""
 
-    def __init__(self, game):
+    def __init__(self, game: Game):
         """Initialize the wave."""
 
         self.game = game
 
-        self.aliens = []
+        self.aliens: list[Alien] = []
         # arranged in a + pattern
-        self.setup_data = (
-            {'class': Alien, 'x_mod': 0, 'y_mod': -2},
-            {'class': Alien, 'x_mod': -1, 'y_mod': -1},
-            {'class': Alien, 'x_mod': 1, 'y_mod': -1},
-            {'class': Alien, 'x_mod': 0, 'y_mod': 0},
+        self.setup_data: tuple[WaveSetup, ...] = (
+            {'alien_class': Alien, 'x_mod': 0, 'y_mod': -2},
+            {'alien_class': Alien, 'x_mod': -1, 'y_mod': -1},
+            {'alien_class': Alien, 'x_mod': 1, 'y_mod': -1},
+            {'alien_class': Alien, 'x_mod': 0, 'y_mod': 0},
         )
 
-        for data in self.setup_data:
-            alien = data['class'](self.game)
-            alien.x += alien.rect.width * data['x_mod']
-            alien.bounds['top'] = alien.y + alien.rect.height * data['y_mod']
+        for datum in self.setup_data:
+            alien = datum['alien_class'](self.game)
+            alien.x += alien.rect.width * datum['x_mod']
+            alien.bounds['top'] = alien.y + alien.rect.height * datum['y_mod']
             alien.y = alien.bounds['top']
             self.aliens.append(alien)
     

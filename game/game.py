@@ -179,7 +179,7 @@ class Game:
         self.menus[menus.Main.name].close()
         self.music_player.load_sequence("test.json", True)
     
-    def _level_up(self, seconds):
+    def _level_up(self, seconds: int):
         """Increase the level of the game after a period of time."""
 
         if seconds < 1:
@@ -334,13 +334,13 @@ class Game:
             elif event.type == pygame.MOUSEMOTION:
                 self._handle_mousemove_event(event)
                 
-    def _handle_keydown_events(self, event):
+    def _handle_keydown_events(self, event: pygame.Event):
         """Handle what happens when certain keys are pressed."""
         
         self.menus[menus.RemapKey.name].listen_for_key(event.key)
 
         if not self.state.session_running:
-            return False
+            return
         
         if event.key == self.settings.data["key_cancel"]:
             self.menus[menus.Pause.name].open()
@@ -368,11 +368,11 @@ class Game:
         if event.key == self.settings.data["key_passive_4"]:
             self.ship.passive_abilities[3].toggle()
                 
-    def _handle_keyup_events(self, event):
+    def _handle_keyup_events(self, event: pygame.Event):
         """Handle what happens when certain keys are released."""
 
         if not self.state.session_running:
-            return False
+            return
 
         if event.key == self.settings.data["key_move_left"]:
             self.ship.moving_left = False
@@ -396,7 +396,7 @@ class Game:
         for alien in self.aliens:
             alien.handle_resize()
     
-    def _handle_mousedown_event(self, event):
+    def _handle_mousedown_event(self, event: pygame.Event):
         """
         Handle what happens when the user presses the mouse button.
         A touchscreen touch is interpreted as a mouse click.
@@ -404,12 +404,12 @@ class Game:
 
         # respond only to left mouse button
         if not event.touch and event.button != 1:
-            return False
+            return
 
         self.touch.register_mousedown_event(event)
 
         if self.touch.touch_start_ts is None:
-            return False
+            return
         
         pos = self.touch.current_pos
 
@@ -417,7 +417,7 @@ class Game:
             menu.start_touch(pos)
         
         if not self.state.session_running:
-            return False
+            return
         
         self.top_tray.start_touch(pos)
         self.top_tray.interact()
@@ -438,7 +438,7 @@ class Game:
             self.ship.y
         )
     
-    def _handle_mouseup_event(self, event):
+    def _handle_mouseup_event(self, event: pygame.Event):
         """
         Handle what happens when the user releases the mouse button.
         A touchscreen touch is interpreted as a mouse click.
@@ -451,12 +451,12 @@ class Game:
             menu.end_touch()
 
         if not self.state.session_running:
-            return False
+            return
         
         self.ship.stop_ability_charge()
         self.ship.destination = None
     
-    def _handle_mousewheel_event(self, event):
+    def _handle_mousewheel_event(self, event: pygame.Event):
         """Handles what happens when the user scrolls the mouse wheel."""
 
         x = event.x * config.mouse_wheel_magnitude
@@ -465,7 +465,7 @@ class Game:
         for menu in self.menus.values():
             menu.scroll((x, y), True)
 
-    def _handle_mousemove_event(self, event):
+    def _handle_mousemove_event(self, event: pygame.Event):
         """
         Handle what happens when the user moves the mouse.
         A touchscreen touch is interpreted as a mouse.
@@ -478,19 +478,19 @@ class Game:
             menu.scroll(pos)
 
         if self.touch.touch_start_ts is None:
-            return False
+            return
         
         if not self.state.session_running:
-            return False
+            return
 
         # TODO: make the play area a separate surface to avoid the
         #   nonsense below
         if self.top_tray.rect.collidepoint(pos):
             # do nothing when moving around the top tray
-            return False
+            return
         if self.bot_tray.rect.collidepoint(pos):
             # do nothing when moving around the bottom tray
-            return False
+            return
 
         # move the ship
         self.ship.destination = (

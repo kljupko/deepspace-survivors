@@ -117,14 +117,14 @@ class Game:
     def _make_menus(self):
         """Load all the menus."""
 
-        self.menus: dict[str, menus.Menu] = {
-            menus.Main.name : menus.Main(self),
-            menus.Upgrade.name : menus.Upgrade(self),
-            menus.Rewards.name : menus.Rewards(self),
-            menus.Settings.name : menus.Settings(self),
-            menus.RemapKey.name : menus.RemapKey(self),
-            menus.Info.name : menus.Info(self),
-            menus.Pause.name : menus.Pause(self),
+        self.menus: menus.MenusDict = {
+            'main' : menus.Main(self),
+            'upgrade' : menus.Upgrade(self),
+            'rewards' : menus.Rewards(self),
+            'settings' : menus.Settings(self),
+            'remap' : menus.Remap(self),
+            'info' : menus.Info(self),
+            'pause' : menus.Pause(self),
         }
 
 
@@ -134,7 +134,7 @@ class Game:
     def run(self):
         """Run the game loop."""
 
-        self.menus[menus.Main.name].open()
+        self.menus['main'].open()
         self.music_player.load_sequence("main_menu.json", True)
 
         while self.game_running:
@@ -176,7 +176,7 @@ class Game:
 
         self.spawn_manager = SpawnManager(self)
 
-        self.menus[menus.Main.name].close()
+        self.menus['main'].close()
         self.music_player.load_sequence("test.json", True)
     
     def _level_up(self, seconds: int):
@@ -205,7 +205,7 @@ class Game:
 
         # TODO: clear the game objects
         self.ship = None
-        self.menus[menus.Main.name].open()
+        self.menus['main'].open()
         self.music_player.load_sequence("main_menu.json", True)
     
     def quit(self):
@@ -337,13 +337,13 @@ class Game:
     def _handle_keydown_events(self, event: pygame.Event):
         """Handle what happens when certain keys are pressed."""
         
-        self.menus[menus.RemapKey.name].listen_for_key(event.key)
+        self.menus['remap'].listen_for_key(event.key)
 
         if not self.state.session_running:
             return
         
         if event.key == self.settings.data["key_cancel"]:
-            self.menus[menus.Pause.name].open()
+            self.menus['pause'].open()
 
         if event.key == self.settings.data["key_move_left"]:
             self.ship.moving_left = True

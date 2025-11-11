@@ -214,7 +214,7 @@ class Menu():
         """Make the menu visible and interactive."""
 
         if self.is_visible:
-            return False
+            return
 
         for menu in self.game.menus.values():
             menu.close()
@@ -223,7 +223,7 @@ class Menu():
         self.update()
 
     def close(self,
-              next_menu: str | None = None
+              next_menu: Menu | None = None
               ):
         """Make the menu hidden and non-interactive."""
 
@@ -233,7 +233,7 @@ class Menu():
         self.is_visible = False
 
         if next_menu:
-            self.game.menus[next_menu].open()
+            next_menu.open()
     
     def start_touch(self,
                     position: tuple[int, int]
@@ -319,7 +319,7 @@ class Menu():
         """Draw the menu to the screen."""
 
         if not self.is_visible or not self.needs_redraw:
-            return False
+            return
         
         if self.rect.height > self.game.screen.height:
             top = 0

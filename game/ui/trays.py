@@ -1,5 +1,10 @@
 """A module containing the classes for the top and bottom tray."""
 
+from __future__ import annotations
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from ..game import Game
+
 from .base import Tray
 from .menu_setups import build_top_tray_elements, build_bot_tray_elements
 from .menu_setups import build_bot_tray_unions
@@ -10,7 +15,7 @@ class TopTray(Tray):
     name = "Top Tray"
     height = 23
 
-    def __init__(self, game):
+    def __init__(self, game: Game):
         """Initialize the top tray."""
 
         name = TopTray.name
@@ -36,7 +41,7 @@ class TopTray(Tray):
         
         return time
 
-    def _get_fps(self):
+    def get_fps(self):
         """Return the fps if 'show_fps' setting is True. Else blank."""
         
         return "" if not self.game.settings.data['show_fps'] else self.game.fps
@@ -46,7 +51,7 @@ class BottomTray(Tray):
 
     name = "Bottom Tray"
 
-    def __init__(self, game):
+    def __init__(self, game: Game):
         """Initialize the bottom tray."""
 
         name = BottomTray.name

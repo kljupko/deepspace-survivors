@@ -1,5 +1,10 @@
 """A module containing all the menus in the game."""
 
+from __future__ import annotations
+from typing import TYPE_CHECKING, TypedDict
+if TYPE_CHECKING:
+    from ..game import Game
+
 import pygame
 
 from .base import Menu, TextBox
@@ -11,7 +16,7 @@ class Main(Menu):
 
     name = "Main Menu"
 
-    def __init__(self, game):
+    def __init__(self, game: Game):
         """Initialize the main menu."""
 
         name = Main.name
@@ -28,7 +33,7 @@ class Upgrade(Menu):
 
     name = "Upgrade Menu"
 
-    def __init__(self, game):
+    def __init__(self, game: Game):
         """Initialize the upgrade menu."""
 
         name = Upgrade.name
@@ -40,7 +45,7 @@ class Upgrade(Menu):
         self._add_elements_from_dicts(build_upgrade_menu_elements(self))
         self._expand_height()
     
-    def _buy_upgrade(self, upgrade_name):
+    def buy_upgrade(self, upgrade_name: str):
         """Attempts to buy the upgrade with the given name."""
 
         for upgrade in self.game.upgrades.values():
@@ -56,7 +61,7 @@ class Rewards(Menu):
 
     name = "Rewards Menu"
 
-    def __init__(self, game):
+    def __init__(self, game: Game):
         """Initialize the rewards menu."""
 
         name = Rewards.name
@@ -68,13 +73,13 @@ class Rewards(Menu):
         self._add_elements_from_dicts(build_rewards_menu_elements(self))
         self._expand_height()
     
-    def _claim_reward(self, reward_name):
+    def claim_reward(self, reward_name: str):
         """Claim the reward with the given name."""
 
         self.game.rewards[reward_name].claim()
         self.update()
     
-    def _toggle_reward(self, reward_name):
+    def toggle_reward(self, reward_name: str):
         """Toggle the reward with the given name."""
 
         self.game.rewards[reward_name].toggle()
@@ -85,7 +90,7 @@ class Settings(Menu):
 
     name = "Settings Menu"
 
-    def __init__(self, game):
+    def __init__(self, game: Game):
         """Initialize the settings menu."""
 
         name = Settings.name
@@ -99,7 +104,7 @@ class Settings(Menu):
         self._add_element_unions_from_dicts(build_settings_menu_unions(self))
         self._expand_height()
     
-    def _trigger_restore_defaults(self):
+    def trigger_restore_defaults(self):
         """Restore default settings and rewrite the menu."""
 
         self.game.settings.restore_to_defaults()
@@ -107,7 +112,7 @@ class Settings(Menu):
         self.update()
     
     # TODO: merge the two cycle methods into one
-    def _cycle_framerates(self):
+    def cycle_framerates(self):
         """Cycle through available framerates."""
 
         id = 0
@@ -124,7 +129,7 @@ class Settings(Menu):
         self.game.settings.save_data()
         self.update()
 
-    def _cycle_music_volume(self):
+    def cycle_music_volume(self):
         """Cycle through available music volume."""
 
         id = 0
@@ -142,7 +147,7 @@ class Settings(Menu):
         self.game.settings.save_data()
         self.update()
     
-    def _toggle_fps_display(self):
+    def toggle_fps_display(self):
         """Switch between showing and hiding the framerate."""
 
         data = self.game.settings.data
@@ -151,29 +156,29 @@ class Settings(Menu):
         self.game.settings.save_data()
         self.update()
 
-class RemapKey(Menu):
+class Remap(Menu):
     """A class representing the key remapping prompt."""
 
     name = "Remap Key Menu"
 
-    def __init__(self, game):
+    def __init__(self, game: Game):
         """Initialize the key remapping menu."""
 
-        name = RemapKey.name
+        name = Remap.name
         self.control = None
         self.keybind = None
         self.key_name = None
         super().__init__(game, name)
 
     
-    def open(self, control, keybind):
-        """Show the menu with the correct prompt."""
+    def remap(self, control: str, keybind: str):
+        """Show the remap menu with the correct prompt."""
 
         self.control = control
         self.keybind = keybind
         self.key_name = pygame.key.name(self.game.settings.data[self.keybind])
         
-        return super().open()
+        self.open()
     
     def _load_elements(self):
         """Load the remap prompt."""
@@ -185,23 +190,23 @@ class RemapKey(Menu):
 
         TextBox(self, 'prompt', text, position=self.rect.center, anchor='center')
     
-    def listen_for_key(self, key):
+    def listen_for_key(self, key: int):
         """Listen for a keypress and remap the key."""
 
         if not self.is_visible:
-            return False
+            return
         
         self.game.settings.data[self.keybind] = key
-        self.game.menus[Settings.name].update()
+        self.game.menus['settings'].update()
         self.game.settings.save_data()
-        self.close(next_menu=Settings.name)
+        self.close(self.game.menus['settings'])
 
 class Info(Menu):
     """A class representing the info page/ menu."""
 
     name = "Info Menu"
 
-    def __init__(self, game):
+    def __init__(self, game: Game):
         """Initialize the info menu."""
 
         name = Upgrade.name
@@ -218,7 +223,7 @@ class Pause(Menu):
 
     name = "Pause Menu"
 
-    def __init__(self, game):
+    def __init__(self, game: Game):
         """Initialize the pause menu."""
 
         name = Pause.name
@@ -236,7 +241,7 @@ class Pause(Menu):
         self.game.music_player.pause()
         return super().open()
 
-    def _continue_session(self):
+    def continue_session(self):
         """Close the menu and continue the session."""
 
         self.game.state.session_running = True
@@ -246,14 +251,27 @@ class Pause(Menu):
         self.game.bot_tray.update()
         self.game.music_player.unpause()
     
-    def _restart_session(self):
+    def restart_session(self):
         """Close the menu and restart the session."""
 
         self.game.quit_session()
         self.game.start_session()
         self.close()
 
+
+class MenusDict(TypedDict):
+    """A class representing a dictionary containing all the menus."""
+
+    main: Main
+    upgrade: Upgrade
+    rewards: Rewards
+    settings: Settings
+    remap: Remap
+    info: Info
+    pause: Pause
+
 __all__ = [
     "Main", "Upgrade", "Rewards", "Settings",
-    "RemapKey", "Info", "Pause"
+    "Remap", "Info", "Pause",
+    "MenusDict"
 ]

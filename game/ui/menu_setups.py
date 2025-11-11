@@ -97,7 +97,7 @@ def build_main_menu_elements(menu: MainMenu):
                 content='Upgrade',
                 linked_to='play_btn',
                 y_offset=1,
-                action=lambda: menu.game.menus[menus.Upgrade.name].open()
+                action=lambda: menu.game.menus['upgrade'].open()
             ),
         _create_ElementDict(
                 type='label',
@@ -105,7 +105,7 @@ def build_main_menu_elements(menu: MainMenu):
                 content='Rewards',
                 linked_to='upgrade_btn',
                 y_offset=1,
-                action=lambda: menu.game.menus[menus.Rewards.name].open()
+                action=lambda: menu.game.menus['rewards'].open()
             ),
         _create_ElementDict(
                 type='label',
@@ -113,7 +113,7 @@ def build_main_menu_elements(menu: MainMenu):
                 content='Settings',
                 linked_to='rewards_btn',
                 y_offset=1,
-                action=lambda: menu.game.menus[menus.Settings.name].open()
+                action=lambda: menu.game.menus['settings'].open()
             ),
         _create_ElementDict(
                 type='label',
@@ -121,7 +121,7 @@ def build_main_menu_elements(menu: MainMenu):
                 content='Info',
                 linked_to='settings_btn',
                 y_offset=1,
-                action=lambda: menu.game.menus[menus.Info.name].open()
+                action=lambda: menu.game.menus['info'].open()
             ),
         _create_ElementDict(
                 type='label',
@@ -145,7 +145,7 @@ def build_upgrade_menu_elements(menu: UpgradeMenu):
                 type='label',
                 name='back_btn',
                 content='< BACK',
-                action=lambda: menu.close(menus.Main.name)
+                action=lambda: menu.close(menu.game.menus['main'])
             ),
         _create_ElementDict(
                 type='label',
@@ -226,7 +226,7 @@ def build_upgrade_menu_elements(menu: UpgradeMenu):
             content=elem_content,
             linked_to=linked_elem_name,
             y_offset=1,
-            action=lambda un=upgrade.name : menu._buy_upgrade(un)
+            action=lambda un=upgrade.name : menu.buy_upgrade(un)
         )
         elements.append(upgrade_dict)
 
@@ -244,7 +244,7 @@ def build_rewards_menu_elements(menu: RewardsMenu):
                 type='label',
                 name='back_btn',
                 content='< BACK',
-                action=lambda: menu.close(menus.Main.name)
+                action=lambda: menu.close(menu.game.menus['main'])
             ),
         _create_ElementDict(
                 type='label',
@@ -301,9 +301,9 @@ def build_rewards_menu_elements(menu: RewardsMenu):
                     elem_content = "Claim"
                 else:
                     elem_content = "Claimed"
-                action = lambda rn=reward.name : menu._claim_reward(rn)
+                action = lambda rn=reward.name : menu.claim_reward(rn)
             elif isinstance(reward, rewards.ToggleableReward):
-                action = lambda rn=reward.name : menu._toggle_reward(rn)
+                action = lambda rn=reward.name : menu.toggle_reward(rn)
                 if reward.is_toggled_on:
                     elem_content = "Disable"
                 else:
@@ -334,7 +334,7 @@ def build_settings_menu_elements(menu: SettingsMenu,
             type='label',
             name='back_btn',
             content='< BACK',
-            action=lambda: menu.close(menus.Main.name)
+            action=lambda: menu.close(menu.game.menus['main'])
         ),
         _create_ElementDict(
             type='label',
@@ -625,7 +625,7 @@ def build_settings_menu_elements(menu: SettingsMenu,
             linked_to='other_header',
             ignore_linked_x=True,
             y_offset=3,
-            action=menu._trigger_restore_defaults
+            action=menu.trigger_restore_defaults
         )
     ]
 
@@ -640,77 +640,77 @@ def build_settings_menu_unions(menu: SettingsMenu):
         {
             'name': 'cycle_fps_btn',
             'elem_names': ['fps_label', 'fps_value'],
-            'action': menu._cycle_framerates
+            'action': menu.cycle_framerates
         },
         {
             'name': 'show_fps_btn',
             'elem_names': ['show_fps_label', 'show_fps_value'],
-            'action': menu._toggle_fps_display
+            'action': menu.toggle_fps_display
         },
         {
             'name': 'remap_confirm_btn',
             'elem_names': ['key_confirm_label', 'key_confirm_value'],
-            'action': (lambda: menu.game.menus[menus.RemapKey.name].open('Confirm', 'key_confirm'))
+            'action': (lambda: menu.game.menus['remap'].remap('Confirm', 'key_confirm'))
         },
         {
             'name': 'remap_cancel_btn',
             'elem_names': ['key_cancel_label', 'key_cancel_value'],
-            'action': (lambda: menu.game.menus[menus.RemapKey.name].open('Cancel', 'key_cancel'))
+            'action': (lambda: menu.game.menus['remap'].remap('Cancel', 'key_cancel'))
         },
         {
             'name': 'remap_move_left_btn',
             'elem_names': ['key_move_left_label', 'key_move_left_value'],
-            'action': (lambda: menu.game.menus[menus.RemapKey.name].open('Move Left', 'key_move_left'))
+            'action': (lambda: menu.game.menus['remap'].remap('Move Left', 'key_move_left'))
         },
         {
             'name': 'remap_move_right_btn',
             'elem_names': ['key_move_right_label', 'key_move_right_value'],
-            'action': (lambda: menu.game.menus[menus.RemapKey.name].open('Move Right', 'key_move_right'))
+            'action': (lambda: menu.game.menus['remap'].remap('Move Right', 'key_move_right'))
         },
         {
             'name': 'remap_fire_btn',
             'elem_names': ['key_fire_label', 'key_fire_value'],
-            'action': (lambda: menu.game.menus[menus.RemapKey.name].open('Fire', 'key_fire'))
+            'action': (lambda: menu.game.menus['remap'].remap('Fire', 'key_fire'))
         },
         {
             'name': 'remap_active_1_btn',
             'elem_names': ['key_active_1_label', 'key_active_1_value'],
-            'action': (lambda: menu.game.menus[menus.RemapKey.name].open('Toggle Active 1', 'key_active_1'))
+            'action': (lambda: menu.game.menus['remap'].remap('Toggle Active 1', 'key_active_1'))
         },
         {
             'name': 'remap_active_2_btn',
             'elem_names': ['key_active_2_label', 'key_active_2_value'],
-            'action': (lambda: menu.game.menus[menus.RemapKey.name].open('Toggle Active 2', 'key_active_2'))
+            'action': (lambda: menu.game.menus['remap'].remap('Toggle Active 2', 'key_active_2'))
         },
         {
             'name': 'remap_active_3_btn',
             'elem_names': ['key_active_3_label', 'key_active_3_value'],
-            'action': (lambda: menu.game.menus[menus.RemapKey.name].open('Toggle Active 3', 'key_active_3'))
+            'action': (lambda: menu.game.menus['remap'].remap('Toggle Active 3', 'key_active_3'))
         },
         {
             'name': 'remap_passive_1_btn',
             'elem_names': ['key_passive_1_label', 'key_passive_1_value'],
-            'action': (lambda: menu.game.menus[menus.RemapKey.name].open('Toggle Passive 1', 'key_passive_1'))
+            'action': (lambda: menu.game.menus['remap'].remap('Toggle Passive 1', 'key_passive_1'))
         },
         {
             'name': 'remap_passive_2_btn',
             'elem_names': ['key_passive_2_label', 'key_passive_2_value'],
-            'action': (lambda: menu.game.menus[menus.RemapKey.name].open('Toggle Passive 2', 'key_passive_2'))
+            'action': (lambda: menu.game.menus['remap'].remap('Toggle Passive 2', 'key_passive_2'))
         },
         {
             'name': 'remap_passive_3_btn',
             'elem_names': ['key_passive_3_label', 'key_passive_3_value'],
-            'action': (lambda: menu.game.menus[menus.RemapKey.name].open('Toggle Passive 3', 'key_passive_3'))
+            'action': (lambda: menu.game.menus['remap'].remap('Toggle Passive 3', 'key_passive_3'))
         },
         {
             'name': 'remap_passive_4_btn',
             'elem_names': ['key_passive_4_label', 'key_passive_4_value'],
-            'action': (lambda: menu.game.menus[menus.RemapKey.name].open('Toggle Passive 4', 'key_passive_4'))
+            'action': (lambda: menu.game.menus['remap'].remap('Toggle Passive 4', 'key_passive_4'))
         },
         {
             'name': 'cycle_music_vol_btn',
             'elem_names': ['music_vol_label', 'music_vol_value'],
-            'action': menu._cycle_music_volume
+            'action': menu.cycle_music_volume
         },
     ]
 
@@ -726,7 +726,7 @@ def build_info_menu_elements(menu: InfoMenu):
             type='label',
             name='back_btn',
             content='< BACK',
-            action=lambda: menu.close(menus.Main.name)
+            action=lambda: menu.close(menu.game.menus['main'])
         ),
         _create_ElementDict(
             type='label',
@@ -759,7 +759,7 @@ def build_pause_menu_elements(menu: PauseMenu):
             type='label',
             name='continue_btn',
             content='Continue',
-            action=menu._continue_session
+            action=menu.continue_session
         ),
         _create_ElementDict(
             type='label',
@@ -767,7 +767,7 @@ def build_pause_menu_elements(menu: PauseMenu):
             content='Restart',
             linked_to='continue_btn',
             y_offset=1,
-            action=menu._restart_session
+            action=menu.restart_session
         ),
         _create_ElementDict(
             type='label',
@@ -820,7 +820,7 @@ def build_top_tray_elements(tray: TopTray):
             content=tray._get_session_duration(),
             x_offset=tray.rect.width // 2,
             anchor='midtop',
-            action=lambda: tray.game.menus[menus.Pause.name].open()
+            action=lambda: tray.game.menus['pause'].open()
         ),
         _create_ElementDict(
             type='label',
@@ -829,8 +829,7 @@ def build_top_tray_elements(tray: TopTray):
             linked_to='session_duration',
             linked_anchor='midbottom',
             x_offset=5, y_offset=1,
-            anchor='midtop',
-            action=lambda: tray.game.menus[menus.Pause.name].open()
+            anchor='midtop'
         ),
         _create_ElementDict(
             type='icon',
@@ -844,7 +843,7 @@ def build_top_tray_elements(tray: TopTray):
         _create_ElementDict(
             type='label',
             name='fps',
-            content=str(tray._get_fps()),
+            content=str(tray.get_fps()),
             linked_to='credits_earned',
             ignore_linked_x=True,
             linked_anchor='topleft',

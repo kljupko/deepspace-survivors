@@ -2,8 +2,22 @@
 A module containing the base Entity class, parent to Ship, Alien, etc.
 """
 
+from __future__ import annotations
+from typing import TYPE_CHECKING, TypedDict
+if TYPE_CHECKING:
+    from ..game import Game
+
+import pygame
 from pygame.sprite import Sprite
 from ..utils import helper_funcs
+
+class BoundsDict(TypedDict):
+    """A class representing a dictionary containing entity bounds."""
+
+    top: int
+    bottom: int
+    left: int
+    right: int
 
 class Entity(Sprite):
     """
@@ -12,16 +26,19 @@ class Entity(Sprite):
     """
 
     name = "Base Entity"
-    image = helper_funcs.load_image()
+    default_image: pygame.Surface = helper_funcs.load_image()
 
-    def __init__(self, game, image=None):
+    def __init__(self,
+                 game: Game,
+                 image: pygame.Surface | None = None
+                 ):
         """Initialize the entity."""
         
         super().__init__()
         self.game = game
 
         if image is None:
-            image = helper_funcs.copy_image(Entity.image)
+            image = helper_funcs.copy_image(Entity.default_image)
         self.image = image
         self.rect = self.image.get_rect()
 
@@ -29,7 +46,7 @@ class Entity(Sprite):
         self.rect.center = self.game.play_rect.center
 
         # set the entity's bounds
-        self._calculate_bounds()
+        self._calculate_bounds(self.rect.width, self.rect.height)
 
         # set the entity's position
         self.x = float(self.rect.x)
@@ -42,17 +59,97 @@ class Entity(Sprite):
 
         # set default as not moving
         self.destination = None
+
+    def _calculate_bounds(self,
+                          pad_top: int = 0,
+                          pad_bot: int = 0,
+                          pad_left: int = 0,
+                          pad_right: int = 0
+                          ):
+        """Calculate the bounds within which the entity can be."""
+
+        # for some reason the type checker complains because it thinks
+        # that self.rect may be an FRect or None...
+        # even though it it always set up in __init__
+        # so I'm adding this to stop the type checker from whinging
+        # even though it doesn't really do anything
+        if not isinstance(self.rect, pygame.Rect):
+            return
+
+        # TODO: ensure the bottom bound is above the bottom panel
+        #   probably use a variable of some kind
+        bounds: BoundsDict = {
+            'top': self.game.play_rect.top + pad_top,
+            'bottom': self.game.play_rect.bottom - self.rect.height - pad_bot,
+            'left': self.game.play_rect.left + pad_left,
+            'right': self.game.play_rect.right - self.rect.height - pad_right
+        }
+
+        self.bounds = bounds
+        
+    def _calculate_relative_speed(self):
+        """
+        Calculate entity's relative speed, regardless of aspect ratio.
+        """
+
+        x_mult = self.game.play_rect.width / 100
+        y_mult = self.game.play_rect.height / 100
+
+        self.speed_x = self.base_speed_x * x_mult
+        self.speed_y = self.base_speed_y * y_mult
+
+    def _calculate_relative_position(self, old_screen_rect: pygame.Rect):
+        """
+        Calculate the entity's relative position
+        when the screen is resized.
+        """
+
+        # for some reason the type checker complains because it thinks
+        # that self.rect may be an FRect or None...
+        # even though it it always set up in __init__
+        # so I'm adding this to stop the type checker from whinging
+        # even though it doesn't really do anything
+        if not isinstance(self.rect, pygame.Rect):
+            return
+
+        rel_x = self.rect.x / old_screen_rect.width
+        rel_y = self.rect.y / old_screen_rect.height
+        
+        if self.rect.x == 0:
+            x = 0
+        elif self.rect.right == old_screen_rect.right:
+            x = self.game.play_rect.right
+        else:
+            x = self.game.play_rect.width * rel_x
+
+        if self.rect.y == 0:
+            y = 0
+        elif self.rect.bottom == old_screen_rect.bottom:
+            y = self.game.play_rect.bottom
+        else:
+            y = self.game.play_rect.height * rel_y
+        
+        self.x = float(x)
+        self.y = float(y)
     
     def update(self):
         """Update the entity."""
 
-        self._move(self.game.dt)
+        self._move()
 
     def _move(self):
         """Move the entity."""
 
         if self.destination == None:
             return False
+        
+        # for some reason the type checker complains because it thinks
+        # that self.rect may be an FRect or None...
+        # even though it it always set up in __init__
+        # so I'm adding this to stop the type checker from whinging
+        # even though it doesn't really do anything
+        if not isinstance(self.rect, pygame.Rect):
+            return
         
         move_x = self.speed_x * self.game.dt
         move_y = self.speed_y * self.game.dt
@@ -88,6 +185,12 @@ class Entity(Sprite):
     def draw(self):
         """Draw the entity to the screen."""
 
+        if not isinstance(self.image, pygame.Surface):
+            return
+        
+        if not isinstance(self.rect, pygame.Rect):
+            return
+
         self.game.play_surf.blit(self.image, self.rect)
     
     def destroy(self):
@@ -108,55 +211,5 @@ class Entity(Sprite):
 
         self._calculate_relative_speed()
         self._calculate_relative_position(old_rect)
-    
-    def _calculate_bounds(self, pad_top=0, pad_right=0, pad_bot=0, pad_left=0):
-        """Calculate the bounds within which the entity can be."""
-
-        bounds = {}
-        bounds["top"] = self.game.play_rect.top + pad_top
-        bounds["right"] = self.game.play_rect.right - self.rect.width -pad_right
-        # TODO: ensure the bottom bound is above the bottom panel
-        #   probably use a variable of some kind
-        bounds["bottom"] = self.game.play_rect.bottom - self.rect.height-pad_bot
-        bounds["left"] = self.game.play_rect.left + pad_left
-
-        self.bounds = bounds
-        
-    def _calculate_relative_speed(self):
-        """
-        Calculate entity's relative speed, regardless of aspect ratio.
-        """
-
-        x_mult = self.game.play_rect.width / 100
-        y_mult = self.game.play_rect.height / 100
-
-        self.speed_x = self.base_speed_x * x_mult
-        self.speed_y = self.base_speed_y * y_mult
-
-    def _calculate_relative_position(self, old_screen_rect):
-        """
-        Calculate the entity's relative position
-        when the screen is resized.
-        """
-
-        rel_x = self.rect.x / old_screen_rect.width
-        rel_y = self.rect.y / old_screen_rect.height
-        
-        if self.rect.x == 0:
-            x = 0
-        elif self.rect.right == old_screen_rect.right:
-            x = self.game.play_rect.right
-        else:
-            x = float(self.game.play_rect.width * rel_x)
-
-        if self.rect.y == 0:
-            y = 0
-        elif self.rect.bottom == old_screen_rect.bottom:
-            y = self.game.play_rect.bottom
-        else:
-            y = float(self.game.play_rect.height * rel_y)
-        
-        self.x = x
-        self.y = y
 
 __all__ = ["Entity"]

@@ -39,14 +39,14 @@ class Entity(Sprite):
 
         if image is None:
             image = helper_funcs.copy_image(Entity.default_image)
-        self.image = image
-        self.rect = self.image.get_rect()
+        self.image: pygame.Surface = image
+        self.rect: pygame.Rect = self.image.get_rect()
 
         # start at the center of the screen
         self.rect.center = self.game.play_rect.center
 
         # set the entity's bounds
-        self._calculate_bounds(self.rect.width, self.rect.height)
+        self._calculate_bounds()
 
         # set the entity's position
         self.x = float(self.rect.x)
@@ -68,21 +68,11 @@ class Entity(Sprite):
                           ):
         """Calculate the bounds within which the entity can be."""
 
-        # for some reason the type checker complains because it thinks
-        # that self.rect may be an FRect or None...
-        # even though it it always set up in __init__
-        # so I'm adding this to stop the type checker from whinging
-        # even though it doesn't really do anything
-        if not isinstance(self.rect, pygame.Rect):
-            return
-
-        # TODO: ensure the bottom bound is above the bottom panel
-        #   probably use a variable of some kind
         bounds: BoundsDict = {
             'top': self.game.play_rect.top + pad_top,
             'bottom': self.game.play_rect.bottom - self.rect.height - pad_bot,
             'left': self.game.play_rect.left + pad_left,
-            'right': self.game.play_rect.right - self.rect.height - pad_right
+            'right': self.game.play_rect.right - self.rect.width - pad_right
         }
 
         self.bounds = bounds
@@ -103,14 +93,6 @@ class Entity(Sprite):
         Calculate the entity's relative position
         when the screen is resized.
         """
-
-        # for some reason the type checker complains because it thinks
-        # that self.rect may be an FRect or None...
-        # even though it it always set up in __init__
-        # so I'm adding this to stop the type checker from whinging
-        # even though it doesn't really do anything
-        if not isinstance(self.rect, pygame.Rect):
-            return
 
         rel_x = self.rect.x / old_screen_rect.width
         rel_y = self.rect.y / old_screen_rect.height
@@ -142,14 +124,6 @@ class Entity(Sprite):
 
         if self.destination == None:
             return False
-        
-        # for some reason the type checker complains because it thinks
-        # that self.rect may be an FRect or None...
-        # even though it it always set up in __init__
-        # so I'm adding this to stop the type checker from whinging
-        # even though it doesn't really do anything
-        if not isinstance(self.rect, pygame.Rect):
-            return
         
         move_x = self.speed_x * self.game.dt
         move_y = self.speed_y * self.game.dt
@@ -184,12 +158,6 @@ class Entity(Sprite):
     
     def draw(self):
         """Draw the entity to the screen."""
-
-        if not isinstance(self.image, pygame.Surface):
-            return
-        
-        if not isinstance(self.rect, pygame.Rect):
-            return
 
         self.game.play_surf.blit(self.image, self.rect)
     

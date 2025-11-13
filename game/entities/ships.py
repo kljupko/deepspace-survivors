@@ -67,10 +67,10 @@ class Ship(Entity):
         self.bullet_delay_ms = 1000 * 3
         self.bullet_cooldown_ms = self.bullet_delay_ms
 
-        # overwrite Entity's center position
-        self.rect.midtop = self.game.play_rect.centerx, self.bounds["bottom"]
-        self.x = float(self.rect.x)
-        self.y = float(self.rect.y)
+        # set position
+        self.x = self.game.play_rect.centerx - self.rect.width//2
+        self.y = self.bounds["bottom"]
+        self.rect.x, self.rect.y = int(self.x), int(self.y)
 
         self.moving_left = False
         self.moving_right = False

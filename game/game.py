@@ -60,7 +60,6 @@ class Game:
                 # re-toggle to start with the correct ship
                 ship_reward.toggle_on()
                 break
-        self.ship = None
     
     # region INIT HELPER FUNCTIONS
     # -------------------------------------------------------------------
@@ -203,8 +202,7 @@ class Game:
         for reward in self.rewards.values():
             reward.unlock()
 
-        # TODO: clear the game objects
-        self.ship = None
+        # TODO: clear the game objects ?? (ship can't be None?)
         self.menus['main'].open()
         self.music_player.load_sequence("main_menu.json", True)
     

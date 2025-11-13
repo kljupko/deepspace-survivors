@@ -3,6 +3,11 @@ A module containing the RandomDropManager class, which manages
 the random drops of powerups.
 """
 
+from __future__ import annotations
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from ..game import Game
+
 from random import randint, choices
 
 from ..entities import powerups
@@ -11,7 +16,7 @@ from ..mechanics import abilities, stats, upgrades
 class RandomDropManager():
     """A class which manages random powerup drops."""
 
-    def __init__(self, game):
+    def __init__(self, game: Game):
         """Initialize the random drop."""
 
         self.game = game
@@ -35,7 +40,10 @@ class RandomDropManager():
             stats.FireRate: 2
         }
 
-    def try_drop(self, chance, position):
+    def try_drop(self,
+                 chance: int,
+                 position: tuple[float, float]
+                 ):
         """
         Rolls for a drop and if successful, returns a random one
         at the given position.
@@ -54,7 +62,7 @@ class RandomDropManager():
         else:
             return self._drop_stat(position)
     
-    def _is_dropping(self, chance):
+    def _is_dropping(self, chance: int):
         """Roll for a random drop."""
 
         chance += self.game.upgrades[upgrades.Luck.name].level
@@ -67,7 +75,7 @@ class RandomDropManager():
             return False
         return True
     
-    def _drop_ability(self, position):
+    def _drop_ability(self, position: tuple[float, float]):
         """Drops an AddAbility powerup."""
         
         ability_class = choices(
@@ -77,7 +85,7 @@ class RandomDropManager():
         
         return powerups.AddAbility(self.game, position, ability_class)
     
-    def _drop_stat(self, position):
+    def _drop_stat(self, position: tuple[float, float]):
         """Drops an ImproveStat powerup."""
         
         stat_class = choices(

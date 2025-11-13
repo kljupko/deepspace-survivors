@@ -2,6 +2,14 @@
 A module containing the powerups dropped by destroyed aliens.
 """
 
+from __future__ import annotations
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from ..game import Game
+    from ..mechanics import stats, abilities
+
+import pygame
+
 from .entity import Entity
 from ..utils import config, helper_funcs
 
@@ -9,9 +17,13 @@ class PowerUp(Entity):
     """A base class representing a powerup."""
 
     name = "Base Powerup"
-    image = helper_funcs.load_image(None, "teal", (12, 12))
+    image: pygame.Surface = helper_funcs.load_image(None, "teal", (12, 12))
 
-    def __init__(self, game, position, image=None):
+    def __init__(self,
+                 game: Game,
+                 position: tuple[float, float],
+                 image: pygame.Surface | None = None
+                 ):
         """Initialize the powerup."""
 
         if image is None:
@@ -61,9 +73,14 @@ class ImproveStat(PowerUp):
     """
 
     name = "Improve Stat"
-    image = helper_funcs.load_image(None, "cadetblue1", (12, 12))
+    image: pygame.Surface = helper_funcs.load_image(None, "cadetblue1", (12, 12))
 
-    def __init__(self, game, position, stat_class, magnitude=1):
+    def __init__(self,
+                 game: Game,
+                 position: tuple[float, float],
+                 stat_class: type[stats.Stat],
+                 magnitude: int = 1
+                 ):
         """Initialize the powerup."""
 
         image = helper_funcs.copy_image(ImproveStat.image)
@@ -91,7 +108,11 @@ class AddAbility(PowerUp):
     name = "Add Ability"
     image = helper_funcs.load_image(None, "peru", (12, 12))
 
-    def __init__(self, game, position, ability_class):
+    def __init__(self,
+                 game: Game,
+                 position: tuple[float, float],
+                 ability_class: type[abilities.Ability]
+                 ):
         """Initialize the powerup."""
 
         image = helper_funcs.copy_image(AddAbility.image)
@@ -113,6 +134,5 @@ class AddAbility(PowerUp):
             self.game.ship.add_passive_ability(self.ability)
         
         self.game.powerups.remove(self)
-        return True
 
 __all__ = ["ImproveStat", "AddAbility"]

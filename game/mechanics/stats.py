@@ -1,15 +1,28 @@
 """A module containing the Stat class for the ship's HP, Thrust, etc."""
 
+from __future__ import annotations
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from ..entities.entity import Entity
+
+import pygame
+
 from ..utils import config, helper_funcs
 
 class Stat():
     """A base class representing one of the ship's stats."""
 
-    name = "Base Stat"
-    description = "An abstract base stat."
-    image = helper_funcs.load_image(None, 'gray', (10, 10))
+    name: str = "Base Stat"
+    description: str = "An abstract base stat."
+    image: pygame.Surface = helper_funcs.load_image(None, 'gray', (10, 10))
 
-    def __init__(self, entity, value, name=None, description=None, image=None):
+    def __init__(self,
+                 entity: Entity,
+                 value: int,
+                 name: str | None = None,
+                 description: str | None = None,
+                 image: pygame.Surface | None = None
+                 ):
         """Initialize the stat."""
 
         self.entity = entity
@@ -27,12 +40,12 @@ class Stat():
             image = Stat.image
         self.image = image
     
-    def set_value(self, value):
+    def set_value(self, value: int):
         """Sets the value for the stat."""
 
         self.value = value
     
-    def modify_stat(self, diff):
+    def modify_stat(self, diff: int):
         """
         Increases or decreases the stat's value by the given amount.
         Uses the set_value method.
@@ -50,7 +63,10 @@ class HitPoints(Stat):
     description = "Represents how much damage the ship can take before being destroyed."
     image = helper_funcs.load_image(None, 'pink', (10, 10))
 
-    def __init__(self, entity, value):
+    def __init__(self,
+                 entity: Entity,
+                 value: int
+                 ):
         """Initialize hit points."""
 
         name = HitPoints.name
@@ -65,7 +81,10 @@ class Thrust(Stat):
     description = "Represents how quickly the ship can move."
     image = helper_funcs.load_image(None, 'yellow', (10, 10))
 
-    def __init__(self, entity, value):
+    def __init__(self,
+                 entity: Entity,
+                 value: int
+                 ):
         """Initialize thrust."""
 
         name = Thrust.name
@@ -73,7 +92,7 @@ class Thrust(Stat):
         image = Thrust.image
         super().__init__(entity, value, name, description, image)
 
-    def set_value(self, value):
+    def set_value(self, value: int):
         """Sets the ship's thrust and recalculates speed."""
 
         super().set_value(value)
@@ -90,7 +109,11 @@ class FirePower(Stat):
     description = "Represents the damage dealt by the ship's bullets."
     image = helper_funcs.load_image(None, 'red', (10, 10))
 
-    def __init__(self, entity, value, image=None):
+    def __init__(self,
+                 entity: Entity,
+                 value: int,
+                 image: pygame.Surface | None = None
+                 ):
         """Initialize fire power."""
 
         name = FirePower.name
@@ -105,7 +128,11 @@ class FireRate(Stat):
     description = "Represents how quickly the ship can fire bullets."
     image = helper_funcs.load_image(None, 'orange', (10, 10))
 
-    def __init__(self, entity, value, image=None):
+    def __init__(self,
+                 entity: Entity,
+                 value: int,
+                 image: pygame.Surface | None = None
+                 ):
         """Initialize fire rate."""
 
         name = FireRate.name

@@ -21,7 +21,6 @@ import pygame
 
 from ..mechanics import stats, rewards
 from ..utils import config, helper_funcs
-from . import menus
 
 class ElementDict(TypedDict):
     """A class representing a dictionary containing UIElement info."""

@@ -2,6 +2,13 @@
 A module containing all the aliens.
 """
 
+from __future__ import annotations
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from ..game import Game
+
+import pygame
+
 from .entity import Entity
 from ..utils import config, helper_funcs
 
@@ -9,9 +16,9 @@ class Alien(Entity):
     """Base class that manages the aliens."""
 
     name = "Base Alien"
-    image = helper_funcs.load_image(dflt_color="red")
+    image: pygame.Surface = helper_funcs.load_image(dflt_color="red")
 
-    def __init__(self, game):
+    def __init__(self, game: Game):
         """Initialize the alien."""
 
         image = helper_funcs.copy_image(Alien.image)
@@ -34,7 +41,7 @@ class Alien(Entity):
         self.speed = 1
         self.damage = 1
         self.credits = 10
-        self.drop_chance = 1 # percent
+        self.drop_chance = 100 # percent
     
     # override Entity update method
     def update(self):
@@ -57,7 +64,7 @@ class Alien(Entity):
         
         return True
     
-    def take_damage(self, damage):
+    def take_damage(self, damage: int):
         """
         Reduce the alien's HP by the given amount.
         The alien is destroyed if HP is 0 or less. Returns True.

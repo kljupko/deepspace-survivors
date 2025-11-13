@@ -101,7 +101,7 @@ class AlienWave():
         for datum in self.setup_data:
             alien = datum['alien_class'](self.game)
             alien.x += alien.rect.width * datum['x_mod']
-            alien.bounds['top'] = alien.y + alien.rect.height * datum['y_mod']
+            alien.bounds['top'] = round(alien.y + alien.rect.height * datum['y_mod'])
             alien.y = alien.bounds['top']
             self.aliens.append(alien)
     

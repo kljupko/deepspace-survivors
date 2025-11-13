@@ -1,16 +1,23 @@
 """A module containing the Bullet class."""
 
+from __future__ import annotations
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from ..game import Game
+
 import pygame
+
 from .entity import Entity
+from .aliens import Alien
 from ..utils import config, helper_funcs
 
 class Bullet(Entity):
     """A class that represents a bullet fired from the ship."""
 
     name = "Base Bullet"
-    image = helper_funcs.load_image(None, 'orange', (4, 4))
+    image: pygame.Surface = helper_funcs.load_image(None, 'orange', (4, 4))
 
-    def __init__(self, game):
+    def __init__(self, game: Game):
         """Initialize the bullet."""
 
         image = helper_funcs.copy_image(Bullet.image)
@@ -45,6 +52,10 @@ class Bullet(Entity):
             return False
         
         alien = collisions[0]
+        # ensure the alien is indeed a subclass of Alien
+        if not isinstance(alien, Alien):
+            return False
+        
         alien.take_damage(self.game.ship.stats['Fire Power'].value)
         
         self.destroy()

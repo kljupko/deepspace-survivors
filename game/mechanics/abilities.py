@@ -2,16 +2,23 @@
 A module containing the classes for the active and passive abilities.
 """
 
+from __future__ import annotations
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from ..game import Game
+
+import pygame
+
 from ..utils import helper_funcs
 
 class Ability():
     """A grandparent class representing a ship's ability."""
 
-    name = "Base Ability"
-    description = "Base Ability description."
-    image = helper_funcs.load_image(None, 'gray', (10, 10))
+    name: str = "Base Ability"
+    description: str = "Base Ability description."
+    image: pygame.Surface = helper_funcs.load_image(None, 'gray', (10, 10))
 
-    def __init__(self, game):
+    def __init__(self, game: Game):
         """Initialize the ability."""
 
         self.game = game
@@ -34,7 +41,7 @@ class Ability():
         Overridden by grandchild classes.
         """
 
-        return False
+        return None
     
 class Active(Ability):
     """A base class that represents a ship's active ability."""
@@ -43,7 +50,7 @@ class Active(Ability):
     description = "Base Active Ability description."
     image = helper_funcs.load_image(None, 'gray', (10, 10))
 
-    def __init__(self, game):
+    def __init__(self, game: Game):
         """Initialize the ability."""
 
         super().__init__(game)
@@ -72,7 +79,7 @@ class Passive(Ability):
     description = "Base Passive Ability description."
     image = helper_funcs.load_image(None, 'gray', (10, 10))
 
-    def __init__(self, game):
+    def __init__(self, game: Game):
         """Initialize the passive ability."""
 
         super().__init__(game)
@@ -108,7 +115,7 @@ class Blank(Ability):
     description = "Collect a powerup to add an ability to this slot."
     image = helper_funcs.load_image(None, 'gray', (10, 10))
 
-    def __init__(self, game):
+    def __init__(self, game: Game):
         """Initialize the blank ability."""
 
         super().__init__(game)
@@ -124,7 +131,7 @@ class Locked(Ability):
     description = "Unlock this ability slot in the progress menu."
     image = helper_funcs.load_image(None, 'black', (10, 10))
 
-    def __init__(self, game):
+    def __init__(self, game: Game):
         """Initialize the locked ability."""
 
         super().__init__(game)
@@ -146,7 +153,7 @@ class DeathPulse(Active):
     description = "Deals damage to all enemies on screen."
     image = helper_funcs.load_image(None, 'red', (10, 10))
 
-    def __init__(self, game):
+    def __init__(self, game: Game):
         """Initialize the Death Pulse ability."""
 
         super().__init__(game)
@@ -183,7 +190,7 @@ class Spear(Passive):
     description = "Fires a continuous stream of bullets."
     image = helper_funcs.load_image(None, 'purple', (10, 10))
 
-    def __init__(self, game):
+    def __init__(self, game: Game):
         """Initialize the Spear ability."""
 
         super().__init__(game)

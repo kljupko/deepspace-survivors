@@ -2,18 +2,26 @@
 A module containing all the playable ships.
 """
 
+from __future__ import annotations
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from ..game import Game
+
 import pygame
+
 from .entity import Entity
+from .aliens import Alien
 from .bullet import Bullet
+from .powerups import PowerUp
 from ..mechanics import abilities, stats, upgrades
 from ..utils import config, helper_funcs
 
 class Ship(Entity):
     """Base class that manages the player ship."""
 
-    name = "Base Ship"
-    description = "The basic ship. Parent class to other ships."
-    image = helper_funcs.load_image(None, 'green')
+    name: str = "Base Ship"
+    description: str = "The basic ship. Parent class to other ships."
+    image: pygame.Surface = helper_funcs.load_image(None, 'green')
     base_stats = {
         stats.HitPoints: 3,
         stats.Thrust: 3,
@@ -34,8 +42,14 @@ class Ship(Entity):
         ]
     }
 
-    def __init__(self, game, name=None, description=None, image=None,
-                 base_abils=None, base_stats=None):
+    def __init__(self,
+                 game: Game,
+                 name: str | None = None,
+                 description: str | None = None,
+                 image: pygame.Surface | None = None,
+                 base_abils=None,
+                 base_stats=None
+                 ):
         """Initialize the ship."""
 
         if image is None:
@@ -158,7 +172,7 @@ class Ship(Entity):
         elif self.moving_right:
             self.destination = (self.bounds["right"], self.y)
     
-    def take_damage(self, damage):
+    def take_damage(self, damage: int):
         """
         Reduces the ship's HP by the given damage.
         Ends the session at 0 HP.
@@ -182,6 +196,9 @@ class Ship(Entity):
             return False
         
         for alien in collisions:
+            # ensure alien is a subclass of Alien
+            if not isinstance(alien, Alien):
+                continue
             self.take_damage(alien.damage)
             alien.destroy()
         
@@ -197,6 +214,9 @@ class Ship(Entity):
             return False
         
         for powerup in collisions:
+            # ensure the powerup is a subclass of Powerup
+            if not isinstance(powerup, PowerUp):
+                continue
             powerup.apply()
         
         # TODO: figure out a way to change ui on powerup pickup
@@ -207,7 +227,7 @@ class Ship(Entity):
     # -------------------------------------------------------------------
     # endregion
 
-    def fire_bullet(self, fire_rate_bonus = 0):
+    def fire_bullet(self, fire_rate_bonus: int = 0):
         """Fire a bullet."""
 
         fire_rate = self.stats['Fire Rate'].value + fire_rate_bonus
@@ -221,7 +241,7 @@ class Ship(Entity):
     # region ACTIVE ABILITIES
     # -------------------------------------------------------------------
 
-    def add_active_ability(self, new_ability):
+    def add_active_ability(self, new_ability: abilities.Active):
         """
         Add an active ability to the ship if there are free slots.
         The method returns True if the ability is added.
@@ -240,7 +260,7 @@ class Ship(Entity):
         print(f"{new_ability.name} not added.")
         return False
 
-    def toggle_active_ability_num(self, number):
+    def toggle_active_ability_num(self, number: int):
         """
         Toggles the active ability with the given number (one-based).
         """
@@ -274,6 +294,9 @@ class Ship(Entity):
         """Fire enabled active abilities."""
         
         for ability in self.active_abilities:
+            # ensure the ability is a subclass of Ability
+            if not isinstance(ability, abilities.Ability):
+                continue
             if ability.is_enabled:
                 ability.fire()
         self.stop_ability_charge()
@@ -292,7 +315,7 @@ class Ship(Entity):
     # region PASSIVE ABILITIES
     # -------------------------------------------------------------------
     
-    def add_passive_ability(self, new_ability):
+    def add_passive_ability(self, new_ability: abilities.Passive):
         """
         Add a passive ability to the ship. If the ability is already
         present, it is leveled up. If there is a free slot, it is added.
@@ -332,7 +355,7 @@ class Ship(Entity):
         print(f"{new_ability.name} not added.")
         return False
 
-    def toggle_passive_ability_num(self, number):
+    def toggle_passive_ability_num(self, number: int):
         """
         Toggles the passive ability with the given number (one-based).
         """
@@ -380,7 +403,7 @@ class SpearFish(Ship):
         ]
     }
 
-    def __init__(self, game):
+    def __init__(self, game: Game):
         """Initialize the SpearFish."""
 
         name = SpearFish.name

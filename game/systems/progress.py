@@ -28,8 +28,26 @@ class ProgressDict(TypedDict):
     longest_session: int
     total_session_duration: int
 
-    upgrades: dict[str, int]
+    upgrades: dict[str, UpgradesProgressDict]
+    #rewards: dict[str, RewardsProgressDict]
     rewards: dict[str, list[bool]]
+
+class UpgradesProgressDict(TypedDict):
+    """
+    A class representing a dictionary containing information on the
+    level of an upgrade.
+    """
+
+    level: int
+
+class RewardsProgressDict(TypedDict):
+    """
+    A class representing a dictionary containing information on
+    rewards -- are they unlocked and claimed or toggled?
+    """
+
+    is_unlocked: bool
+    is_claimed_or_toggled: bool
 
 class Progress():
     """A class which handles saving and loading the player's progress."""
@@ -76,7 +94,9 @@ class Progress():
         }
 
         for upgrade in self.game.upgrades.values():
-            data['upgrades'][upgrade.name] = upgrade.level
+            data['upgrades'][upgrade.name] = {
+                'level': upgrade.level
+            }
         
         for reward in self.game.rewards.values():
             is_unlocked = False
@@ -109,8 +129,8 @@ class Progress():
         return data
 
     def _copy_ProgressDict_values(self,
-                     from_dict: ProgressDict,
-                     to_dict: ProgressDict
+                     src_dict: ProgressDict,
+                     dest_dict: ProgressDict
                      ) -> None:
         """
         Copies to the destination ProgressDict the values from
@@ -119,17 +139,17 @@ class Progress():
 
         sub_dicts = ['upgrades', 'rewards']
         
-        for key in to_dict:
-            if key not in sub_dicts and key in from_dict:
-                to_dict[key] = from_dict[key]
+        for key in dest_dict:
+            if key not in sub_dicts and key in src_dict:
+                dest_dict[key] = src_dict[key]
 
-        for key in to_dict['upgrades']:
-            if key in from_dict['upgrades']:
-                to_dict['upgrades'][key] = from_dict['upgrades'][key]
+        for key in dest_dict['upgrades']:
+            if key in src_dict['upgrades']:
+                dest_dict['upgrades'][key] = src_dict['upgrades'][key]
 
-        for key in to_dict['rewards']:
-            if key in from_dict['rewards']:
-                to_dict['rewards'][key] = from_dict['rewards'][key]
+        for key in dest_dict['rewards']:
+            if key in src_dict['rewards']:
+                dest_dict['rewards'][key] = src_dict['rewards'][key]
 
     def save_data(self,
                   save_as_backup: bool = False

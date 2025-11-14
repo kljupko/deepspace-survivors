@@ -65,7 +65,7 @@ class RandomDropManager():
     def _is_dropping(self, chance: int):
         """Roll for a random drop."""
 
-        chance += self.game.upgrades[upgrades.Luck.name].level
+        chance += self.game.upgrades['luck'].level
         maximum = 100
         while chance % 1 != 0:
             chance *= 10

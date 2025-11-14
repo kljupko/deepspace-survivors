@@ -88,6 +88,8 @@ class ClaimableReward(Reward):
         if self.is_claimed:
             return False
         
+        self.game.progress.data['credits'] += self.credits
+        
         # to be augmented by child classes maybe
         self.is_claimed = True
         self.game.progress.data['rewards'][self.name][1] = True
@@ -196,9 +198,7 @@ class SpearFish(ToggleableReward):
     def check_availability(self):
         """Check if the reward can be unlocked."""
 
-        from ..mechanics import stats
-
-        if self.game.ship.stats[stats.FireRate.name].value >= 10:
+        if self.game.ship.stats['fire_rate'].value >= 10:
             return True
         return False
     

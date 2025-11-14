@@ -68,14 +68,14 @@ class Game:
         """Set up the upgrades with default values."""
 
         self.upgrades: dict[str, upgrades.Upgrade] = {
-            upgrades.HitPoints.name : upgrades.HitPoints(self),
-            upgrades.Thrust.name : upgrades.Thrust(self),
-            upgrades.FirePower.name : upgrades.FirePower(self),
-            upgrades.FireRate.name : upgrades.FireRate(self),
-            upgrades.ActiveSlots.name : upgrades.ActiveSlots(self),
-            upgrades.PassiveSlots.name : upgrades.PassiveSlots(self),
-            upgrades.ChargeTime.name : upgrades.ChargeTime(self),
-            upgrades.Luck.name : upgrades.Luck(self),
+            'hit_points': upgrades.HitPoints(self),
+            'thrust': upgrades.Thrust(self),
+            'fire_power': upgrades.FirePower(self),
+            'fire_rate': upgrades.FireRate(self),
+            'active_slots': upgrades.ActiveSlots(self),
+            'passive_slots': upgrades.PassiveSlots(self),
+            'charge_time': upgrades.ChargeTime(self),
+            'luck': upgrades.Luck(self),
         }
 
     def _make_rewards(self):
@@ -98,7 +98,7 @@ class Game:
 
         for upgrade in self.upgrades.values():
             if upgrade.name in saved:
-                upgrade.level = saved[upgrade.name]
+                upgrade.level = saved[upgrade.name]['level']
 
     def _load_saved_rewards(self):
         """Load rewards from self.progress."""

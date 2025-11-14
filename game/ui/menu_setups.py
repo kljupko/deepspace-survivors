@@ -794,7 +794,7 @@ def build_top_tray_elements(tray: TopTray):
         _create_ElementDict(
             type='label',
             name='fire_power_value',
-            content=str(tray.game.ship.stats[stats.FirePower.name].value),
+            content=str(tray.game.ship.stats['fire_power'].value),
             linked_to='fire_power_icon',
             linked_anchor='topright'
         ),
@@ -808,7 +808,7 @@ def build_top_tray_elements(tray: TopTray):
         _create_ElementDict(
             type='label',
             name='fire_rate_value',
-            content=str(tray.game.ship.stats[stats.FireRate.name].value),
+            content=str(tray.game.ship.stats['fire_rate'].value),
             linked_to='fire_rate_icon',
             linked_anchor='topleft',
             anchor='topright'
@@ -867,7 +867,7 @@ def build_bot_tray_elements(tray: BottomTray):
         _create_ElementDict(
             type='label',
             name='ship_hp_value',
-            content=str(tray.game.ship.stats['Hit Points'].value),
+            content=str(tray.game.ship.stats['hit_points'].value),
             linked_to='ship_hp_icon',
             linked_anchor='topright'
         ),
@@ -881,7 +881,7 @@ def build_bot_tray_elements(tray: BottomTray):
         _create_ElementDict(
             type='label',
             name='ship_thrust_value',
-            content=str(tray.game.ship.stats['Thrust'].value),
+            content=str(tray.game.ship.stats['thrust'].value),
             linked_to='ship_thrust_icon',
             linked_anchor='topleft',
             anchor='topright'

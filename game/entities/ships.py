@@ -3,7 +3,7 @@ A module containing all the playable ships.
 """
 
 from __future__ import annotations
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, TypedDict
 if TYPE_CHECKING:
     from ..game import Game
 
@@ -16,18 +16,20 @@ from .powerups import PowerUp
 from ..mechanics import abilities, stats, upgrades
 from ..utils import config, helper_funcs
 
+class StatsDict(TypedDict):
+    """A class representing a dictionary of ship stats."""
+
+    hit_points: stats.HitPoints
+    thrust: stats.Thrust
+    fire_power: stats.FirePower
+    fire_rate: stats.FireRate
+
 class Ship(Entity):
     """Base class that manages the player ship."""
 
     name: str = "Base Ship"
     description: str = "The basic ship. Parent class to other ships."
     image: pygame.Surface = helper_funcs.load_image(None, 'green')
-    base_stats = {
-        stats.HitPoints: 3,
-        stats.Thrust: 3,
-        stats.FirePower: 1,
-        stats.FireRate: 3
-    }
     base_abils = {
         'active': [
             abilities.Blank,
@@ -48,7 +50,7 @@ class Ship(Entity):
                  description: str | None = None,
                  image: pygame.Surface | None = None,
                  base_abils=None,
-                 base_stats=None
+                 base_stats: StatsDict | None = None
                  ):
         """Initialize the ship."""
 
@@ -66,9 +68,14 @@ class Ship(Entity):
         self.description = description
 
         if base_stats is None:
-            base_stats = Ship.base_stats
-        self.base_stats = base_stats
-        self.load_stats()
+            base_stats: StatsDict = {
+                'hit_points': stats.HitPoints(self, 3),
+                'thrust': stats.Thrust(self, 3),
+                'fire_power': stats.FirePower(self, 1),
+                'fire_rate': stats.FireRate(self, 3)
+            }
+        self.stats: StatsDict = base_stats
+        self.load_stat_upgrades()
 
         if base_abils is None:
             base_abils = Ship.base_abils
@@ -92,25 +99,23 @@ class Ship(Entity):
     # region INIT HELPER FUNCTIONS
     # -------------------------------------------------------------------
      
-    def load_stats(self):
+    def load_stat_upgrades(self):
         """Load stats with upgrades."""
 
         ups = self.game.upgrades
-        self.stats = {}
 
-        for stat_class, value in self.base_stats.items():
-            stat_name = stat_class.name
-            self.stats[stat_name] = stat_class(
-                self, value + ups[stat_name + " Upgrade"].level
-            )
+        self.stats['hit_points'].modify_stat(ups['hit_points'].level)
+        self.stats['thrust'].modify_stat(ups['thrust'].level)
+        self.stats['fire_power'].modify_stat(ups['fire_power'].level)
+        self.stats['fire_rate'].modify_stat(ups['fire_rate'].level)
 
     def load_abilities(self):
         """
         Loads the ability slots, along with ones unlocked by upgrades.
         """
 
-        active_unlocked = self.game.upgrades[upgrades.ActiveSlots.name].level
-        passive_unlocked = self.game.upgrades[upgrades.PassiveSlots.name].level
+        active_unlocked = self.game.upgrades['active_slots'].level
+        passive_unlocked = self.game.upgrades['passive_slots'].level
 
         self.active_abilities = [
             self.base_abils['active'][0](self.game)
@@ -138,7 +143,7 @@ class Ship(Entity):
         """
 
         base_time = config.required_ability_charge
-        upgrade_level = self.game.upgrades[upgrades.ChargeTime.name].level
+        upgrade_level = self.game.upgrades['charge_time'].level
         self.req_charge_time = base_time * 0.9**upgrade_level
 
     # -------------------------------------------------------------------
@@ -178,10 +183,10 @@ class Ship(Entity):
         Ends the session at 0 HP.
         """
 
-        self.stats['Hit Points'].modify_stat(-damage)
+        self.stats['hit_points'].modify_stat(-damage)
         self.game.bot_tray.update()
 
-        if self.stats['Hit Points'].value <= 0:
+        if self.stats['hit_points'].value <= 0:
             # TODO: replace this with a 'lose_session' menu
             self.game.quit_session()
 
@@ -230,7 +235,7 @@ class Ship(Entity):
     def fire_bullet(self, fire_rate_bonus: int = 0):
         """Fire a bullet."""
 
-        fire_rate = self.stats['Fire Rate'].value + fire_rate_bonus
+        fire_rate = self.stats['fire_rate'].value + fire_rate_bonus
         if self.bullet_cooldown_ms < self.bullet_delay_ms / fire_rate:
             return False
 

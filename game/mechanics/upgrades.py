@@ -79,7 +79,7 @@ class Upgrade():
         
         cost = self.get_cost()
         self.level += 1
-        self.game.progress.data['upgrades'][self.name] = self.level
+        self.game.progress.data['upgrades'][self.name]['level'] = self.level
         self.game.progress.data['credits'] -= cost
         self.game.progress.save_data()
         # child classes will do additional things
@@ -105,7 +105,7 @@ class StatUpgrade(Upgrade):
 
         success = super().do_upgrade()
         if self.game.ship:
-            self.game.ship.load_stats()
+            self.game.ship.load_stat_upgrades()
 
         return success
 

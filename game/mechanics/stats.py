@@ -53,8 +53,11 @@ class Stat():
 
         new_value = self.value + diff
         self.set_value(new_value)
-        self.entity.game.top_tray.update()
-        self.entity.game.bot_tray.update()
+        # update the trays if they are initialized
+        if hasattr(self.entity.game, 'top_tray'):
+            self.entity.game.top_tray.update()
+        if hasattr(self.entity.game, 'bot_tray'):
+            self.entity.game.bot_tray.update()
 
 class HitPoints(Stat):
     """A class representing an entity's health."""

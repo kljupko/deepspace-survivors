@@ -56,7 +56,7 @@ class Bullet(Entity):
         if not isinstance(alien, Alien):
             return False
         
-        alien.take_damage(self.game.ship.stats['Fire Power'].value)
+        alien.take_damage(self.game.ship.stats['fire_power'].value)
         
         self.destroy()
         return True

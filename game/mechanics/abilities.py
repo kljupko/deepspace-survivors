@@ -167,7 +167,7 @@ class DeathPulse(Active):
     def fire(self):
         """Fire the Death Pulse ability."""
 
-        base_fp = self.game.ship.stats['Fire Power'].value
+        base_fp = self.game.ship.stats['fire_power'].value
 
         for alien in self.game.aliens:
             alien.take_damage(base_fp * self.fp_bonus)

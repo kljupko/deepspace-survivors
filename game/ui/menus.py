@@ -75,15 +75,21 @@ class Rewards(Menu):
     
     def claim_reward(self, reward_name: str):
         """Claim the reward with the given name."""
+        
+        reward = self.game.rewards[reward_name]
 
-        self.game.rewards[reward_name].claim()
-        self.update()
+        if isinstance(reward, rewards.ClaimableReward):
+            reward.claim()
+            self.update()
     
     def toggle_reward(self, reward_name: str):
         """Toggle the reward with the given name."""
 
-        self.game.rewards[reward_name].toggle()
-        self.update()
+        reward = self.game.rewards[reward_name]
+
+        if isinstance(reward, rewards.ToggleableReward):
+            reward.toggle()
+            self.update()
 
 class Settings(Menu):
     """A class representing the game's settings menu."""
@@ -176,7 +182,8 @@ class Remap(Menu):
 
         self.control = control
         self.keybind = keybind
-        self.key_name = pygame.key.name(self.game.settings.data[self.keybind])
+        keycode = self.game.settings.data["keybinds"][self.keybind]
+        self.key_name = pygame.key.name(keycode)
         
         self.open()
     
@@ -196,7 +203,7 @@ class Remap(Menu):
         if not self.is_visible:
             return
         
-        self.game.settings.data[self.keybind] = key
+        self.game.settings.data['keybinds'][self.keybind] = key
         self.game.menus['settings'].update()
         self.game.settings.save_data()
         self.close(self.game.menus['settings'])

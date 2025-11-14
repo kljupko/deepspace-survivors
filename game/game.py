@@ -55,6 +55,7 @@ class Game:
 
         self.default_ship_class = ships.Ship
         self.ship_class = self.default_ship_class
+        # load correct ship class
         for ship_reward in self.toggleable_ships:
             if ship_reward.is_toggled_on:
                 # re-toggle to start with the correct ship
@@ -82,12 +83,12 @@ class Game:
         """Set up the rewards with default values."""
 
         self.rewards: dict[str, rewards.Reward] = {        
-            rewards.BakersDozen.name : rewards.BakersDozen(self),
-            rewards.SpearFish.name : rewards.SpearFish(self)
+            'bakers_dozen': rewards.BakersDozen(self),
+            'spear_fish': rewards.SpearFish(self)
         }
 
         self.toggleable_ships: list[rewards.ToggleableReward] = []
-        for reward in self.rewards:
+        for reward in self.rewards.values():
             if isinstance(reward, rewards.ToggleableReward):
                 self.toggleable_ships.append(reward)
 
@@ -107,11 +108,11 @@ class Game:
 
         for reward in self.rewards.values():
             if reward.name in saved:
-                reward.is_unlocked = saved[reward.name][0]
+                reward.is_unlocked = saved[reward.name]['is_unlocked']
                 if isinstance(reward, rewards.ClaimableReward):
-                    reward.is_claimed = saved[reward.name][1]
+                    reward.is_claimed = saved[reward.name]['is_claimed_or_toggled']
                 elif isinstance(reward, rewards.ToggleableReward):
-                    reward.is_toggled_on = saved[reward.name][1]
+                    reward.is_toggled_on = saved[reward.name]['is_claimed_or_toggled']
 
     def _make_menus(self):
         """Load all the menus."""
@@ -161,6 +162,7 @@ class Game:
         ))
         self.play_rect = self.play_surf.get_rect()
 
+        print(self.ship_class)
         self.ship = self.ship_class(self)
         # TODO: add ship to group, after adding image loading
 
@@ -340,30 +342,30 @@ class Game:
         if not self.state.session_running:
             return
         
-        if event.key == self.settings.data["key_cancel"]:
+        if event.key == self.settings.data['keybinds']["key_cancel"]:
             self.menus['pause'].open()
 
-        if event.key == self.settings.data["key_move_left"]:
+        if event.key == self.settings.data['keybinds']["key_move_left"]:
             self.ship.moving_left = True
-        if event.key == self.settings.data["key_move_right"]:
+        if event.key == self.settings.data['keybinds']["key_move_right"]:
             self.ship.moving_right = True
-        if event.key == self.settings.data["key_fire"]:
+        if event.key == self.settings.data['keybinds']["key_fire"]:
             self.ship.fire_bullet()
             self.ship.start_ability_charge()
 
-        if event.key == self.settings.data["key_active_1"]:
+        if event.key == self.settings.data['keybinds']["key_active_1"]:
             self.ship.active_abilities[0].toggle()
-        if event.key == self.settings.data["key_active_2"]:
+        if event.key == self.settings.data['keybinds']["key_active_2"]:
             self.ship.active_abilities[1].toggle()
-        if event.key == self.settings.data["key_active_3"]:
+        if event.key == self.settings.data['keybinds']["key_active_3"]:
             self.ship.active_abilities[2].toggle()
-        if event.key == self.settings.data["key_passive_1"]:
+        if event.key == self.settings.data['keybinds']["key_passive_1"]:
             self.ship.passive_abilities[0].toggle()
-        if event.key == self.settings.data["key_passive_2"]:
+        if event.key == self.settings.data['keybinds']["key_passive_2"]:
             self.ship.passive_abilities[1].toggle()
-        if event.key == self.settings.data["key_passive_3"]:
+        if event.key == self.settings.data['keybinds']["key_passive_3"]:
             self.ship.passive_abilities[2].toggle()
-        if event.key == self.settings.data["key_passive_4"]:
+        if event.key == self.settings.data['keybinds']["key_passive_4"]:
             self.ship.passive_abilities[3].toggle()
                 
     def _handle_keyup_events(self, event: pygame.Event):
@@ -372,11 +374,11 @@ class Game:
         if not self.state.session_running:
             return
 
-        if event.key == self.settings.data["key_move_left"]:
+        if event.key == self.settings.data['keybinds']["key_move_left"]:
             self.ship.moving_left = False
-        if event.key == self.settings.data["key_move_right"]:
+        if event.key == self.settings.data['keybinds']["key_move_right"]:
             self.ship.moving_right = False
-        if event.key == self.settings.data["key_fire"]:
+        if event.key == self.settings.data['keybinds']["key_fire"]:
             self.ship.stop_ability_charge()
     
     def _handle_resize_event(self):

@@ -50,7 +50,7 @@ class Reward():
 
         if self.check_availability():
             self.is_unlocked = True
-            self.game.progress.data['rewards'][self.name][0] = True
+            self.game.progress.data['rewards'][self.name]['is_unlocked'] = True
             self.game.progress.save_data()
             return True
         return False
@@ -92,7 +92,7 @@ class ClaimableReward(Reward):
         
         # to be augmented by child classes maybe
         self.is_claimed = True
-        self.game.progress.data['rewards'][self.name][1] = True
+        self.game.progress.data['rewards'][self.name]['is_claimed_or_toggled'] = True
         self.game.progress.save_data()
         return True
 
@@ -130,7 +130,7 @@ class ToggleableReward(Reward):
 
         # to be augmented by child classes
         self.is_toggled_on = True
-        self.game.progress.data['rewards'][self.name][1] = True
+        self.game.progress.data['rewards'][self.name]['is_claimed_or_toggled'] = True
         self.game.progress.save_data()
         return True
     
@@ -139,7 +139,7 @@ class ToggleableReward(Reward):
 
         # to be augmented by child classes
         self.is_toggled_on = False
-        self.game.progress.data['rewards'][self.name][1] = False
+        self.game.progress.data['rewards'][self.name]['is_claimed_or_toggled'] = False
         self.game.progress.save_data()
         return False
 

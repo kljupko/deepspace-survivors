@@ -29,8 +29,7 @@ class ProgressDict(TypedDict):
     total_session_duration: int
 
     upgrades: dict[str, UpgradesProgressDict]
-    #rewards: dict[str, RewardsProgressDict]
-    rewards: dict[str, list[bool]]
+    rewards: dict[str, RewardsProgressDict]
 
 class UpgradesProgressDict(TypedDict):
     """
@@ -105,7 +104,10 @@ class Progress():
                 is_claimed_or_toggled = reward.is_claimed
             elif isinstance(reward, rewards.ToggleableReward):
                 is_claimed_or_toggled = reward.is_toggled_on
-            data['rewards'][reward.name] = [is_unlocked, is_claimed_or_toggled]
+            data['rewards'][reward.name] = {
+                'is_unlocked': is_unlocked,
+                'is_claimed_or_toggled': is_claimed_or_toggled
+            }
         
         return data
     

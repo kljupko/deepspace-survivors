@@ -22,8 +22,12 @@ class SettingsDict(TypedDict):
 
     fps: int
     show_fps: bool
+    keybinds: KeybindsDict
+    music_volume: int
 
-    # keybinds
+class KeybindsDict(TypedDict):
+    """A class representing a dictionary containing keybinds."""
+
     key_confirm: int
     key_cancel: int
 
@@ -38,8 +42,6 @@ class SettingsDict(TypedDict):
     key_passive_2: int
     key_passive_3: int
     key_passive_4: int
-
-    music_volume: int
 
 class Settings():
     """A class representing the user settings and controls."""
@@ -67,21 +69,22 @@ class Settings():
             'fps' : 60,
             'show_fps' : False,
 
-            # keybinds
-            'key_confirm' : pygame.K_RETURN,
-            'key_cancel' : pygame.K_ESCAPE,
+            'keybinds': {
+                'key_confirm' : pygame.K_RETURN,
+                'key_cancel' : pygame.K_ESCAPE,
 
-            'key_move_left' : pygame.K_LEFT,
-            'key_move_right' : pygame.K_RIGHT,
-            'key_fire' : pygame.K_SPACE,
+                'key_move_left' : pygame.K_LEFT,
+                'key_move_right' : pygame.K_RIGHT,
+                'key_fire' : pygame.K_SPACE,
 
-            'key_active_1' : pygame.K_w,
-            'key_active_2' : pygame.K_e,
-            'key_active_3' : pygame.K_r,
-            'key_passive_1' : pygame.K_a,
-            'key_passive_2' : pygame.K_s,
-            'key_passive_3' : pygame.K_d,
-            'key_passive_4' : pygame.K_f,
+                'key_active_1' : pygame.K_w,
+                'key_active_2' : pygame.K_e,
+                'key_active_3' : pygame.K_r,
+                'key_passive_1' : pygame.K_a,
+                'key_passive_2' : pygame.K_s,
+                'key_passive_3' : pygame.K_d,
+                'key_passive_4' : pygame.K_f,
+            },
 
             'music_volume' : 5
         }
@@ -113,7 +116,7 @@ class Settings():
         path = Path(config.settings_path)
 
         try:
-            data = json.dumps(self.data)
+            data = json.dumps(self.data, indent=4)
             path.parent.mkdir(parents=True, exist_ok=True)
             path.write_text(data)
         except Exception as e:

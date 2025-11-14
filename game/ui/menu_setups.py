@@ -256,7 +256,7 @@ def build_rewards_menu_elements(menu: RewardsMenu):
     ]
 
     linked_elem_name = 'title'
-    for reward in menu.game.rewards.values():
+    for key, reward in menu.game.rewards.items():
         
         # add reward icon
         reward_dict = _create_ElementDict(
@@ -300,9 +300,9 @@ def build_rewards_menu_elements(menu: RewardsMenu):
                     elem_content = "Claim"
                 else:
                     elem_content = "Claimed"
-                action = lambda rn=reward.name : menu.claim_reward(rn)
+                action = lambda rn=key : menu.claim_reward(rn)
             elif isinstance(reward, rewards.ToggleableReward):
-                action = lambda rn=reward.name : menu.toggle_reward(rn)
+                action = lambda rn=key : menu.toggle_reward(rn)
                 if reward.is_toggled_on:
                     elem_content = "Disable"
                 else:
@@ -398,7 +398,7 @@ def build_settings_menu_elements(menu: SettingsMenu,
         _create_ElementDict(
             type='label',
             name='key_confirm_value',
-            content=pygame.key.name(settings_data['key_confirm']),
+            content=pygame.key.name(settings_data['keybinds']['key_confirm']),
             linked_to='key_confirm_label',
             linked_anchor='topright',
             x_offset=menu.rect.width,
@@ -414,7 +414,7 @@ def build_settings_menu_elements(menu: SettingsMenu,
         _create_ElementDict(
             type='label',
             name='key_cancel_value',
-            content=pygame.key.name(settings_data['key_cancel']),
+            content=pygame.key.name(settings_data['keybinds']['key_cancel']),
             linked_to='key_cancel_label',
             linked_anchor='topright',
             x_offset=menu.rect.width,
@@ -430,7 +430,7 @@ def build_settings_menu_elements(menu: SettingsMenu,
         _create_ElementDict(
             type='label',
             name='key_move_left_value',
-            content=pygame.key.name(settings_data['key_move_left']),
+            content=pygame.key.name(settings_data['keybinds']['key_move_left']),
             linked_to='key_move_left_label',
             linked_anchor='topright',
             x_offset=menu.rect.width,
@@ -446,7 +446,7 @@ def build_settings_menu_elements(menu: SettingsMenu,
         _create_ElementDict(
             type='label',
             name='key_move_right_value',
-            content=pygame.key.name(settings_data['key_move_right']),
+            content=pygame.key.name(settings_data['keybinds']['key_move_right']),
             linked_to='key_move_right_label',
             linked_anchor='topright',
             x_offset=menu.rect.width,
@@ -462,7 +462,7 @@ def build_settings_menu_elements(menu: SettingsMenu,
         _create_ElementDict(
             type='label',
             name='key_fire_value',
-            content=pygame.key.name(settings_data['key_fire']),
+            content=pygame.key.name(settings_data['keybinds']['key_fire']),
             linked_to='key_fire_label',
             linked_anchor='topright',
             x_offset=menu.rect.width,
@@ -478,7 +478,7 @@ def build_settings_menu_elements(menu: SettingsMenu,
         _create_ElementDict(
             type='label',
             name='key_active_1_value',
-            content=pygame.key.name(settings_data['key_active_1']),
+            content=pygame.key.name(settings_data['keybinds']['key_active_1']),
             linked_to='key_active_1_label',
             linked_anchor='topright',
             x_offset=menu.rect.width,
@@ -494,7 +494,7 @@ def build_settings_menu_elements(menu: SettingsMenu,
         _create_ElementDict(
             type='label',
             name='key_active_2_value',
-            content=pygame.key.name(settings_data['key_active_2']),
+            content=pygame.key.name(settings_data['keybinds']['key_active_2']),
             linked_to='key_active_2_label',
             linked_anchor='topright',
             x_offset=menu.rect.width,
@@ -510,7 +510,7 @@ def build_settings_menu_elements(menu: SettingsMenu,
         _create_ElementDict(
             type='label',
             name='key_active_3_value',
-            content=pygame.key.name(settings_data['key_active_3']),
+            content=pygame.key.name(settings_data['keybinds']['key_active_3']),
             linked_to='key_active_3_label',
             linked_anchor='topright',
             x_offset=menu.rect.width,
@@ -526,7 +526,7 @@ def build_settings_menu_elements(menu: SettingsMenu,
         _create_ElementDict(
             type='label',
             name='key_passive_1_value',
-            content=pygame.key.name(settings_data['key_passive_1']),
+            content=pygame.key.name(settings_data['keybinds']['key_passive_1']),
             linked_to='key_passive_1_label',
             linked_anchor='topright',
             x_offset=menu.rect.width,
@@ -542,7 +542,7 @@ def build_settings_menu_elements(menu: SettingsMenu,
         _create_ElementDict(
             type='label',
             name='key_passive_2_value',
-            content=pygame.key.name(settings_data['key_passive_2']),
+            content=pygame.key.name(settings_data['keybinds']['key_passive_2']),
             linked_to='key_passive_2_label',
             linked_anchor='topright',
             x_offset=menu.rect.width,
@@ -558,7 +558,7 @@ def build_settings_menu_elements(menu: SettingsMenu,
         _create_ElementDict(
             type='label',
             name='key_passive_3_value',
-            content=pygame.key.name(settings_data['key_passive_3']),
+            content=pygame.key.name(settings_data['keybinds']['key_passive_3']),
             linked_to='key_passive_3_label',
             linked_anchor='topright',
             x_offset=menu.rect.width,
@@ -574,7 +574,7 @@ def build_settings_menu_elements(menu: SettingsMenu,
         _create_ElementDict(
             type='label',
             name='key_passive_4_value',
-            content=pygame.key.name(settings_data['key_passive_4']),
+            content=pygame.key.name(settings_data['keybinds']['key_passive_4']),
             linked_to='key_passive_4_label',
             linked_anchor='topright',
             x_offset=menu.rect.width,

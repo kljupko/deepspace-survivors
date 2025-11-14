@@ -24,6 +24,15 @@ class StatsDict(TypedDict):
     fire_power: stats.FirePower
     fire_rate: stats.FireRate
 
+class StatValuesDict(TypedDict):
+    """A class representing a dictionary of initial stat values."""
+
+    hit_points: int
+    thrust: int
+    fire_power: int
+    fire_rate: int
+
+
 class Ship(Entity):
     """Base class that manages the player ship."""
 
@@ -50,7 +59,7 @@ class Ship(Entity):
                  description: str | None = None,
                  image: pygame.Surface | None = None,
                  base_abils=None,
-                 base_stats: StatsDict | None = None
+                 base_stat_values: StatValuesDict | None = None
                  ):
         """Initialize the ship."""
 
@@ -67,14 +76,19 @@ class Ship(Entity):
             description = Ship.description
         self.description = description
 
-        if base_stats is None:
-            base_stats: StatsDict = {
-                'hit_points': stats.HitPoints(self, 3),
-                'thrust': stats.Thrust(self, 3),
-                'fire_power': stats.FirePower(self, 1),
-                'fire_rate': stats.FireRate(self, 3)
+        if base_stat_values is None:
+            base_stat_values: StatValuesDict = {
+                'hit_points': 3,
+                'thrust': 3,
+                'fire_power': 1,
+                'fire_rate': 3
             }
-        self.stats: StatsDict = base_stats
+        self.stats: StatsDict = {
+            'hit_points': stats.HitPoints(self, base_stat_values['hit_points']),
+            'thrust': stats.Thrust(self, base_stat_values['thrust']),
+            'fire_power': stats.FirePower(self, base_stat_values['fire_power']),
+            'fire_rate': stats.FireRate(self, base_stat_values['fire_rate']),
+        }
         self.load_stat_upgrades()
 
         if base_abils is None:
@@ -388,12 +402,6 @@ class SpearFish(Ship):
     name = "SpearFish"
     description = "A ship with a high fire rate and the Spear passive ability."
     image = helper_funcs.load_image(None, 'darkslategray3', (20, 28))
-    base_stats = {
-        stats.HitPoints: 10,
-        stats.Thrust: 5,
-        stats.FirePower: 5,
-        stats.FireRate: 5
-    }
     base_abils = {
         'active': [
             abilities.Blank,
@@ -414,8 +422,13 @@ class SpearFish(Ship):
         name = SpearFish.name
         description = SpearFish.description
         image = SpearFish.image
-        base_stats = SpearFish.base_stats
+        base_stat_values: StatValuesDict = {
+            'hit_points': 10,
+            'thrust': 5,
+            'fire_power': 5,
+            'fire_rate': 5
+        }
         base_abils = SpearFish.base_abils
-        super().__init__(game, name, description, image, base_abils, base_stats)
+        super().__init__(game, name, description, image, base_abils, base_stat_values)
 
 __all__ = ["Ship", "SpearFish"]

@@ -4,6 +4,7 @@ A module containing the classes for the active and passive abilities.
 
 from __future__ import annotations
 from typing import TYPE_CHECKING, TypedDict
+
 if TYPE_CHECKING:
     from ..game import Game
 
@@ -126,9 +127,6 @@ class Passive(Ability):
 
         self.level += 1
 
-# region ACTIVE ABILITIES
-# -----------------------------------------------------------------------
-
 class DeathPulse(Active):
     """
     A class that represents the Death Pulse active ability, which deals
@@ -162,12 +160,6 @@ class DeathPulse(Active):
         
         self._remove()
 
-# -----------------------------------------------------------------------
-# endregion
-
-# region PASSIVE ABILITIES
-# -----------------------------------------------------------------------
-
 class Spear(Passive):
     """
     A class that represents the Spear passive ability, which increases
@@ -197,9 +189,6 @@ class Spear(Passive):
         self.game.ship.fire_bullet(self.fr_bonus * self.level)
     
     # level up handled by parent class -- only incease level
-
-# -----------------------------------------------------------------------
-# endregion
 
 class Slot():
     """
@@ -234,6 +223,12 @@ class Slot():
         self.is_locked = is_locked
         self.is_enabled = False
 
+        self._set_slot_image()
+
+    
+    def _set_slot_image(self):
+        """Set the image for the slot based on ability type and lock."""
+
         if not self.is_locked:
             if self.ability_type is Active:
                 self.image = Slot.img_options["blank_active"]
@@ -245,6 +240,12 @@ class Slot():
             else:
                 self.image = Slot.img_options["locked_passive"]
     
+    def set_is_locked(self, is_locked: bool):
+        """Lock or unlock the slot."""
+
+        self.is_locked = is_locked
+        self._set_slot_image()
+
     def can_accept_ability(self, ability_class: type[Ability]):
         """
         Return True if an ability of the given class can be set to
@@ -267,7 +268,7 @@ class Slot():
             return False
         
         if self.ability_type is Passive and self.ability is not None:
-            if self.ability.name != ability.name:
+            if self.ability.name != ability.name and self.is_enabled:
                 return False
         
         return True
@@ -299,6 +300,7 @@ class Slot():
         """Enable or disable the slot."""
 
         if self.ability is None:
+            print("Blank ability slot is disabled.")
             self.is_enabled = False
             return
         
@@ -306,6 +308,8 @@ class Slot():
             self.is_enabled = state
         else:
             self.is_enabled = not self.is_enabled
+        
+        print(f"Ability slot with {self.ability.name} enabled: {self.is_enabled}")
     
     def fire_ability(self):
         """Fire the ability, if present."""

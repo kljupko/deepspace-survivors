@@ -156,16 +156,16 @@ class Ship(Entity):
         max_passive_slots = self.game.upgrades['passive_slots'].level + 1
 
         if max_active_slots >= 2:
-            self.ability_slots['active_2'].is_locked = False
+            self.ability_slots['active_2'].set_is_locked(False)
         if max_active_slots >= 3:
-            self.ability_slots['active_3'].is_locked = False
+            self.ability_slots['active_3'].set_is_locked(False)
         
         if max_passive_slots >= 2:
-            self.ability_slots['passive_2'].is_locked = False
+            self.ability_slots['passive_2'].set_is_locked(False)
         if max_passive_slots >= 3:
-            self.ability_slots['passive_3'].is_locked = False
+            self.ability_slots['passive_3'].set_is_locked(False)
         if max_passive_slots >= 4:
-            self.ability_slots['passive_4'].is_locked = False
+            self.ability_slots['passive_4'].set_is_locked(False)
     
     def apply_ability_loadout(self, ability_loadout: AbilityLoadoutDict):
         """Apply the given ability loadout to the ship's slots."""
@@ -269,7 +269,7 @@ class Ship(Entity):
         return True
     
     # -------------------------------------------------------------------
-    # endregion
+    # endregion collision checking
 
     def fire_bullet(self, fire_rate_bonus: int = 0):
         """Fire a bullet."""
@@ -343,7 +343,7 @@ class Ship(Entity):
         self.ability_slots['passive_4'].fire_ability()
     
     # -------------------------------------------------------------------
-    # endregion
+    # endregion ability slots and abilities
 
 class SpearFish(Ship):
     """A class representing a ship with the Spear ability."""

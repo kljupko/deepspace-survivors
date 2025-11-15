@@ -30,7 +30,7 @@ class RandomDropManager():
 
         self.ability_choices = {
             abilities.DeathPulse: 1,
-            abilities.Spear: 3
+            abilities.Spear: 3,
         }
 
         self.stat_choices = {

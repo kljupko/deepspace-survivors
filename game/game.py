@@ -162,7 +162,6 @@ class Game:
         ))
         self.play_rect = self.play_surf.get_rect()
 
-        print(self.ship_class)
         self.ship = self.ship_class(self)
         # TODO: add ship to group, after adding image loading
 
@@ -354,19 +353,19 @@ class Game:
             self.ship.start_ability_charge()
 
         if event.key == self.settings.data['keybinds']["key_active_1"]:
-            self.ship.active_abilities[0].toggle()
+            self.ship.ability_slots['active_1'].toggle()
         if event.key == self.settings.data['keybinds']["key_active_2"]:
-            self.ship.active_abilities[1].toggle()
+            self.ship.ability_slots['active_2'].toggle()
         if event.key == self.settings.data['keybinds']["key_active_3"]:
-            self.ship.active_abilities[2].toggle()
+            self.ship.ability_slots['active_3'].toggle()
         if event.key == self.settings.data['keybinds']["key_passive_1"]:
-            self.ship.passive_abilities[0].toggle()
+            self.ship.ability_slots['passive_1'].toggle()
         if event.key == self.settings.data['keybinds']["key_passive_2"]:
-            self.ship.passive_abilities[1].toggle()
+            self.ship.ability_slots['passive_2'].toggle()
         if event.key == self.settings.data['keybinds']["key_passive_3"]:
-            self.ship.passive_abilities[2].toggle()
+            self.ship.ability_slots['passive_3'].toggle()
         if event.key == self.settings.data['keybinds']["key_passive_4"]:
-            self.ship.passive_abilities[3].toggle()
+            self.ship.ability_slots['passive_4'].toggle()
                 
     def _handle_keyup_events(self, event: pygame.Event):
         """Handle what happens when certain keys are released."""

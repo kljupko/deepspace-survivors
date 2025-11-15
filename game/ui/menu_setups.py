@@ -889,7 +889,7 @@ def build_bot_tray_elements(tray: BottomTray):
         _create_ElementDict(
             type='icon',
             name='active_1_bg',
-            content=helper_funcs.load_image(dflt_size=(12, 12)),
+            content=tray.game.ship.ability_slots['active_1'].image,
             linked_to='ship_hp_icon',
             y_offset=1,
             ignore_linked_x=True,
@@ -899,7 +899,7 @@ def build_bot_tray_elements(tray: BottomTray):
         _create_ElementDict(
             type='icon',
             name='active_1_icon',
-            content=tray.game.ship.active_abilities[0].image,
+            content=tray.game.ship.ability_slots['active_1'].get_ability_image(),
             linked_to='active_1_bg',
             linked_anchor='center',
             anchor='center'
@@ -907,7 +907,7 @@ def build_bot_tray_elements(tray: BottomTray):
         _create_ElementDict(
             type='icon',
             name='active_2_bg',
-            content=helper_funcs.load_image(dflt_size=(12, 12)),
+            content=tray.game.ship.ability_slots['active_3'].image,
             linked_to='ship_hp_icon',
             y_offset=1,
             ignore_linked_x=True,
@@ -917,7 +917,7 @@ def build_bot_tray_elements(tray: BottomTray):
         _create_ElementDict(
             type='icon',
             name='active_2_icon',
-            content=tray.game.ship.active_abilities[1].image,
+            content=tray.game.ship.ability_slots['active_2'].get_ability_image(),
             linked_to='active_2_bg',
             linked_anchor='center',
             anchor='center'
@@ -925,7 +925,7 @@ def build_bot_tray_elements(tray: BottomTray):
         _create_ElementDict(
             type='icon',
             name='active_3_bg',
-            content=helper_funcs.load_image(dflt_size=(12, 12)),
+            content=tray.game.ship.ability_slots['active_3'].image,
             linked_to='ship_hp_icon',
             y_offset=1,
             ignore_linked_x=True,
@@ -935,7 +935,7 @@ def build_bot_tray_elements(tray: BottomTray):
         _create_ElementDict(
             type='icon',
             name='active_3_icon',
-            content=tray.game.ship.active_abilities[2].image,
+            content=tray.game.ship.ability_slots['active_3'].get_ability_image(),
             linked_to='active_3_bg',
             linked_anchor='center',
             anchor='center'
@@ -943,7 +943,7 @@ def build_bot_tray_elements(tray: BottomTray):
         _create_ElementDict(
             type='icon',
             name='passive_1_bg',
-            content=helper_funcs.load_image(dflt_size=(12, 12)),
+            content=tray.game.ship.ability_slots['passive_1'].image,
             linked_to='active_1_bg',
             y_offset=1,
             ignore_linked_x=True,
@@ -953,7 +953,7 @@ def build_bot_tray_elements(tray: BottomTray):
         _create_ElementDict(
             type='icon',
             name='passive_1_icon',
-            content=tray.game.ship.passive_abilities[0].image,
+            content=tray.game.ship.ability_slots['passive_1'].get_ability_image(),
             linked_to='passive_1_bg',
             linked_anchor='center',
             anchor='center'
@@ -961,7 +961,7 @@ def build_bot_tray_elements(tray: BottomTray):
         _create_ElementDict(
             type='icon',
             name='passive_2_bg',
-            content=helper_funcs.load_image(dflt_size=(12, 12)),
+            content=tray.game.ship.ability_slots['passive_2'].image,
             linked_to='active_1_bg',
             y_offset=1,
             ignore_linked_x=True,
@@ -971,7 +971,7 @@ def build_bot_tray_elements(tray: BottomTray):
         _create_ElementDict(
             type='icon',
             name='passive_2_icon',
-            content=tray.game.ship.passive_abilities[1].image,
+            content=tray.game.ship.ability_slots['passive_2'].get_ability_image(),
             linked_to='passive_2_bg',
             linked_anchor='center',
             anchor='center'
@@ -979,7 +979,7 @@ def build_bot_tray_elements(tray: BottomTray):
         _create_ElementDict(
             type='icon',
             name='passive_3_bg',
-            content=helper_funcs.load_image(dflt_size=(12, 12)),
+            content=tray.game.ship.ability_slots['passive_3'].image,
             linked_to='active_1_bg',
             y_offset=1,
             ignore_linked_x=True,
@@ -989,7 +989,7 @@ def build_bot_tray_elements(tray: BottomTray):
         _create_ElementDict(
             type='icon',
             name='passive_3_icon',
-            content=tray.game.ship.passive_abilities[2].image,
+            content=tray.game.ship.ability_slots['passive_3'].get_ability_image(),
             linked_to='passive_3_bg',
             linked_anchor='center',
             anchor='center'
@@ -997,7 +997,7 @@ def build_bot_tray_elements(tray: BottomTray):
         _create_ElementDict(
             type='icon',
             name='passive_4_bg',
-            content=helper_funcs.load_image(dflt_size=(12, 12)),
+            content=tray.game.ship.ability_slots['passive_4'].image,
             linked_to='active_1_bg',
             y_offset=1,
             ignore_linked_x=True,
@@ -1007,7 +1007,7 @@ def build_bot_tray_elements(tray: BottomTray):
         _create_ElementDict(
             type='icon',
             name='passive_4_icon',
-            content=tray.game.ship.passive_abilities[3].image,
+            content=tray.game.ship.ability_slots['passive_4'].get_ability_image(),
             linked_to='passive_4_bg',
             linked_anchor='center',
             anchor='center'
@@ -1025,37 +1025,37 @@ def build_bot_tray_unions(tray: BottomTray):
         {
             'name': 'toggle_active_1_btn',
             'elem_names': ['active_1_bg', 'active_1_icon'],
-            'action': lambda: tray.game.ship.toggle_active_ability_num(1)
+            'action': lambda: tray.game.ship.ability_slots['active_1'].toggle()
         },
         {
             'name': 'toggle_active_2_btn',
             'elem_names': ['active_2_bg', 'active_2_icon'],
-            'action': lambda: tray.game.ship.toggle_active_ability_num(2)
+            'action': lambda: tray.game.ship.ability_slots['active_2'].toggle()
         },
         {
             'name': 'toggle_active_3_btn',
             'elem_names': ['active_3_bg', 'active_3_icon'],
-            'action': lambda: tray.game.ship.toggle_active_ability_num(3)
+            'action': lambda: tray.game.ship.ability_slots['active_3'].toggle()
         },
         {
             'name': 'toggle_passive_1_btn',
             'elem_names': ['passive_1_bg', 'passive_1_icon'],
-            'action': lambda: tray.game.ship.toggle_passive_ability_num(1)
+            'action': lambda: tray.game.ship.ability_slots['passive_1'].toggle()
         },
         {
             'name': 'toggle_passive_2_btn',
             'elem_names': ['passive_2_bg', 'passive_2_icon'],
-            'action': lambda: tray.game.ship.toggle_passive_ability_num(2)
+            'action': lambda: tray.game.ship.ability_slots['passive_2'].toggle()
         },
         {
             'name': 'toggle_passive_3_btn',
             'elem_names': ['passive_3_bg', 'passive_3_icon'],
-            'action': lambda: tray.game.ship.toggle_passive_ability_num(3)
+            'action': lambda: tray.game.ship.ability_slots['passive_3'].toggle()
         },
         {
             'name': 'toggle_passive_4_btn',
             'elem_names': ['passive_4_bg', 'passive_4_icon'],
-            'action': lambda: tray.game.ship.toggle_passive_ability_num(4)
+            'action': lambda: tray.game.ship.ability_slots['passive_4'].toggle()
         }
     ]
 

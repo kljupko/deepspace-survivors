@@ -13,10 +13,11 @@ from .entity import Entity
 from .aliens import Alien
 from .bullet import Bullet
 from .powerups import PowerUp
-from ..mechanics import abilities, stats, upgrades
+from ..mechanics import abilities as abs, stats
 from ..utils import config, helper_funcs
 
 class StatsDict(TypedDict):
+    
     """A class representing a dictionary of ship stats."""
 
     hit_points: stats.HitPoints
@@ -32,6 +33,27 @@ class StatValuesDict(TypedDict):
     fire_power: int
     fire_rate: int
 
+class AbilityLoadoutDict(TypedDict):
+    """A class representing a ship's initial loadout of abs."""
+
+    active_1: type[abs.Active] | None
+    active_2: type[abs.Active] | None
+    active_3: type[abs.Active] | None
+    passive_1: type[abs.Passive] | None
+    passive_2: type[abs.Passive] | None
+    passive_3: type[abs.Passive] | None
+    passive_4: type[abs.Passive] | None
+
+class AbilitySlotsDict(TypedDict):
+    """A class representing a ship's ability slots."""
+
+    active_1: abs.Slot
+    active_2: abs.Slot
+    active_3: abs.Slot
+    passive_1: abs.Slot
+    passive_2: abs.Slot
+    passive_3: abs.Slot
+    passive_4: abs.Slot
 
 class Ship(Entity):
     """Base class that manages the player ship."""
@@ -39,27 +61,14 @@ class Ship(Entity):
     name: str = "Base Ship"
     description: str = "The basic ship. Parent class to other ships."
     image: pygame.Surface = helper_funcs.load_image(None, 'green')
-    base_abils = {
-        'active': [
-            abilities.Blank,
-            abilities.Locked,
-            abilities.Locked
-        ],
-        'passive': [
-            abilities.Blank,
-            abilities.Locked,
-            abilities.Locked,
-            abilities.Locked
-        ]
-    }
 
     def __init__(self,
                  game: Game,
                  name: str | None = None,
                  description: str | None = None,
                  image: pygame.Surface | None = None,
-                 base_abils=None,
-                 base_stat_values: StatValuesDict | None = None
+                 base_stat_values: StatValuesDict | None = None,
+                 ability_loadout: AbilityLoadoutDict | None = None,
                  ):
         """Initialize the ship."""
 
@@ -77,7 +86,7 @@ class Ship(Entity):
         self.description = description
 
         if base_stat_values is None:
-            base_stat_values: StatValuesDict = {
+            base_stat_values = {
                 'hit_points': 3,
                 'thrust': 3,
                 'fire_power': 1,
@@ -89,14 +98,31 @@ class Ship(Entity):
             'fire_power': stats.FirePower(self, base_stat_values['fire_power']),
             'fire_rate': stats.FireRate(self, base_stat_values['fire_rate']),
         }
-        self.load_stat_upgrades()
+        self.apply_stat_upgrades()
 
-        if base_abils is None:
-            base_abils = Ship.base_abils
-        self.base_abils = base_abils
-        self.load_abilities()
+        self.ability_slots: AbilitySlotsDict = {
+            'active_1': abs.Slot(self.game, abs.Active),
+            'active_2': abs.Slot(self.game, abs.Active, True),
+            'active_3': abs.Slot(self.game, abs.Active, True),
+            'passive_1': abs.Slot(self.game, abs.Passive),
+            'passive_2': abs.Slot(self.game, abs.Passive, True),
+            'passive_3': abs.Slot(self.game, abs.Passive, True),
+            'passive_4': abs.Slot(self.game, abs.Passive, True),
+        }
+        self.apply_slot_unlocks()
+        if ability_loadout is None:
+            ability_loadout = {
+                'active_1': None,
+                'active_2': None,
+                'active_3': None,
+                'passive_1': None,
+                'passive_2': None,
+                'passive_3': None,
+                'passive_4': None,
+            }
+        self.apply_ability_loadout(ability_loadout)
         self.charging_ability = False
-        self.load_req_charge_time()
+        self.apply_charge_time_upgrades()
         self.charge_time = 0
 
         self.bullet_delay_ms = 1000 * 3
@@ -113,8 +139,8 @@ class Ship(Entity):
     # region INIT HELPER FUNCTIONS
     # -------------------------------------------------------------------
      
-    def load_stat_upgrades(self):
-        """Load stats with upgrades."""
+    def apply_stat_upgrades(self):
+        """Apply purchased upgrades to the ship's stats."""
 
         ups = self.game.upgrades
 
@@ -122,39 +148,38 @@ class Ship(Entity):
         self.stats['thrust'].modify_stat(ups['thrust'].level)
         self.stats['fire_power'].modify_stat(ups['fire_power'].level)
         self.stats['fire_rate'].modify_stat(ups['fire_rate'].level)
+    
+    def apply_slot_unlocks(self):
+        """Apply purchased upgrades to the ship's ability slots."""
+        
+        max_active_slots = self.game.upgrades['active_slots'].level + 1
+        max_passive_slots = self.game.upgrades['passive_slots'].level + 1
 
-    def load_abilities(self):
-        """
-        Loads the ability slots, along with ones unlocked by upgrades.
-        """
+        if max_active_slots >= 2:
+            self.ability_slots['active_2'].is_locked = False
+        if max_active_slots >= 3:
+            self.ability_slots['active_3'].is_locked = False
+        
+        if max_passive_slots >= 2:
+            self.ability_slots['passive_2'].is_locked = False
+        if max_passive_slots >= 3:
+            self.ability_slots['passive_3'].is_locked = False
+        if max_passive_slots >= 4:
+            self.ability_slots['passive_4'].is_locked = False
+    
+    def apply_ability_loadout(self, ability_loadout: AbilityLoadoutDict):
+        """Apply the given ability loadout to the ship's slots."""
 
-        active_unlocked = self.game.upgrades['active_slots'].level
-        passive_unlocked = self.game.upgrades['passive_slots'].level
+        self.ability_slots['active_1'].set_ability(ability_loadout['active_1'])
+        self.ability_slots['active_2'].set_ability(ability_loadout['active_2'])
+        self.ability_slots['active_3'].set_ability(ability_loadout['active_3'])
+        self.ability_slots['passive_1'].set_ability(ability_loadout['passive_1'])
+        self.ability_slots['passive_2'].set_ability(ability_loadout['passive_2'])
+        self.ability_slots['passive_3'].set_ability(ability_loadout['passive_3'])
+        self.ability_slots['passive_4'].set_ability(ability_loadout['passive_4'])
 
-        self.active_abilities = [
-            self.base_abils['active'][0](self.game)
-        ]
-        self.passive_abilities = [
-            self.base_abils['passive'][0](self.game)
-        ]
-
-        for i in range(1, 3):
-            if i <= active_unlocked:
-                self.active_abilities.append(abilities.Blank(self.game))
-            else:
-                self.active_abilities.append(abilities.Locked(self.game))
-
-        for i in range(1, 4):
-            if i <= passive_unlocked:
-                self.passive_abilities.append(abilities.Blank(self.game))
-            else:
-                self.passive_abilities.append(abilities.Locked(self.game))
-
-    def load_req_charge_time(self):
-        """
-        Loads the time required to charge an active ability, with
-        applied upgrades.
-        """
+    def apply_charge_time_upgrades(self):
+        """Apply the purchased upgrades to ability charge time."""
 
         base_time = config.required_ability_charge
         upgrade_level = self.game.upgrades['charge_time'].level
@@ -257,42 +282,26 @@ class Ship(Entity):
         self.bullet_cooldown_ms = 0
         return True
     
-    # region ACTIVE ABILITIES
+    # region ABILITY SLOTS AND ABILITIES
     # -------------------------------------------------------------------
-
-    def add_active_ability(self, new_ability: abilities.Active):
-        """
-        Add an active ability to the ship if there are free slots.
-        The method returns True if the ability is added.
-        """
-        
-        abils = self.active_abilities
-
-        for ability in abils:
-            idx = abils.index(ability)
-            if type(ability) == abilities.Blank:
-                abils[idx] = new_ability
-                self.game.bot_tray.update()
-                print(f"Placed {abils[idx].name} into a blank slot.")
-                return True
-        
-        print(f"{new_ability.name} not added.")
-        return False
-
-    def toggle_active_ability_num(self, number: int):
-        """
-        Toggles the active ability with the given number (one-based).
-        """
-
-        if number < 1 or number > 3:
-            print("Invalid number for active ability!")
-            print("Are you using one-based indices? You should in this case.")
-            return False
-        
-        self.active_abilities[number-1].toggle()
     
+    def get_valid_slot_for(self, ability_class: type[abs.Ability]):
+        """
+        Return the first valid slot where an ability of the given class can fit.
+        Return None if there are no valid slots.
+        """
+
+        for slot in self.ability_slots.values():
+            if not isinstance(slot, abs.Slot):
+                continue
+
+            if slot.can_accept_ability(ability_class):
+                return slot
+        
+        return None                
+
     def start_ability_charge(self):
-        """Start charging active abilities."""
+        """Start charging active abs."""
 
         self.charging_ability = True
         self.charge_time = 0
@@ -310,14 +319,11 @@ class Ship(Entity):
         self._fire_active_abilities()
     
     def _fire_active_abilities(self):
-        """Fire enabled active abilities."""
+        """Fire enabled active abs."""
         
-        for ability in self.active_abilities:
-            # ensure the ability is a subclass of Ability
-            if not isinstance(ability, abilities.Ability):
-                continue
-            if ability.is_enabled:
-                ability.fire()
+        self.ability_slots['active_1'].fire_ability()
+        self.ability_slots['active_2'].fire_ability()
+        self.ability_slots['active_3'].fire_ability()
         self.stop_ability_charge()
         self.game.bot_tray.update()
         return True
@@ -327,71 +333,14 @@ class Ship(Entity):
 
         self.charging_ability = False
         self.charge_time = 0
-    
-    # -------------------------------------------------------------------
-    # endregion
-
-    # region PASSIVE ABILITIES
-    # -------------------------------------------------------------------
-    
-    def add_passive_ability(self, new_ability: abilities.Passive):
-        """
-        Add a passive ability to the ship. If the ability is already
-        present, it is leveled up. If there is a free slot, it is added.
-        If there are no free slots, a deactivated ability is replaced.
-        The method returns True if the ability is added/ upgraded.
-        """
-
-        abils = self.passive_abilities
-
-        # check if any abilities are the same; if yes, level up
-        for ability in abils:
-            idx = abils.index(ability)
-            if type(ability) == type(new_ability):
-                abils[idx].level_up()
-                print(f"Leveled up {abils[idx].name} to level {abils[idx].level}.")
-                return True
         
-        # otherwise, check if there are blank slots
-        for ability in abils:
-            idx = abils.index(ability)
-            if type(ability) == abilities.Blank:
-                abils[idx] = new_ability
-                self.game.bot_tray.update()
-                print(f"Placed {abils[idx].name} into a blank slot.")
-                return True
-        
-        # otherwise, check if there are disabled abilities
-        for ability in abils:
-            idx = abils.index(ability)
-            if not ability.is_enabled:
-                old = ability.name
-                abils[idx] = new_ability
-                self.game.bot_tray.update()
-                print(f"Replaced disabled {old} ability with {abils[idx].name}.")
-                return True
-        
-        print(f"{new_ability.name} not added.")
-        return False
-
-    def toggle_passive_ability_num(self, number: int):
-        """
-        Toggles the passive ability with the given number (one-based).
-        """
-
-        if number < 1 or number > 4:
-            print("Invalid number for passive ability!")
-            print("Are you using one-based indices? You should in this case.")
-            return False
-        
-        self.passive_abilities[number-1].toggle()
-    
     def _fire_passive_abilities(self):
-        """Fire all the enabled passive abilities."""
+        """Fire all the enabled passive abs."""
 
-        for ability in self.passive_abilities:
-            if ability and ability.is_enabled:
-                ability.fire()
+        self.ability_slots['passive_1'].fire_ability()
+        self.ability_slots['passive_2'].fire_ability()
+        self.ability_slots['passive_3'].fire_ability()
+        self.ability_slots['passive_4'].fire_ability()
     
     # -------------------------------------------------------------------
     # endregion
@@ -402,19 +351,6 @@ class SpearFish(Ship):
     name = "SpearFish"
     description = "A ship with a high fire rate and the Spear passive ability."
     image = helper_funcs.load_image(None, 'darkslategray3', (20, 28))
-    base_abils = {
-        'active': [
-            abilities.Blank,
-            abilities.Locked,
-            abilities.Locked
-        ],
-        'passive': [
-            abilities.Spear,
-            abilities.Locked,
-            abilities.Locked,
-            abilities.Locked
-        ]
-    }
 
     def __init__(self, game: Game):
         """Initialize the SpearFish."""
@@ -428,7 +364,15 @@ class SpearFish(Ship):
             'fire_power': 5,
             'fire_rate': 5
         }
-        base_abils = SpearFish.base_abils
-        super().__init__(game, name, description, image, base_abils, base_stat_values)
+        ability_loadout: AbilityLoadoutDict = {
+            'active_1': None,
+            'active_2': None,
+            'active_3': None,
+            'passive_1': abs.Spear,
+            'passive_2': None,
+            'passive_3': None,
+            'passive_4': None
+        }
+        super().__init__(game, name, description, image, base_stat_values, ability_loadout)
 
 __all__ = ["Ship", "SpearFish"]

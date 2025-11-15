@@ -3,7 +3,7 @@ A module containing the classes for the active and passive abilities.
 """
 
 from __future__ import annotations
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, TypedDict
 if TYPE_CHECKING:
     from ..game import Game
 
@@ -18,22 +18,27 @@ class Ability():
     description: str = "Base Ability description."
     image: pygame.Surface = helper_funcs.load_image(None, 'gray', (10, 10))
 
-    def __init__(self, game: Game):
-        """Initialize the ability."""
+    def __init__(self,
+                 game: Game,
+                 name: str | None = None,
+                 description: str | None = None,
+                 image: pygame.Surface | None = None,
+                 ):
+        """Initialize the ability and add it to the given slot."""
 
         self.game = game
-        self.name = Ability.name
-        self.description = Ability.description
-        self.image = helper_funcs.copy_image(Ability.image)
-        self.is_enabled = False
-    
-    def toggle(self):
-        """
-        Hook for toggling the ability. Always sets to false.
-        Overridden by child classes.
-        """
 
-        self.is_enabled = False
+        if name is None:
+            name = Ability.name
+        self.name = name
+
+        if description is None:
+            description = Ability.description
+        self.description = description
+
+        if image is None:
+            image = Ability.image
+        self.image = image
     
     def fire(self):
         """
@@ -43,6 +48,17 @@ class Ability():
 
         return None
     
+    def _remove(self):
+        """Remove the ability from the slot."""
+
+        for slot in self.game.ship.ability_slots.values():
+            if not isinstance(slot, Slot):
+                continue
+
+            if slot.ability is self:
+                slot.set_ability(None)
+                break
+    
 class Active(Ability):
     """A base class that represents a ship's active ability."""
 
@@ -50,27 +66,32 @@ class Active(Ability):
     description = "Base Active Ability description."
     image = helper_funcs.load_image(None, 'gray', (10, 10))
 
-    def __init__(self, game: Game):
-        """Initialize the ability."""
+    def __init__(self,
+                 game: Game,
+                 name: str | None = None,
+                 description: str | None = None,
+                 image: pygame.Surface | None = None,
+                 ):
+        """Initialize the active ability."""
 
-        super().__init__(game)
-
-        self.name = Active.name
-        self.description = Active.description
-        self.image = helper_funcs.copy_image(Active.image)
-        self.is_active = True
+        if name is None:
+            name = Active.name
+        
+        if description is None:
+            description = Active.description
+        
+        if image is None:
+            image = Active.image
+        
+        super().__init__(game, name, description, image)
     
-    def toggle(self):
-        """Toggle the ability On/Off."""
+    def fire(self):
+        """
+        Fire the active ability, and remove from the containing slot.
+        """
 
-        self.is_enabled = not self.is_enabled
-        print(f"Ability: {self.name} set to {self.is_enabled}")
-    
-    def _remove(self):
-        """Remove the active ability from the ship."""
-
-        self_idx = self.game.ship.active_abilities.index(self)
-        self.game.ship.active_abilities[self_idx] = Blank(self.game)
+        super().fire()
+        self._remove()
 
 class Passive(Ability):
     """A class that represents a ship's passive ability."""
@@ -79,66 +100,31 @@ class Passive(Ability):
     description = "Base Passive Ability description."
     image = helper_funcs.load_image(None, 'gray', (10, 10))
 
-    def __init__(self, game: Game):
+    def __init__(self,
+                 game: Game,
+                 name: str | None = None,
+                 description: str | None = None,
+                 image: pygame.Surface | None = None,
+                 ):
         """Initialize the passive ability."""
 
-        super().__init__(game)
+        if name is None:
+            name = Active.name
+        
+        if description is None:
+            description = Active.description
+        
+        if image is None:
+            image = Active.image
+        
+        super().__init__(game, name, description, image)
 
-        self.name = Passive.name
-        self.description = Passive.description
-        self.image = helper_funcs.copy_image(Passive.image)
-        self.is_active = False
         self.level = 1
-        self.is_enabled = True
-
-    # override the Ability method
-    def toggle(self):
-        """Toggle the ability On/Off."""
-
-        self.is_enabled = not self.is_enabled
-    
-    def _remove(self):
-        """Remove the passive ability from the ship."""
-
-        self_idx = self.game.ship.passive_abilities.index(self)
-        self.game.ship.passive_abilities[self_idx] = Blank(self.game)
     
     def level_up(self):
         """Increase the level of the passive ability."""
 
         self.level += 1
-
-class Blank(Ability):
-    """A class that represents a blank ability. Does nothing."""
-
-    name = "Blank Ability Slot"
-    description = "Collect a powerup to add an ability to this slot."
-    image = helper_funcs.load_image(None, 'gray', (10, 10))
-
-    def __init__(self, game: Game):
-        """Initialize the blank ability."""
-
-        super().__init__(game)
-
-        self.name = Blank.name
-        self.description = Blank.description
-        self.image = helper_funcs.copy_image(Blank.image)
-        
-class Locked(Ability):
-    """A class that represents a locked ability. Does nothing."""
-
-    name = "Locked Ability Slot"
-    description = "Unlock this ability slot in the progress menu."
-    image = helper_funcs.load_image(None, 'black', (10, 10))
-
-    def __init__(self, game: Game):
-        """Initialize the locked ability."""
-
-        super().__init__(game)
-
-        self.name = Locked.name
-        self.description = Locked.description
-        self.image = helper_funcs.copy_image(Locked.image)
 
 # region ACTIVE ABILITIES
 # -----------------------------------------------------------------------
@@ -153,16 +139,18 @@ class DeathPulse(Active):
     description = "Deals damage to all enemies on screen."
     image = helper_funcs.load_image(None, 'red', (10, 10))
 
-    def __init__(self, game: Game):
+    def __init__(self,
+                 game: Game,
+                 ):
         """Initialize the Death Pulse ability."""
 
-        super().__init__(game)
+        name = DeathPulse.name
+        img = DeathPulse.image
+        super().__init__(game, name, None, img)
 
-        self.name = DeathPulse.name
         self.fp_bonus = 50
         self.description = f"Deals {self.fp_bonus}x Fire Power to all enemies" \
         " on the screen."
-        self.image = DeathPulse.image
     
     def fire(self):
         """Fire the Death Pulse ability."""
@@ -190,27 +178,160 @@ class Spear(Passive):
     description = "Fires a continuous stream of bullets."
     image = helper_funcs.load_image(None, 'purple', (10, 10))
 
-    def __init__(self, game: Game):
+    def __init__(self,
+                 game: Game,
+                 ):
         """Initialize the Spear ability."""
 
-        super().__init__(game)
+        name = Spear.name
+        img = Spear.image
+        super().__init__(game, name, None, img)
 
-        self.name = Spear.name
         self.fr_bonus = 1
         self.description = "Fires a continuous stream of bullets." \
         f" Each level increases fire rate by {self.fr_bonus}."
-        self.image = Spear.image
     
     def fire(self):
         """Fire the Spear ability."""
 
         self.game.ship.fire_bullet(self.fr_bonus * self.level)
     
-    def level_up(self):
-        """Increase the fire rate bonus (autocalculated by level)."""
-        return super().level_up()
+    # level up handled by parent class -- only incease level
 
 # -----------------------------------------------------------------------
 # endregion
 
-__all__ = ["Blank","Locked", "DeathPulse", "Spear"]
+class Slot():
+    """
+    A class representing a ship's slot which can hold a single ability.
+    """
+
+    class SlotImagesDict(TypedDict):
+        """A class representing a dictionary of slot images."""
+
+        blank_active: pygame.Surface
+        blank_passive: pygame.Surface
+        locked_active: pygame.Surface
+        locked_passive: pygame.Surface
+    
+    img_options: SlotImagesDict = {
+        'blank_active': helper_funcs.load_image(None, 'grey', (12, 12)),
+        'blank_passive': helper_funcs.load_image(None, 'grey', (12, 12)),
+        'locked_active': helper_funcs.load_image(None, 'black', (12, 12)),
+        'locked_passive': helper_funcs.load_image(None, 'black', (12, 12)),
+    }
+
+    def __init__(self,
+                 game: Game,
+                 ability_type: type[Active | Passive] = Passive,
+                 is_locked: bool = False,
+                 ) -> None:
+        """Initialize the slot."""
+
+        self.game = game
+        self.ability_type = ability_type
+        self.ability: Ability | None = None
+        self.is_locked = is_locked
+        self.is_enabled = False
+
+        if not self.is_locked:
+            if self.ability_type is Active:
+                self.image = Slot.img_options["blank_active"]
+            else:
+                self.image = Slot.img_options["blank_passive"]
+        else:
+            if self.ability_type is Active:
+                self.image = Slot.img_options["locked_active"]
+            else:
+                self.image = Slot.img_options["locked_passive"]
+    
+    def can_accept_ability(self, ability_class: type[Ability]):
+        """
+        Return True if an ability of the given class can be set to
+        this slot. The ability cannot be added if:
+          - the slot is locked
+          - the ablility type is incorrect (Active vs. Passive)
+          - the slot already contains an active ability
+          - the slot contains a different passive ability
+        """
+
+        if self.is_locked:
+            return False
+        
+        ability = ability_class(self.game)
+
+        if not isinstance(ability, self.ability_type):
+            return False
+        
+        if self.ability_type is Active and self.ability is not None:
+            return False
+        
+        if self.ability_type is Passive and self.ability is not None:
+            if self.ability.name != ability.name:
+                return False
+        
+        return True
+    
+    def set_ability(self, ability_class: type[Ability] | None):
+        """
+        Set the slot's ability to the one given, or levels up the
+        identical passive ability.
+        """
+
+        if ability_class is None:
+            self.ability = None
+            return
+        
+        ability = ability_class(self.game)
+        if isinstance(self.ability, Passive) and type(self.ability) is type(ability):
+            self.ability.level_up()
+            self.game.bot_tray.update()
+            return
+        
+        self.ability = ability_class(self.game)
+        self.game.bot_tray.update()
+
+        if isinstance(self.ability, Passive):
+            self.toggle(True)
+            return
+    
+    def toggle(self, state: bool | None = None):
+        """Enable or disable the slot."""
+
+        if self.ability is None:
+            self.is_enabled = False
+            return
+        
+        if state:
+            self.is_enabled = state
+        else:
+            self.is_enabled = not self.is_enabled
+    
+    def fire_ability(self):
+        """Fire the ability, if present."""
+
+        if self.ability is None or not self.is_enabled:
+            return
+        
+        self.ability.fire()
+
+        if self.ability_type is Active:
+            self.toggle(False)
+    
+    def get_ability_image(self):
+        """
+        Return the image of the slot's ability. If the slot is empty,
+        return a default image.
+        """
+
+        dflt_img = helper_funcs.load_image(None, 'black', (10, 10))
+
+        if self.ability:
+            return self.ability.image
+        return dflt_img
+
+__all__ = [
+    "DeathPulse",
+    "Spear",
+    "Slot"
+]

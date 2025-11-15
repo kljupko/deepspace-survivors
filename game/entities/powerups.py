@@ -6,12 +6,12 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from ..game import Game
-    from ..mechanics import stats, abilities
 
 import pygame
 
 from .entity import Entity
 from ..utils import config, helper_funcs
+from ..mechanics import stats, abilities
 
 class PowerUp(Entity):
     """A base class representing a powerup."""
@@ -98,6 +98,9 @@ class ImproveStat(PowerUp):
         """Apply the powerup on pickup."""
 
         for stat in self.game.ship.stats.values():
+            if not isinstance(stat, stats.Stat):
+                return
+            
             if stat.name == self.stat_name:
                 stat.modify_stat(self.magnitude)
                 return super().apply()
@@ -118,21 +121,21 @@ class AddAbility(PowerUp):
         image = helper_funcs.copy_image(AddAbility.image)
         super().__init__(game, position, image)
 
-        self.ability = ability_class(self.game)
-        self.name = f"Add {self.ability.name}"
+        self.ability_class = ability_class
+        self.name = f"Add {self.ability_class.name}"
         self.description = f"Gives the player the "
-        self.description += f"{self.ability.name} ability."
+        self.description += f"{self.ability_class.name} ability."
 
-        self.image.blit(self.ability.image, (1, 1))
+        self.image.blit(self.ability_class.image, (1, 1))
     
     def apply(self):
         """Apply the powerup on pickup."""
 
-        if self.ability.is_active:
-            self.game.ship.add_active_ability(self.ability)
-        else:
-            self.game.ship.add_passive_ability(self.ability)
+        valid_slot = self.game.ship.get_valid_slot_for(self.ability_class)
+        if not valid_slot:
+            return
         
+        valid_slot.set_ability(self.ability_class)
         self.game.powerups.remove(self)
 
 __all__ = ["ImproveStat", "AddAbility"]

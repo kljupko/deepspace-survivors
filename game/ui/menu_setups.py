@@ -816,7 +816,7 @@ def build_top_tray_elements(tray: TopTray):
         _create_ElementDict(
             type='label',
             name='session_duration',
-            content=tray._get_session_duration(),
+            content=tray.get_session_duration(),
             x_offset=tray.rect.width // 2,
             anchor='midtop',
             action=lambda: tray.game.menus['pause'].open()

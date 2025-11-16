@@ -104,8 +104,8 @@ class StatUpgrade(Upgrade):
         """Upgrade and apply to ship."""
 
         success = super().do_upgrade()
-        if self.game.ship:
-            self.game.ship.load_stat_upgrades()
+        if hasattr(self.game, 'ship'):
+            self.game.ship.apply_stat_upgrades()
 
         return success
 
@@ -208,8 +208,8 @@ class ActiveSlots(Upgrade):
         """Upgrade and apply to ship."""
 
         success = super().do_upgrade()
-        if self.game.ship:
-            self.game.ship.load_abilities()
+        if hasattr(self.game, 'ship'):
+            self.game.ship.apply_ability_loadout()
 
         return success
 
@@ -236,8 +236,8 @@ class PassiveSlots(Upgrade):
         """Upgrade and apply to ship."""
 
         success = super().do_upgrade()
-        if self.game.ship:
-            self.game.ship.load_abilities()
+        if hasattr(self.game, 'ship'):
+            self.game.ship.apply_ability_loadout()
         
         return success
 
@@ -268,8 +268,8 @@ class ChargeTime(Upgrade):
         """Upgrade and apply to ship."""
 
         success = super().do_upgrade()
-        if self.game.ship:
-            self.game.ship.load_req_charge_time()
+        if hasattr(self.game, 'ship'):
+            self.game.ship.apply_charge_time_upgrades()
         
         return success
 

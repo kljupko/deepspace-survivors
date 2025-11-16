@@ -13,13 +13,13 @@ class Touch():
         self.touch_start_ts = None
         self.touch_duration = None
     
-    def register_mousedown_event(self, event):
+    def register_mousedown_event(self, event: pygame.Event):
         """Register that the user has touched/ clicked the screen."""
 
-        self.start_pos = event.pos
-        self.current_pos = event.pos
-        self.touch_start_ts = pygame.time.get_ticks()
-        self.touch_duration = 0
+        self.start_pos: tuple[int, int] | None = event.pos
+        self.current_pos: tuple[int, int] | None = event.pos
+        self.touch_start_ts: int | None = pygame.time.get_ticks()
+        self.touch_duration: int | None = 0
     
     def register_mouseup_event(self):
         """Register that the user is no longer touching the screen."""
@@ -29,7 +29,7 @@ class Touch():
         self.touch_start_ts = None
         self.touch_duration = None
     
-    def register_mousemove_event(self, event):
+    def register_mousemove_event(self, event: pygame.Event):
         """Register that the user has moved the mouse/ finger."""
 
         self.current_pos = event.pos

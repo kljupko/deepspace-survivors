@@ -100,8 +100,8 @@ class Thrust(Stat):
 
         super().set_value(value)
 
-        self.entity.base_speed_x = config.base_speed * self.value / 3
-        self.entity._calculate_relative_speed()
+        self.entity.base_speed_x = int(config.base_speed * self.value / 3)
+        self.entity.calculate_relative_speed()
 
 class FirePower(Stat):
     """

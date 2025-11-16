@@ -217,6 +217,8 @@ class Menu():
             return
 
         for menu in self.game.menus.values():
+            if not isinstance(menu, Menu):
+                continue
             menu.close()
 
         self.is_visible = True

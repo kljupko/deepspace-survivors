@@ -2,4 +2,4 @@
 
 from .config import *
 from .events import *
-from . import helper_funcs
+from .helper_funcs import *

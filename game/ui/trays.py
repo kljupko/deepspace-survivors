@@ -28,7 +28,7 @@ class TopTray(Tray):
         self._add_elements_from_dicts(build_top_tray_elements(self))
         # no need to call self._expand_height
     
-    def _get_session_duration(self):
+    def get_session_duration(self):
         """Return the duration of the current session."""
 
         duration = self.game.state.session_duration

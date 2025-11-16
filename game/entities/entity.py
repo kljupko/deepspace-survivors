@@ -55,7 +55,7 @@ class Entity(Sprite):
         # set the entity's speed
         self.base_speed_x = 0
         self.base_speed_y = 0
-        self._calculate_relative_speed()
+        self.calculate_relative_speed()
 
         # set default as not moving
         self.destination = None
@@ -77,7 +77,7 @@ class Entity(Sprite):
 
         self.bounds = bounds
         
-    def _calculate_relative_speed(self):
+    def calculate_relative_speed(self):
         """
         Calculate entity's relative speed, regardless of aspect ratio.
         """
@@ -169,7 +169,7 @@ class Entity(Sprite):
 
         self.kill() # remove from all sprite groups
     
-    def handle_resize(self):
+    def handle_resize(self) -> None:
         """Handle what happens when the game window is resized."""
 
         old_rect = self.game.play_rect
@@ -177,7 +177,7 @@ class Entity(Sprite):
 
         self._calculate_bounds()
 
-        self._calculate_relative_speed()
+        self.calculate_relative_speed()
         self._calculate_relative_position(old_rect)
 
 __all__ = ["Entity"]

@@ -11,7 +11,7 @@ if TYPE_CHECKING:
 from random import randint, choices
 
 from ..entities import powerups
-from ..mechanics import abilities, stats, upgrades
+from ..mechanics import abilities, stats
 
 class RandomDropManager():
     """A class which manages random powerup drops."""
@@ -23,17 +23,17 @@ class RandomDropManager():
 
         # TODO: load weights from saved upgrades
         # all choice weights are non-cumulative
-        self.powerup_choices = {
+        self.powerup_choices: dict[type[powerups.PowerUp], int] = {
             powerups.AddAbility: 1,
             powerups.ImproveStat: 1
         }
 
-        self.ability_choices = {
+        self.ability_choices: dict[type[abilities.Ability], int] = {
             abilities.DeathPulse: 1,
             abilities.Spear: 3,
         }
 
-        self.stat_choices = {
+        self.stat_choices: dict[type[stats.Stat], int] = {
             stats.HitPoints: 3,
             stats.Thrust: 1,
             stats.FirePower: 3,

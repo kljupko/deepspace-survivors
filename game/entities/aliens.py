@@ -33,7 +33,7 @@ class Alien(Entity):
 
         # allow the alien to move downwards
         self.base_speed_y = config.base_speed * 0.25
-        self._calculate_relative_speed()
+        self.calculate_relative_speed()
         self.destination = (self.x, self.bounds["bottom"])
 
         # alien stats

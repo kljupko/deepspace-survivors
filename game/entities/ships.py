@@ -120,7 +120,8 @@ class Ship(Entity):
                 'passive_3': None,
                 'passive_4': None,
             }
-        self.apply_ability_loadout(ability_loadout)
+        self.ability_loadout = ability_loadout
+        self.apply_ability_loadout()
         self.charging_ability = False
         self.apply_charge_time_upgrades()
         self.charge_time = 0
@@ -167,16 +168,16 @@ class Ship(Entity):
         if max_passive_slots >= 4:
             self.ability_slots['passive_4'].set_is_locked(False)
     
-    def apply_ability_loadout(self, ability_loadout: AbilityLoadoutDict):
+    def apply_ability_loadout(self,):
         """Apply the given ability loadout to the ship's slots."""
 
-        self.ability_slots['active_1'].set_ability(ability_loadout['active_1'])
-        self.ability_slots['active_2'].set_ability(ability_loadout['active_2'])
-        self.ability_slots['active_3'].set_ability(ability_loadout['active_3'])
-        self.ability_slots['passive_1'].set_ability(ability_loadout['passive_1'])
-        self.ability_slots['passive_2'].set_ability(ability_loadout['passive_2'])
-        self.ability_slots['passive_3'].set_ability(ability_loadout['passive_3'])
-        self.ability_slots['passive_4'].set_ability(ability_loadout['passive_4'])
+        self.ability_slots['active_1'].set_ability(self.ability_loadout['active_1'])
+        self.ability_slots['active_2'].set_ability(self.ability_loadout['active_2'])
+        self.ability_slots['active_3'].set_ability(self.ability_loadout['active_3'])
+        self.ability_slots['passive_1'].set_ability(self.ability_loadout['passive_1'])
+        self.ability_slots['passive_2'].set_ability(self.ability_loadout['passive_2'])
+        self.ability_slots['passive_3'].set_ability(self.ability_loadout['passive_3'])
+        self.ability_slots['passive_4'].set_ability(self.ability_loadout['passive_4'])
 
     def apply_charge_time_upgrades(self):
         """Apply the purchased upgrades to ability charge time."""

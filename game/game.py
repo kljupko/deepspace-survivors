@@ -393,6 +393,8 @@ class Game:
         # TODO: move all game entities to appropriate positions
         self.ship.handle_resize()
         for alien in self.aliens:
+            if not isinstance(alien, Alien):
+                continue
             alien.handle_resize()
     
     def _handle_mousedown_event(self, event: pygame.Event):
@@ -410,30 +412,39 @@ class Game:
         if self.touch.touch_start_ts is None:
             return
         
-        pos = self.touch.current_pos
+        if self.touch.current_pos is None:
+            return
 
         for menu in self.menus.values():
-            menu.start_touch(pos)
+            if not isinstance(menu, menus.Menu):
+                continue
+            menu.start_touch(self.touch.current_pos)
         
         if not self.state.session_running:
             return
         
-        self.top_tray.start_touch(pos)
+        self.top_tray.start_touch(self.touch.current_pos)
         self.top_tray.interact()
         
-        # TODO: find a better way to organize this; a better place
-        self.bot_tray.start_touch(pos)
+        # TODO: find a better way to organize this; a better place ??
+        self.bot_tray.start_touch(self.touch.current_pos)
         self.bot_tray.interact()
         
         # control the ship if nothing else is clicked
-        if pygame.Rect.collidepoint(self.top_tray.rect, pos[0], pos[1]):
+        if pygame.Rect.collidepoint(
+            self.top_tray.rect, self.touch.current_pos[0],
+            self.touch.current_pos[1]
+        ):
             return
-        if pygame.Rect.collidepoint(self.bot_tray.rect, pos[0], pos[1]):
+        if pygame.Rect.collidepoint(
+            self.bot_tray.rect, self.touch.current_pos[0],
+            self.touch.current_pos[1]
+        ):
             return
         self.ship.fire_bullet()
         self.ship.start_ability_charge()
         self.ship.destination = (
-            self.touch.current_pos[0] - self.ship.rect.width/2,
+            self.touch.current_pos[0] - round(self.ship.rect.width / 2),
             self.ship.y
         )
     
@@ -446,6 +457,8 @@ class Game:
         self.touch.register_mouseup_event()
 
         for menu in self.menus.values():
+            if not isinstance(menu, menus.Menu):
+                continue
             menu.interact()
             menu.end_touch()
 
@@ -462,6 +475,8 @@ class Game:
         y = event.y * config.mouse_wheel_magnitude
 
         for menu in self.menus.values():
+            if not isinstance(menu, menus.Menu):
+                continue
             menu.scroll((x, y), True)
 
     def _handle_mousemove_event(self, event: pygame.Event):
@@ -471,10 +486,13 @@ class Game:
         """
 
         self.touch.register_mousemove_event(event)
-        pos = self.touch.current_pos
+        if self.touch.current_pos is None:
+            return
 
         for menu in self.menus.values():
-            menu.scroll(pos)
+            if not isinstance(menu, menus.Menu):
+                continue
+            menu.scroll(self.touch.current_pos)
 
         if self.touch.touch_start_ts is None:
             return
@@ -484,16 +502,16 @@ class Game:
 
         # TODO: make the play area a separate surface to avoid the
         #   nonsense below
-        if self.top_tray.rect.collidepoint(pos):
+        if self.top_tray.rect.collidepoint(self.touch.current_pos):
             # do nothing when moving around the top tray
             return
-        if self.bot_tray.rect.collidepoint(pos):
+        if self.bot_tray.rect.collidepoint(self.touch.current_pos):
             # do nothing when moving around the bottom tray
             return
 
         # move the ship
         self.ship.destination = (
-            pos[0] - self.ship.rect.width/2,
+            self.touch.current_pos[0] - round(self.ship.rect.width / 2),
             self.ship.y
         )
 
@@ -560,10 +578,16 @@ class Game:
         # TODO: use an entities group to draw the entities
         self.ship.draw()
         for bullet in self.bullets:
+            if not isinstance(bullet, Bullet):
+                continue
             bullet.draw()
         for powerup in self.powerups:
+            if not isinstance(powerup, powerups.PowerUp):
+                continue
             powerup.draw()
         for alien in self.aliens:
+            if not isinstance(alien, Alien):
+                continue
             alien.draw()
 
         # draw the play surface
@@ -583,7 +607,11 @@ class Game:
         self._draw_session()     
                 
         for menu in self.menus.values():
+            if not isinstance(menu, menus.Menu):
+                continue
             menu.draw()
 
         # draw everything to the screen
         pygame.display.flip()
+
+__all__ = ["Game"]

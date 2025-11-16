@@ -40,7 +40,7 @@ class PowerUp(Entity):
         self._calculate_bounds(pad_bot=-self.rect.height)
 
         self.base_speed_y = config.base_speed * 0.15
-        self._calculate_relative_speed()
+        self.calculate_relative_speed()
         self.destination = (self.x, self.bounds["bottom"])
 
     # override Entity update method

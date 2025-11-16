@@ -154,8 +154,11 @@ class DeathPulse(Active):
         """Fire the Death Pulse ability."""
 
         base_fp = self.game.ship.stats['fire_power'].value
+        from ..entities import Alien
 
         for alien in self.game.aliens:
+            if not isinstance(alien, Alien):
+                continue
             alien.take_damage(base_fp * self.fp_bonus)
         
         self._remove()
@@ -290,7 +293,9 @@ class Slot():
             return
         
         self.ability = ability_class(self.game)
-        self.game.bot_tray.update()
+
+        if hasattr(self.game, 'bot_tray'):
+            self.game.bot_tray.update()
 
         if isinstance(self.ability, Passive):
             self.toggle(True)

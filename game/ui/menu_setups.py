@@ -8,7 +8,6 @@ of their respective UI Elements.
 from __future__ import annotations
 from typing import TypedDict, TYPE_CHECKING
 if TYPE_CHECKING:
-    from ..systems import settings
     from .menus import Main as MainMenu
     from .menus import Upgrade as UpgradeMenu
     from .menus import Rewards as RewardsMenu
@@ -21,6 +20,7 @@ import pygame
 
 from ..mechanics import stats, rewards
 from ..utils import config, helper_funcs
+from ..systems import settings
 
 class ElementDict(TypedDict):
     """A class representing a dictionary containing UIElement info."""
@@ -321,12 +321,13 @@ def build_rewards_menu_elements(menu: RewardsMenu):
 
     return elements
 
-def build_settings_menu_elements(menu: SettingsMenu,
-                                 settings_data: settings.SettingsDict
-                                 ):
+def build_settings_menu_elements(menu: SettingsMenu):
     """
     Return the collection of dicts for the settings menu UI Elements.
     """
+
+    settings_data: settings.SettingsDict = menu.game.settings.data
+    keybinds = settings_data['keybinds']
 
     elements: list[ElementDict] = [
         _create_ElementDict(
@@ -398,7 +399,7 @@ def build_settings_menu_elements(menu: SettingsMenu,
         _create_ElementDict(
             type='label',
             name='key_confirm_value',
-            content=pygame.key.name(settings_data['keybinds']['key_confirm']),
+            content=keybinds['confirm'].get_key_name(),
             linked_to='key_confirm_label',
             linked_anchor='topright',
             x_offset=menu.rect.width,
@@ -414,7 +415,7 @@ def build_settings_menu_elements(menu: SettingsMenu,
         _create_ElementDict(
             type='label',
             name='key_cancel_value',
-            content=pygame.key.name(settings_data['keybinds']['key_cancel']),
+            content=keybinds['cancel'].get_key_name(),
             linked_to='key_cancel_label',
             linked_anchor='topright',
             x_offset=menu.rect.width,
@@ -423,14 +424,14 @@ def build_settings_menu_elements(menu: SettingsMenu,
         _create_ElementDict(
             type='label',
             name='key_move_left_label',
-            content='Move Left',
+            content=keybinds['move_left'].control,
             linked_to='key_cancel_label',
             y_offset=1
         ),
         _create_ElementDict(
             type='label',
             name='key_move_left_value',
-            content=pygame.key.name(settings_data['keybinds']['key_move_left']),
+            content=keybinds['move_left'].get_key_name(),
             linked_to='key_move_left_label',
             linked_anchor='topright',
             x_offset=menu.rect.width,
@@ -439,14 +440,14 @@ def build_settings_menu_elements(menu: SettingsMenu,
         _create_ElementDict(
             type='label',
             name='key_move_right_label',
-            content='Move Right',
+            content=keybinds['move_right'].control,
             linked_to='key_move_left_label',
             y_offset=1
         ),
         _create_ElementDict(
             type='label',
             name='key_move_right_value',
-            content=pygame.key.name(settings_data['keybinds']['key_move_right']),
+            content=keybinds['move_right'].get_key_name(),
             linked_to='key_move_right_label',
             linked_anchor='topright',
             x_offset=menu.rect.width,
@@ -455,14 +456,14 @@ def build_settings_menu_elements(menu: SettingsMenu,
         _create_ElementDict(
             type='label',
             name='key_fire_label',
-            content='Fire',
+            content=keybinds['fire'].control,
             linked_to='key_move_right_label',
             y_offset=1
         ),
         _create_ElementDict(
             type='label',
             name='key_fire_value',
-            content=pygame.key.name(settings_data['keybinds']['key_fire']),
+            content=keybinds['fire'].get_key_name(),
             linked_to='key_fire_label',
             linked_anchor='topright',
             x_offset=menu.rect.width,
@@ -471,14 +472,14 @@ def build_settings_menu_elements(menu: SettingsMenu,
         _create_ElementDict(
             type='label',
             name='key_active_1_label',
-            content='Toggle Active 1',
+            content=keybinds['active_1'].control,
             linked_to='key_fire_label',
             y_offset=1
         ),
         _create_ElementDict(
             type='label',
             name='key_active_1_value',
-            content=pygame.key.name(settings_data['keybinds']['key_active_1']),
+            content=keybinds['active_1'].get_key_name(),
             linked_to='key_active_1_label',
             linked_anchor='topright',
             x_offset=menu.rect.width,
@@ -487,14 +488,14 @@ def build_settings_menu_elements(menu: SettingsMenu,
         _create_ElementDict(
             type='label',
             name='key_active_2_label',
-            content='Toggle Active 2',
+            content=keybinds['active_2'].control,
             linked_to='key_active_1_label',
             y_offset=1
         ),
         _create_ElementDict(
             type='label',
             name='key_active_2_value',
-            content=pygame.key.name(settings_data['keybinds']['key_active_2']),
+            content=keybinds['active_2'].get_key_name(),
             linked_to='key_active_2_label',
             linked_anchor='topright',
             x_offset=menu.rect.width,
@@ -503,14 +504,14 @@ def build_settings_menu_elements(menu: SettingsMenu,
         _create_ElementDict(
             type='label',
             name='key_active_3_label',
-            content='Toggle Active 3',
+            content=keybinds['active_3'].control,
             linked_to='key_active_2_label',
             y_offset=1
         ),
         _create_ElementDict(
             type='label',
             name='key_active_3_value',
-            content=pygame.key.name(settings_data['keybinds']['key_active_3']),
+            content=keybinds['active_3'].get_key_name(),
             linked_to='key_active_3_label',
             linked_anchor='topright',
             x_offset=menu.rect.width,
@@ -519,14 +520,14 @@ def build_settings_menu_elements(menu: SettingsMenu,
         _create_ElementDict(
             type='label',
             name='key_passive_1_label',
-            content='Toggle Passive 1',
+            content=keybinds['passive_1'].control,
             linked_to='key_active_3_label',
             y_offset=1
         ),
         _create_ElementDict(
             type='label',
             name='key_passive_1_value',
-            content=pygame.key.name(settings_data['keybinds']['key_passive_1']),
+            content=keybinds['passive_1'].get_key_name(),
             linked_to='key_passive_1_label',
             linked_anchor='topright',
             x_offset=menu.rect.width,
@@ -535,14 +536,14 @@ def build_settings_menu_elements(menu: SettingsMenu,
         _create_ElementDict(
             type='label',
             name='key_passive_2_label',
-            content='Toggle Passive 2',
+            content=keybinds['passive_2'].control,
             linked_to='key_passive_1_label',
             y_offset=1
         ),
         _create_ElementDict(
             type='label',
             name='key_passive_2_value',
-            content=pygame.key.name(settings_data['keybinds']['key_passive_2']),
+            content=keybinds['passive_2'].get_key_name(),
             linked_to='key_passive_2_label',
             linked_anchor='topright',
             x_offset=menu.rect.width,
@@ -551,14 +552,14 @@ def build_settings_menu_elements(menu: SettingsMenu,
         _create_ElementDict(
             type='label',
             name='key_passive_3_label',
-            content='Toggle Passive 3',
+            content=keybinds['passive_3'].control,
             linked_to='key_passive_2_label',
             y_offset=1
         ),
         _create_ElementDict(
             type='label',
             name='key_passive_3_value',
-            content=pygame.key.name(settings_data['keybinds']['key_passive_3']),
+            content=keybinds['passive_3'].get_key_name(),
             linked_to='key_passive_3_label',
             linked_anchor='topright',
             x_offset=menu.rect.width,
@@ -567,14 +568,14 @@ def build_settings_menu_elements(menu: SettingsMenu,
         _create_ElementDict(
             type='label',
             name='key_passive_4_label',
-            content='Toggle Passive 4',
+            content=keybinds['passive_4'].control,
             linked_to='key_passive_3_label',
             y_offset=1
         ),
         _create_ElementDict(
             type='label',
             name='key_passive_4_value',
-            content=pygame.key.name(settings_data['keybinds']['key_passive_4']),
+            content=keybinds['passive_4'].get_key_name(),
             linked_to='key_passive_4_label',
             linked_anchor='topright',
             x_offset=menu.rect.width,
@@ -635,6 +636,8 @@ def build_settings_menu_unions(menu: SettingsMenu):
     Return the collection of dicts for the info menu ElemUnions.
     """
 
+    keybinds = menu.game.settings.data['keybinds']
+
     unions: list[UnionDict] = [
         {
             'name': 'cycle_fps_btn',
@@ -649,62 +652,62 @@ def build_settings_menu_unions(menu: SettingsMenu):
         {
             'name': 'remap_confirm_btn',
             'elem_names': ['key_confirm_label', 'key_confirm_value'],
-            'action': (lambda: menu.game.menus['remap'].remap('Confirm', 'key_confirm'))
+            'action': (lambda: menu.game.menus['remap'].remap(keybinds['confirm']))
         },
         {
             'name': 'remap_cancel_btn',
             'elem_names': ['key_cancel_label', 'key_cancel_value'],
-            'action': (lambda: menu.game.menus['remap'].remap('Cancel', 'key_cancel'))
+            'action': (lambda: menu.game.menus['remap'].remap(keybinds['cancel']))
         },
         {
             'name': 'remap_move_left_btn',
             'elem_names': ['key_move_left_label', 'key_move_left_value'],
-            'action': (lambda: menu.game.menus['remap'].remap('Move Left', 'key_move_left'))
+            'action': (lambda: menu.game.menus['remap'].remap(keybinds['move_left']))
         },
         {
             'name': 'remap_move_right_btn',
             'elem_names': ['key_move_right_label', 'key_move_right_value'],
-            'action': (lambda: menu.game.menus['remap'].remap('Move Right', 'key_move_right'))
+            'action': (lambda: menu.game.menus['remap'].remap(keybinds['move_right']))
         },
         {
             'name': 'remap_fire_btn',
             'elem_names': ['key_fire_label', 'key_fire_value'],
-            'action': (lambda: menu.game.menus['remap'].remap('Fire', 'key_fire'))
+            'action': (lambda: menu.game.menus['remap'].remap(keybinds['fire']))
         },
         {
             'name': 'remap_active_1_btn',
             'elem_names': ['key_active_1_label', 'key_active_1_value'],
-            'action': (lambda: menu.game.menus['remap'].remap('Toggle Active 1', 'key_active_1'))
+            'action': (lambda: menu.game.menus['remap'].remap(keybinds['active_1']))
         },
         {
             'name': 'remap_active_2_btn',
             'elem_names': ['key_active_2_label', 'key_active_2_value'],
-            'action': (lambda: menu.game.menus['remap'].remap('Toggle Active 2', 'key_active_2'))
+            'action': (lambda: menu.game.menus['remap'].remap(keybinds['active_2']))
         },
         {
             'name': 'remap_active_3_btn',
             'elem_names': ['key_active_3_label', 'key_active_3_value'],
-            'action': (lambda: menu.game.menus['remap'].remap('Toggle Active 3', 'key_active_3'))
+            'action': (lambda: menu.game.menus['remap'].remap(keybinds['active_3']))
         },
         {
             'name': 'remap_passive_1_btn',
             'elem_names': ['key_passive_1_label', 'key_passive_1_value'],
-            'action': (lambda: menu.game.menus['remap'].remap('Toggle Passive 1', 'key_passive_1'))
+            'action': (lambda: menu.game.menus['remap'].remap(keybinds['passive_1']))
         },
         {
             'name': 'remap_passive_2_btn',
             'elem_names': ['key_passive_2_label', 'key_passive_2_value'],
-            'action': (lambda: menu.game.menus['remap'].remap('Toggle Passive 2', 'key_passive_2'))
+            'action': (lambda: menu.game.menus['remap'].remap(keybinds['passive_2']))
         },
         {
             'name': 'remap_passive_3_btn',
             'elem_names': ['key_passive_3_label', 'key_passive_3_value'],
-            'action': (lambda: menu.game.menus['remap'].remap('Toggle Passive 3', 'key_passive_3'))
+            'action': (lambda: menu.game.menus['remap'].remap(keybinds['passive_3']))
         },
         {
             'name': 'remap_passive_4_btn',
             'elem_names': ['key_passive_4_label', 'key_passive_4_value'],
-            'action': (lambda: menu.game.menus['remap'].remap('Toggle Passive 4', 'key_passive_4'))
+            'action': (lambda: menu.game.menus['remap'].remap(keybinds['passive_4']))
         },
         {
             'name': 'cycle_music_vol_btn',
@@ -907,7 +910,7 @@ def build_bot_tray_elements(tray: BottomTray):
         _create_ElementDict(
             type='icon',
             name='active_2_bg',
-            content=tray.game.ship.ability_slots['active_3'].image,
+            content=tray.game.ship.ability_slots['active_2'].image,
             linked_to='ship_hp_icon',
             y_offset=1,
             ignore_linked_x=True,

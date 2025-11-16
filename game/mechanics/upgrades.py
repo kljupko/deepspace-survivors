@@ -209,7 +209,7 @@ class ActiveSlots(Upgrade):
 
         success = super().do_upgrade()
         if hasattr(self.game, 'ship'):
-            self.game.ship.apply_ability_loadout()
+            self.game.ship.apply_slot_unlocks()
 
         return success
 
@@ -237,7 +237,7 @@ class PassiveSlots(Upgrade):
 
         success = super().do_upgrade()
         if hasattr(self.game, 'ship'):
-            self.game.ship.apply_ability_loadout()
+            self.game.ship.apply_slot_unlocks()
         
         return success
 

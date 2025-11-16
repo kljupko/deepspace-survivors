@@ -129,7 +129,7 @@ class Game:
 
 
     # -------------------------------------------------------------------
-    # endregion INIT HELPER FUNCTIONS
+    # endregion init helper functions
     
     def run(self):
         """Run the game loop."""
@@ -341,30 +341,30 @@ class Game:
         if not self.state.session_running:
             return
         
-        if event.key == self.settings.data['keybinds']["key_cancel"]:
+        if event.key == self.settings.data['keybinds']['cancel'].keycode:
             self.menus['pause'].open()
 
-        if event.key == self.settings.data['keybinds']["key_move_left"]:
+        if event.key == self.settings.data['keybinds']['move_left'].keycode:
             self.ship.moving_left = True
-        if event.key == self.settings.data['keybinds']["key_move_right"]:
+        if event.key == self.settings.data['keybinds']['move_right'].keycode:
             self.ship.moving_right = True
-        if event.key == self.settings.data['keybinds']["key_fire"]:
+        if event.key == self.settings.data['keybinds']['fire'].keycode:
             self.ship.fire_bullet()
             self.ship.start_ability_charge()
 
-        if event.key == self.settings.data['keybinds']["key_active_1"]:
+        if event.key == self.settings.data['keybinds']['active_1'].keycode:
             self.ship.ability_slots['active_1'].toggle()
-        if event.key == self.settings.data['keybinds']["key_active_2"]:
+        if event.key == self.settings.data['keybinds']['active_2'].keycode:
             self.ship.ability_slots['active_2'].toggle()
-        if event.key == self.settings.data['keybinds']["key_active_3"]:
+        if event.key == self.settings.data['keybinds']['active_3'].keycode:
             self.ship.ability_slots['active_3'].toggle()
-        if event.key == self.settings.data['keybinds']["key_passive_1"]:
+        if event.key == self.settings.data['keybinds']['passive_1'].keycode:
             self.ship.ability_slots['passive_1'].toggle()
-        if event.key == self.settings.data['keybinds']["key_passive_2"]:
+        if event.key == self.settings.data['keybinds']['passive_2'].keycode:
             self.ship.ability_slots['passive_2'].toggle()
-        if event.key == self.settings.data['keybinds']["key_passive_3"]:
+        if event.key == self.settings.data['keybinds']['passive_3'].keycode:
             self.ship.ability_slots['passive_3'].toggle()
-        if event.key == self.settings.data['keybinds']["key_passive_4"]:
+        if event.key == self.settings.data['keybinds']['passive_4'].keycode:
             self.ship.ability_slots['passive_4'].toggle()
                 
     def _handle_keyup_events(self, event: pygame.Event):
@@ -373,11 +373,11 @@ class Game:
         if not self.state.session_running:
             return
 
-        if event.key == self.settings.data['keybinds']["key_move_left"]:
+        if event.key == self.settings.data['keybinds']['move_left'].keycode:
             self.ship.moving_left = False
-        if event.key == self.settings.data['keybinds']["key_move_right"]:
+        if event.key == self.settings.data['keybinds']['move_right'].keycode:
             self.ship.moving_right = False
-        if event.key == self.settings.data['keybinds']["key_fire"]:
+        if event.key == self.settings.data['keybinds']['fire'].keycode:
             self.ship.stop_ability_charge()
     
     def _handle_resize_event(self):

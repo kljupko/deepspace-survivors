@@ -105,8 +105,7 @@ class Settings(Menu):
     def _load_elements(self):
         """Populate the menu with the values from the settings."""
 
-        data = self.game.settings.data
-        self._add_elements_from_dicts(build_settings_menu_elements(self, data))
+        self._add_elements_from_dicts(build_settings_menu_elements(self))
         self._add_element_unions_from_dicts(build_settings_menu_unions(self))
         self._expand_height()
     
@@ -171,29 +170,26 @@ class Remap(Menu):
         """Initialize the key remapping menu."""
 
         name = Remap.name
-        self.control = None
-        self.keybind = None
-        self.key_name = None
+        self.keybind: settings.Keybind | None = None
         super().__init__(game, name)
 
     
-    def remap(self, control: str, keybind: str):
+    def remap(self, keybind: settings.Keybind):
         """Show the remap menu with the correct prompt."""
 
-        self.control = control
         self.keybind = keybind
-        keycode = self.game.settings.data["keybinds"][self.keybind]
-        self.key_name = pygame.key.name(keycode)
-        
         self.open()
     
     def _load_elements(self):
         """Load the remap prompt."""
 
+        if self.keybind is None:
+            return
+
         self.elements = {}
 
-        text = f"Press a key to remap {self.control}"
-        text += f"\nCurrent keybinding: {self.key_name}"
+        text = f"Press a key to remap {self.keybind.control}"
+        text += f"\nCurrent keybinding: {self.keybind.get_key_name()}"
 
         TextBox(self, 'prompt', text, position=self.rect.center, anchor='center')
     
@@ -203,7 +199,10 @@ class Remap(Menu):
         if not self.is_visible:
             return
         
-        self.game.settings.data['keybinds'][self.keybind] = key
+        if self.keybind is None:
+            return
+        
+        self.keybind.set_keybind_to(key)
         self.game.menus['settings'].update()
         self.game.settings.save_data()
         self.close(self.game.menus['settings'])
@@ -264,7 +263,6 @@ class Pause(Menu):
         self.game.quit_session()
         self.game.start_session()
         self.close()
-
 
 class MenusDict(TypedDict):
     """A class representing a dictionary containing all the menus."""

@@ -31,11 +31,11 @@ class Entity(Sprite):
     def __init__(self,
                  game: Game,
                  image: pygame.Surface | None = None
-                 ):
+                 ) -> None:
         """Initialize the entity."""
         
         super().__init__()
-        self.game = game
+        self.game: Game = game
 
         if image is None:
             image = helper_funcs.copy_image(Entity.default_image)
@@ -49,23 +49,23 @@ class Entity(Sprite):
         self._calculate_bounds()
 
         # set the entity's position
-        self.x = float(self.rect.x)
-        self.y = float(self.rect.y)
+        self.x: float = float(self.rect.x)
+        self.y: float = float(self.rect.y)
 
         # set the entity's speed
-        self.base_speed_x = 0
-        self.base_speed_y = 0
+        self.base_speed_x: float = 0
+        self.base_speed_y: float = 0
         self.calculate_relative_speed()
 
         # set default as not moving
-        self.destination = None
+        self.destination: tuple[float, float] | None = None
 
     def _calculate_bounds(self,
                           pad_top: int = 0,
                           pad_bot: int = 0,
                           pad_left: int = 0,
                           pad_right: int = 0
-                          ):
+                          ) -> None:
         """Calculate the bounds within which the entity can be."""
 
         bounds: BoundsDict = {
@@ -77,7 +77,7 @@ class Entity(Sprite):
 
         self.bounds = bounds
         
-    def calculate_relative_speed(self):
+    def calculate_relative_speed(self) -> None:
         """
         Calculate entity's relative speed, regardless of aspect ratio.
         """
@@ -85,10 +85,12 @@ class Entity(Sprite):
         x_mult = self.game.play_rect.width / 100
         y_mult = self.game.play_rect.height / 100
 
-        self.speed_x = self.base_speed_x * x_mult
-        self.speed_y = self.base_speed_y * y_mult
+        self.speed_x: float = self.base_speed_x * x_mult
+        self.speed_y: float = self.base_speed_y * y_mult
 
-    def _calculate_relative_position(self, old_screen_rect: pygame.Rect):
+    def _calculate_relative_position(self,
+                                     old_screen_rect: pygame.Rect
+                                     ) -> None:
         """
         Calculate the entity's relative position
         when the screen is resized.
@@ -114,16 +116,16 @@ class Entity(Sprite):
         self.x = float(x)
         self.y = float(y)
     
-    def update(self):
+    def update(self) -> None:
         """Update the entity."""
 
         self._move()
 
-    def _move(self):
+    def _move(self) -> None:
         """Move the entity."""
 
         if self.destination == None:
-            return False
+            return
         
         move_x = self.speed_x * self.game.dt
         move_y = self.speed_y * self.game.dt
@@ -156,15 +158,15 @@ class Entity(Sprite):
         self.rect.x = round(self.x)
         self.rect.y = round(self.y)
     
-    def draw(self):
-        """Draw the entity to the screen."""
+    def draw(self) -> None:
+        """Draw the entity to the play surface."""
 
         self.game.play_surf.blit(self.image, self.rect)
     
-    def destroy(self):
+    def destroy(self) -> None:
         """
-        Destroy the entity.
-        Entities with sounds and animations should overwrite this.
+        Destroy the entity by removing from all sprite groups.
+        Entities with sounds and animations should augment this.
         """
 
         self.kill() # remove from all sprite groups

@@ -12,11 +12,11 @@ from . import abilities, stats
 class Upgrade():
     """A base class representing a ship's upgrade."""
 
-    name = "Base Upgrade"
-    description = "An abstract base upgrade."
-    max_level = None
-    base_cost = 0
-    image = helper_funcs.load_image(None, 'gray', (10, 10))
+    name: str = "Base Upgrade"
+    description: str = "An abstract base upgrade."
+    max_level: int | None = None
+    base_cost: int = 0
+    image: pygame.Surface = helper_funcs.load_image(None, 'gray', (10, 10))
 
     def __init__(self,
                  game: Game,
@@ -25,31 +25,31 @@ class Upgrade():
                  max_level: int | None = None,
                  base_cost: int | None = None,
                  image: pygame.Surface | None = None
-                 ):
+                 ) -> None:
         """Initialize the upgrade."""
 
-        self.game = game
+        self.game: Game = game
 
         if name is None:
             name = Upgrade.name
-        self.name = name
+        self.name: str = name
 
         if description is None:
             description = Upgrade.description
-        self.description = description
+        self.description: str = description
         
-        self.level = 0
+        self.level: int = 0
         if max_level is None:
             self.max_level = Upgrade.max_level
-        self.max_level = max_level
+        self.max_level: int | None = max_level
 
         if base_cost is None:
             base_cost = Upgrade.base_cost
-        self.base_cost = base_cost
+        self.base_cost: int = base_cost
 
         if image is None:
             image = Upgrade.image
-        self.image = image
+        self.image: pygame.Surface = image
 
     def get_cost(self) -> int:
         """Returns the number of credits needed to buy the upgrade."""
@@ -71,11 +71,11 @@ class Upgrade():
         
         return True
     
-    def do_upgrade(self) -> bool:
+    def do_upgrade(self) -> None:
         """Increase the level of the upgrade."""
 
         if not self.is_available():
-            return False
+            return
         
         cost = self.get_cost()
         self.level += 1
@@ -83,7 +83,6 @@ class Upgrade():
         self.game.progress.data['credits'] -= cost
         self.game.progress.save_data()
         # child classes will do additional things
-        return True
 
 class StatUpgrade(Upgrade):
     """A base class representing an upgrade to one of the ship's stats."""
@@ -95,7 +94,7 @@ class StatUpgrade(Upgrade):
                  max_level: int | None = None,
                  base_cost: int | None = None,
                  image: pygame.Surface | None = None
-                 ):
+                 ) -> None:
         """Initialize the upgrade."""
 
         super().__init__(game, name, description, max_level, base_cost, image)
@@ -103,22 +102,20 @@ class StatUpgrade(Upgrade):
     def do_upgrade(self):
         """Upgrade and apply to ship."""
 
-        success = super().do_upgrade()
+        super().do_upgrade()
         if hasattr(self.game, 'ship'):
             self.game.ship.apply_stat_upgrades()
-
-        return success
 
 class HitPoints(StatUpgrade):
     """A class representing the ship's Hit Point upgrades."""
 
-    name = "Hit Points Upgrade"
-    description = "Permanently increase the ship's HP by 1."
-    max_level = None
-    base_cost = 1200
-    image = stats.HitPoints.image
+    name: str = "Hit Points Upgrade"
+    description: str = "Permanently increase the ship's HP by 1."
+    max_level: int | None = None
+    base_cost: int = 1200
+    image: pygame.Surface = stats.HitPoints.image
 
-    def __init__(self, game: Game):
+    def __init__(self, game: Game) -> None:
         """Initialize the upgrade."""
 
         name = HitPoints.name
@@ -131,13 +128,13 @@ class HitPoints(StatUpgrade):
 class Thrust(StatUpgrade):
     """A class representing the ship's Thrust upgrades."""
 
-    name = "Thrust Upgrade"
-    description = "Permanently increase the ship's Thrust by 1."
-    max_level = None
-    base_cost = 1200
-    image = stats.Thrust.image
+    name: str = "Thrust Upgrade"
+    description: str = "Permanently increase the ship's Thrust by 1."
+    max_level: int | None = None
+    base_cost: int = 1200
+    image: pygame.Surface = stats.Thrust.image
 
-    def __init__(self, game: Game):
+    def __init__(self, game: Game) -> None:
         """Initialize the upgrade."""
 
         name = Thrust.name
@@ -150,13 +147,13 @@ class Thrust(StatUpgrade):
 class FirePower(StatUpgrade):
     """A class representing the ship's Fire Power upgrades."""
 
-    name = "Fire Power Upgrade"
-    description = "Permanently increase the ship's Fire Power by 1."
-    max_level = None
-    base_cost = 1200
-    image = stats.FirePower.image
+    name: str = "Fire Power Upgrade"
+    description: str = "Permanently increase the ship's Fire Power by 1."
+    max_level: int | None = None
+    base_cost: int = 1200
+    image: pygame.Surface = stats.FirePower.image
 
-    def __init__(self, game: Game):
+    def __init__(self, game: Game) -> None:
         """Initialize the upgrade."""
 
         name = FirePower.name
@@ -169,13 +166,13 @@ class FirePower(StatUpgrade):
 class FireRate(StatUpgrade):
     """A class representing the ship's Fire Rate upgrades."""
 
-    name = "Fire Rate Upgrade"
-    description = "Permanently increase the ship's Fire Rate by 1."
-    max_level = None
-    base_cost = 1200
-    image = stats.FireRate.image
+    name: str = "Fire Rate Upgrade"
+    description: str = "Permanently increase the ship's Fire Rate by 1."
+    max_level: int | None = None
+    base_cost: int = 1200
+    image: pygame.Surface = stats.FireRate.image
 
-    def __init__(self, game: Game):
+    def __init__(self, game: Game) -> None:
         """Initialize the upgrade."""
 
         name = FireRate.name
@@ -188,13 +185,13 @@ class FireRate(StatUpgrade):
 class ActiveSlots(Upgrade):
     """A class representing the ship's Active Ability Slot upgrades."""
 
-    name = "Active Ability Slot Upgrade"
-    description = "Unlock an additional Active Ability slot."
-    max_level = 2
-    base_cost = 36000
-    image = abilities.Active.image
+    name: str = "Active Ability Slot Upgrade"
+    description: str = "Unlock an additional Active Ability slot."
+    max_level: int | None = 2
+    base_cost: int = 36000
+    image: pygame.Surface = abilities.Active.image
 
-    def __init__(self, game: Game):
+    def __init__(self, game: Game) -> None:
         """Initialize the upgrade."""
 
         name = ActiveSlots.name
@@ -204,25 +201,23 @@ class ActiveSlots(Upgrade):
         image = ActiveSlots.image
         super().__init__(game, name, description, max_level, base_cost, image)
 
-    def do_upgrade(self):
+    def do_upgrade(self) -> None:
         """Upgrade and apply to ship."""
 
-        success = super().do_upgrade()
+        super().do_upgrade()
         if hasattr(self.game, 'ship'):
             self.game.ship.apply_slot_unlocks()
-
-        return success
 
 class PassiveSlots(Upgrade):
     """A class representing the ship's Passive Ability Slot upgrades."""
 
-    name = "Passive Ability Slot Upgrade"
-    description = "Unlock an additional Passive Ability slot."
-    max_level = 3
-    base_cost = 24000
-    image = abilities.Passive.image
+    name: str = "Passive Ability Slot Upgrade"
+    description: str = "Unlock an additional Passive Ability slot."
+    max_level: int | None = 3
+    base_cost: int = 24000
+    image: pygame.Surface = abilities.Passive.image
 
-    def __init__(self, game: Game):
+    def __init__(self, game: Game) -> None:
         """Initialize the upgrade."""
 
         name = PassiveSlots.name
@@ -232,14 +227,12 @@ class PassiveSlots(Upgrade):
         image =PassiveSlots.image
         super().__init__(game, name, description, max_level, base_cost, image)
     
-    def do_upgrade(self):
+    def do_upgrade(self) -> None:
         """Upgrade and apply to ship."""
 
-        success = super().do_upgrade()
+        super().do_upgrade()
         if hasattr(self.game, 'ship'):
             self.game.ship.apply_slot_unlocks()
-        
-        return success
 
 class ChargeTime(Upgrade):
     """
@@ -247,14 +240,14 @@ class ChargeTime(Upgrade):
     for an Active Ability to fire.
     """
 
-    name = "Active Ability Charge Time Upgrade"
-    description = "Reduce the time required to charge and " \
-        "fire an Active Ability by 10% of its current value."
-    max_level = None
-    base_cost = 120
-    image = helper_funcs.load_image(None, 'salmon', (10, 10))
+    name: str = "Active Ability Charge Time Upgrade"
+    description: str = "Reduce the time required to charge and fire \
+        an Active Ability by 10% of its current value."
+    max_level: int | None = None
+    base_cost: int = 120
+    image: pygame.Surface = helper_funcs.load_image(None, 'salmon', (10, 10))
 
-    def __init__(self, game: Game):
+    def __init__(self, game: Game) -> None:
         """Initialize the upgrade."""
 
         name = ChargeTime.name
@@ -264,14 +257,12 @@ class ChargeTime(Upgrade):
         image =ChargeTime.image
         super().__init__(game, name, description, max_level, base_cost, image)
     
-    def do_upgrade(self):
+    def do_upgrade(self) -> None:
         """Upgrade and apply to ship."""
 
-        success = super().do_upgrade()
+        super().do_upgrade()
         if hasattr(self.game, 'ship'):
             self.game.ship.apply_charge_time_upgrades()
-        
-        return success
 
 class Luck(Upgrade):
     """
@@ -279,13 +270,13 @@ class Luck(Upgrade):
     aliens dropping powerups.
     """
 
-    name = "Luck Upgrade"
-    description = "Increase the chance of aliens dropping powerups by 1%."
-    max_level = None
-    base_cost = 480
-    image = helper_funcs.load_image(None, 'chartreuse3', (10, 10))
+    name: str = "Luck Upgrade"
+    description: str = "Increase the chance of aliens dropping powerups by 1%."
+    max_level: int | None = None
+    base_cost: int = 480
+    image: pygame.Surface = helper_funcs.load_image(None, 'chartreuse3', (10, 10))
 
-    def __init__(self, game: Game):
+    def __init__(self, game: Game) -> None:
         """Initialize the upgrade."""
 
         name = Luck.name

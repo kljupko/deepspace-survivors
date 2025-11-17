@@ -14,15 +14,15 @@ from .menu_setups import *
 class Main(Menu):
     """A class which represents the game's main menu."""
 
-    name = "Main Menu"
+    name: str = "Main Menu"
 
-    def __init__(self, game: Game):
+    def __init__(self, game: Game) -> None:
         """Initialize the main menu."""
 
         name = Main.name
         super().__init__(game, name)
     
-    def _load_elements(self):
+    def _load_elements(self) -> None:
         """Populate menu with UI Elements."""
 
         self._add_elements_from_dicts(build_main_menu_elements(self))
@@ -31,7 +31,7 @@ class Main(Menu):
 class Upgrade(Menu):
     """A class representing the upgrade menu."""
 
-    name = "Upgrade Menu"
+    name: str = "Upgrade Menu"
 
     def __init__(self, game: Game):
         """Initialize the upgrade menu."""
@@ -39,13 +39,13 @@ class Upgrade(Menu):
         name = Upgrade.name
         super().__init__(game, name)
     
-    def _load_elements(self):
+    def _load_elements(self) -> None:
         """Populate the menu with upgrades."""
 
         self._add_elements_from_dicts(build_upgrade_menu_elements(self))
         self._expand_height()
     
-    def buy_upgrade(self, upgrade_name: str):
+    def buy_upgrade(self, upgrade_name: str) -> None:
         """Attempts to buy the upgrade with the given name."""
 
         for upgrade in self.game.upgrades.values():
@@ -53,63 +53,66 @@ class Upgrade(Menu):
                 continue
             upgrade.do_upgrade()
             self.update()
-            return True
-        return False
+            return
 
 class Rewards(Menu):
     """A class representing the rewards menu."""
 
-    name = "Rewards Menu"
+    name: str = "Rewards Menu"
 
-    def __init__(self, game: Game):
+    def __init__(self, game: Game) -> None:
         """Initialize the rewards menu."""
 
         name = Rewards.name
         super().__init__(game, name)
     
-    def _load_elements(self):
+    def _load_elements(self) -> None:
         """Populate the menu with rewards."""
 
         self._add_elements_from_dicts(build_rewards_menu_elements(self))
         self._expand_height()
     
-    def claim_reward(self, reward_name: str):
+    def claim_reward(self, reward_name: str) -> None:
         """Claim the reward with the given name."""
         
         reward = self.game.rewards[reward_name]
 
-        if isinstance(reward, rewards.ClaimableReward):
-            reward.claim()
-            self.update()
+        if not isinstance(reward, rewards.ClaimableReward):
+            return
+        
+        reward.claim()
+        self.update()
     
-    def toggle_reward(self, reward_name: str):
+    def toggle_reward(self, reward_name: str) -> None:
         """Toggle the reward with the given name."""
 
         reward = self.game.rewards[reward_name]
 
-        if isinstance(reward, rewards.ToggleableReward):
-            reward.toggle()
-            self.update()
+        if not isinstance(reward, rewards.ToggleableReward):
+            return
+        
+        reward.toggle()
+        self.update()
 
 class Settings(Menu):
     """A class representing the game's settings menu."""
 
-    name = "Settings Menu"
+    name: str = "Settings Menu"
 
-    def __init__(self, game: Game):
+    def __init__(self, game: Game) -> None:
         """Initialize the settings menu."""
 
         name = Settings.name
         super().__init__(game, name)
     
-    def _load_elements(self):
+    def _load_elements(self) -> None:
         """Populate the menu with the values from the settings."""
 
         self._add_elements_from_dicts(build_settings_menu_elements(self))
         self._add_element_unions_from_dicts(build_settings_menu_unions(self))
         self._expand_height()
     
-    def trigger_restore_defaults(self):
+    def trigger_restore_defaults(self) -> None:
         """Restore default settings and rewrite the menu."""
 
         self.game.settings.restore_to_defaults()
@@ -117,7 +120,7 @@ class Settings(Menu):
         self.update()
     
     # TODO: merge the two cycle methods into one
-    def cycle_framerates(self):
+    def cycle_framerates(self) -> None:
         """Cycle through available framerates."""
 
         id = 0
@@ -134,7 +137,7 @@ class Settings(Menu):
         self.game.settings.save_data()
         self.update()
 
-    def cycle_music_volume(self):
+    def cycle_music_volume(self) -> None:
         """Cycle through available music volume."""
 
         id = 0
@@ -152,7 +155,7 @@ class Settings(Menu):
         self.game.settings.save_data()
         self.update()
     
-    def toggle_fps_display(self):
+    def toggle_fps_display(self) -> None:
         """Switch between showing and hiding the framerate."""
 
         data = self.game.settings.data
@@ -164,7 +167,7 @@ class Settings(Menu):
 class Remap(Menu):
     """A class representing the key remapping prompt."""
 
-    name = "Remap Key Menu"
+    name: str = "Remap Key Menu"
 
     def __init__(self, game: Game):
         """Initialize the key remapping menu."""
@@ -174,13 +177,13 @@ class Remap(Menu):
         super().__init__(game, name)
 
     
-    def remap(self, keybind: settings.Keybind):
+    def remap(self, keybind: settings.Keybind) -> None:
         """Show the remap menu with the correct prompt."""
 
         self.keybind = keybind
         self.open()
     
-    def _load_elements(self):
+    def _load_elements(self) -> None:
         """Load the remap prompt."""
 
         if self.keybind is None:
@@ -193,7 +196,7 @@ class Remap(Menu):
 
         TextBox(self, 'prompt', text, position=self.rect.center, anchor='center')
     
-    def listen_for_key(self, key: int):
+    def listen_for_key(self, key: int) -> None:
         """Listen for a keypress and remap the key."""
 
         if not self.is_visible:
@@ -210,7 +213,7 @@ class Remap(Menu):
 class Info(Menu):
     """A class representing the info page/ menu."""
 
-    name = "Info Menu"
+    name: str = "Info Menu"
 
     def __init__(self, game: Game):
         """Initialize the info menu."""
@@ -218,7 +221,7 @@ class Info(Menu):
         name = Upgrade.name
         super().__init__(game, name)
     
-    def _load_elements(self):
+    def _load_elements(self) -> None:
         """Populate the menu with information."""
 
         self._add_elements_from_dicts(build_info_menu_elements(self))
@@ -227,7 +230,7 @@ class Info(Menu):
 class Pause(Menu):
     """A class representing the game's pause menu."""
 
-    name = "Pause Menu"
+    name: str = "Pause Menu"
 
     def __init__(self, game: Game):
         """Initialize the pause menu."""
@@ -235,19 +238,19 @@ class Pause(Menu):
         name = Pause.name
         super().__init__(game, name)
     
-    def _load_elements(self):
+    def _load_elements(self) -> None:
 
         self._add_elements_from_dicts(build_pause_menu_elements(self))
         self._expand_height()
     
-    def open(self):
+    def open(self) -> None:
         """Pause the game and open the menu."""
 
         self.game.state.session_running = False
         self.game.music_player.pause()
         return super().open()
 
-    def continue_session(self):
+    def continue_session(self) -> None:
         """Close the menu and continue the session."""
 
         self.game.state.session_running = True
@@ -257,7 +260,7 @@ class Pause(Menu):
         self.game.bot_tray.update()
         self.game.music_player.unpause()
     
-    def restart_session(self):
+    def restart_session(self) -> None:
         """Close the menu and restart the session."""
 
         self.game.quit_session()

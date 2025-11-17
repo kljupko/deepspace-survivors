@@ -15,13 +15,13 @@ from ..utils import config, helper_funcs
 class Alien(Entity):
     """Base class that manages the aliens."""
 
-    name = "Base Alien"
+    name: str = "Base Alien"
     image: pygame.Surface = helper_funcs.load_image(dflt_color="red")
 
-    def __init__(self, game: Game):
+    def __init__(self, game: Game) -> None:
         """Initialize the alien."""
 
-        image = helper_funcs.copy_image(Alien.image)
+        image: pygame.Surface = helper_funcs.copy_image(Alien.image)
         super().__init__(game, image)
 
         # spawn enemy above the screen
@@ -32,25 +32,25 @@ class Alien(Entity):
         self._calculate_bounds(pad_bot=-self.rect.height)
 
         # allow the alien to move downwards
-        self.base_speed_y = config.base_speed * 0.25
+        self.base_speed_y: float = config.base_speed * 0.25
         self.calculate_relative_speed()
         self.destination = (self.x, self.bounds["bottom"])
 
         # alien stats
-        self.hp = 2
-        self.speed = 1
-        self.damage = 1
-        self.credits = 10
-        self.drop_chance = 100 # percent
+        self.hp: int = 2
+        self.speed: int = 1
+        self.damage: int = 1
+        self.credits: int = 10
+        self.drop_chance: int = 1 # percent
     
     # override Entity update method
-    def update(self):
+    def update(self) -> None:
         """Update the alien."""
 
         self._move()
         self._check_bottom()
     
-    def _check_bottom(self):
+    def _check_bottom(self) -> bool:
         """
         Check if the alien is past the bottom of the screen.
         If so, destroy alien and reduce player ship hit points.
@@ -64,11 +64,10 @@ class Alien(Entity):
         
         return True
     
-    def take_damage(self, damage: int):
+    def take_damage(self, damage: int) -> bool:
         """
-        Reduce the alien's HP by the given amount.
-        The alien is destroyed if HP is 0 or less. Returns True.
-        Handle powerup drops.
+        Reduce the alien's HP by the given amount. Return True if the
+        alien is destroyed by the player, and try dropping a powerup.
         """
 
         self.hp -= damage
@@ -88,11 +87,11 @@ class Alien(Entity):
 
         self.destroy()
         return True
-    
-    def destroy(self):
+
+    def destroy(self) -> None:
         """Destroy the alien. Handle sounds, animations, etc."""
 
         # TODO: play sounds and animations
-        self.kill()
+        return super().destroy()    
 
 __all__ = ["Alien"]

@@ -16,12 +16,12 @@ from .mechanics import upgrades, rewards
 class Game:
     """Class that represents the game object."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize the core game object."""
         
         pygame.init()
 
-        self.game_running = True
+        self.game_running: bool = True
 
         # --- use in the final version ---
         """ self.native_resolution = (
@@ -31,7 +31,7 @@ class Game:
         # ---
 
         # --- used for testing ---
-        self.native_resolution = (1080, 2340)
+        self.native_resolution: tuple[int, int] = (1080, 2340)
         # ---
 
         self._configure_display()
@@ -65,7 +65,7 @@ class Game:
     # region INIT HELPER FUNCTIONS
     # -------------------------------------------------------------------
 
-    def _make_upgrades(self):
+    def _make_upgrades(self) -> None:
         """Set up the upgrades with default values."""
 
         self.upgrades: dict[str, upgrades.Upgrade] = {
@@ -79,7 +79,7 @@ class Game:
             'luck': upgrades.Luck(self),
         }
 
-    def _make_rewards(self):
+    def _make_rewards(self) -> None:
         """Set up the rewards with default values."""
 
         self.rewards: dict[str, rewards.Reward] = {        
@@ -92,7 +92,7 @@ class Game:
             if isinstance(reward, rewards.ToggleableReward):
                 self.toggleable_ships.append(reward)
 
-    def _load_saved_upgrades(self):
+    def _load_saved_upgrades(self) -> None:
         """Loads upgrades from self.progress."""
 
         saved = self.progress.data['upgrades']
@@ -101,7 +101,7 @@ class Game:
             if upgrade.name in saved:
                 upgrade.level = saved[upgrade.name]['level']
 
-    def _load_saved_rewards(self):
+    def _load_saved_rewards(self) -> None:
         """Load rewards from self.progress."""
 
         saved = self.progress.data['rewards']
@@ -114,7 +114,7 @@ class Game:
                 elif isinstance(reward, rewards.ToggleableReward):
                     reward.is_toggled_on = saved[reward.name]['is_claimed_or_toggled']
 
-    def _make_menus(self):
+    def _make_menus(self) -> None:
         """Load all the menus."""
 
         self.menus: menus.MenusDict = {
@@ -131,7 +131,7 @@ class Game:
     # -------------------------------------------------------------------
     # endregion init helper functions
     
-    def run(self):
+    def run(self) -> None:
         """Run the game loop."""
 
         self.menus['main'].open()
@@ -151,7 +151,7 @@ class Game:
     # region GAME FLOW HELPER FUNCTIONS
     # -------------------------------------------------------------------
 
-    def start_session(self):
+    def start_session(self) -> None:
         """Start the session."""
 
         self.state = State()
@@ -163,7 +163,6 @@ class Game:
         self.play_rect = self.play_surf.get_rect()
 
         self.ship = self.ship_class(self)
-        # TODO: add ship to group, after adding image loading
 
         self.top_tray = trays.TopTray(self)
         self.top_tray.update()
@@ -179,21 +178,21 @@ class Game:
         self.menus['main'].close()
         self.music_player.load_sequence("test.json", True)
     
-    def _level_up(self, seconds: int):
+    def _level_up(self, seconds: int) -> None:
         """Increase the level of the game after a period of time."""
 
         if seconds < 1:
-            return False
+            return
         
         if seconds % 5 != 0:
-            return False
+            return
         
         self.state.level += 1
         print("\nLevel:", self.state.level)
         self.spawn_manager.level_up()
         self.spawn_manager.spawn_wave()
     
-    def quit_session(self):
+    def quit_session(self) -> None:
         """Quit the session and return to the main menu."""
 
         self.state.session_running = False
@@ -203,14 +202,14 @@ class Game:
         for reward in self.rewards.values():
             reward.unlock()
 
-        # TODO: clear the game objects ?? (ship can't be None?)
+        # TODO: clear the game objects ??
         self.menus['main'].open()
         self.music_player.load_sequence("main_menu.json", True)
     
-    def quit(self):
+    def quit(self) -> None:
         """Handle quitting the game."""
 
-        # TODO: prepare the game for quitting
+        # TODO: prepare the game for quitting ??
         if self.state.session_running:
             self.quit_session()
         
@@ -302,7 +301,7 @@ class Game:
     # region EVENT HANDLING FUNCTIONS
     # -------------------------------------------------------------------
 
-    def _handle_events(self):
+    def _handle_events(self) -> None:
         """Handle user input and window events."""
 
         for event in pygame.event.get():
@@ -333,7 +332,7 @@ class Game:
             elif event.type == pygame.MOUSEMOTION:
                 self._handle_mousemove_event(event)
                 
-    def _handle_keydown_events(self, event: pygame.Event):
+    def _handle_keydown_events(self, event: pygame.Event) -> None:
         """Handle what happens when certain keys are pressed."""
         
         self.menus['remap'].listen_for_key(event.key)
@@ -344,30 +343,30 @@ class Game:
         if event.key == self.settings.data['keybinds']['cancel'].keycode:
             self.menus['pause'].open()
 
-        if event.key == self.settings.data['keybinds']['move_left'].keycode:
+        elif event.key == self.settings.data['keybinds']['move_left'].keycode:
             self.ship.moving_left = True
-        if event.key == self.settings.data['keybinds']['move_right'].keycode:
+        elif event.key == self.settings.data['keybinds']['move_right'].keycode:
             self.ship.moving_right = True
-        if event.key == self.settings.data['keybinds']['fire'].keycode:
+        elif event.key == self.settings.data['keybinds']['fire'].keycode:
             self.ship.fire_bullet()
             self.ship.start_ability_charge()
 
-        if event.key == self.settings.data['keybinds']['active_1'].keycode:
+        elif event.key == self.settings.data['keybinds']['active_1'].keycode:
             self.ship.ability_slots['active_1'].toggle()
-        if event.key == self.settings.data['keybinds']['active_2'].keycode:
+        elif event.key == self.settings.data['keybinds']['active_2'].keycode:
             self.ship.ability_slots['active_2'].toggle()
-        if event.key == self.settings.data['keybinds']['active_3'].keycode:
+        elif event.key == self.settings.data['keybinds']['active_3'].keycode:
             self.ship.ability_slots['active_3'].toggle()
-        if event.key == self.settings.data['keybinds']['passive_1'].keycode:
+        elif event.key == self.settings.data['keybinds']['passive_1'].keycode:
             self.ship.ability_slots['passive_1'].toggle()
-        if event.key == self.settings.data['keybinds']['passive_2'].keycode:
+        elif event.key == self.settings.data['keybinds']['passive_2'].keycode:
             self.ship.ability_slots['passive_2'].toggle()
-        if event.key == self.settings.data['keybinds']['passive_3'].keycode:
+        elif event.key == self.settings.data['keybinds']['passive_3'].keycode:
             self.ship.ability_slots['passive_3'].toggle()
-        if event.key == self.settings.data['keybinds']['passive_4'].keycode:
+        elif event.key == self.settings.data['keybinds']['passive_4'].keycode:
             self.ship.ability_slots['passive_4'].toggle()
                 
-    def _handle_keyup_events(self, event: pygame.Event):
+    def _handle_keyup_events(self, event: pygame.Event) -> None:
         """Handle what happens when certain keys are released."""
 
         if not self.state.session_running:
@@ -375,12 +374,12 @@ class Game:
 
         if event.key == self.settings.data['keybinds']['move_left'].keycode:
             self.ship.moving_left = False
-        if event.key == self.settings.data['keybinds']['move_right'].keycode:
+        elif event.key == self.settings.data['keybinds']['move_right'].keycode:
             self.ship.moving_right = False
-        if event.key == self.settings.data['keybinds']['fire'].keycode:
+        elif event.key == self.settings.data['keybinds']['fire'].keycode:
             self.ship.stop_ability_charge()
     
-    def _handle_resize_event(self):
+    def _handle_resize_event(self) -> None:
         """Handle what happens when the window is resized."""
 
         new_res = self._calculate_render_resolution()
@@ -388,7 +387,7 @@ class Game:
             self._configure_display(new_res)
         
         if not self.state.session_running:
-            return False
+            return
         # TODO: recalculate speed of all game entities
         # TODO: move all game entities to appropriate positions
         self.ship.handle_resize()
@@ -397,7 +396,7 @@ class Game:
                 continue
             alien.handle_resize()
     
-    def _handle_mousedown_event(self, event: pygame.Event):
+    def _handle_mousedown_event(self, event: pygame.Event) -> None:
         """
         Handle what happens when the user presses the mouse button.
         A touchscreen touch is interpreted as a mouse click.
@@ -415,6 +414,7 @@ class Game:
         if self.touch.current_pos is None:
             return
 
+        # prepare interaction with menu, if open
         for menu in self.menus.values():
             if not isinstance(menu, menus.Menu):
                 continue
@@ -423,14 +423,13 @@ class Game:
         if not self.state.session_running:
             return
         
+        # interact with trays
         self.top_tray.start_touch(self.touch.current_pos)
         self.top_tray.interact()
-        
-        # TODO: find a better way to organize this; a better place ??
         self.bot_tray.start_touch(self.touch.current_pos)
         self.bot_tray.interact()
         
-        # control the ship if nothing else is clicked
+        # do not control the ship if clicking on a tray
         if pygame.Rect.collidepoint(
             self.top_tray.rect, self.touch.current_pos[0],
             self.touch.current_pos[1]
@@ -441,6 +440,8 @@ class Game:
             self.touch.current_pos[1]
         ):
             return
+        
+        # otherwise, control the ship
         self.ship.fire_bullet()
         self.ship.start_ability_charge()
         self.ship.destination = (
@@ -448,7 +449,7 @@ class Game:
             self.ship.y
         )
     
-    def _handle_mouseup_event(self, event: pygame.Event):
+    def _handle_mouseup_event(self, event: pygame.Event) -> None:
         """
         Handle what happens when the user releases the mouse button.
         A touchscreen touch is interpreted as a mouse click.
@@ -456,6 +457,7 @@ class Game:
 
         self.touch.register_mouseup_event()
 
+        # interact with menu on touch release/ mouse up
         for menu in self.menus.values():
             if not isinstance(menu, menus.Menu):
                 continue
@@ -468,7 +470,7 @@ class Game:
         self.ship.stop_ability_charge()
         self.ship.destination = None
     
-    def _handle_mousewheel_event(self, event: pygame.Event):
+    def _handle_mousewheel_event(self, event: pygame.Event) -> None:
         """Handles what happens when the user scrolls the mouse wheel."""
 
         x = event.x * config.mouse_wheel_magnitude
@@ -479,7 +481,7 @@ class Game:
                 continue
             menu.scroll((x, y), True)
 
-    def _handle_mousemove_event(self, event: pygame.Event):
+    def _handle_mousemove_event(self, event: pygame.Event) -> None:
         """
         Handle what happens when the user moves the mouse.
         A touchscreen touch is interpreted as a mouse.
@@ -500,8 +502,6 @@ class Game:
         if not self.state.session_running:
             return
 
-        # TODO: make the play area a separate surface to avoid the
-        #   nonsense below
         if self.top_tray.rect.collidepoint(self.touch.current_pos):
             # do nothing when moving around the top tray
             return
@@ -521,7 +521,7 @@ class Game:
     # region UPDATE HELPER FUNCTIONS
     # -------------------------------------------------------------------
 
-    def _update_each_second(self):
+    def _update_each_second(self) -> None:
         """
         This method handles updates that need to be checked only once
         each second, to improve performance by reducing method calls.
@@ -529,18 +529,18 @@ class Game:
 
         seconds = self.state.session_duration // 1000
         if seconds <= self.state.last_second_tracked:
-            return False
+            return
         
         self.top_tray.update()
         self._level_up(seconds)
 
         self.state.last_second_tracked = seconds
 
-    def _update_session(self):
+    def _update_session(self) -> None:
         """Updates the entities and trays if the session is running."""
 
         if not self.state.session_running:
-            return False
+            return
         
         self.state.track_duration()
         self._update_each_second()
@@ -555,7 +555,7 @@ class Game:
     # -------------------------------------------------------------------
     # endregion
 
-    def _update(self):
+    def _update(self) -> None:
         """Update the game objects."""
 
         if self.touch:
@@ -566,13 +566,14 @@ class Game:
     # region DRAW HELPER FUNCTIONS
     # -------------------------------------------------------------------
 
-    def _draw_session(self):
+    def _draw_session(self) -> None:
         """Draws the play surface and trays if the session is running."""
 
         if not self.state.session_running:
-            return False
+            return
         
         # first, clear the play surface by drawing the background
+        # TODO: use a background image
         pygame.draw.rect(self.play_surf, "black", self.play_rect)
 
         # TODO: use an entities group to draw the entities
@@ -601,7 +602,7 @@ class Game:
     # -------------------------------------------------------------------
     # endregion
 
-    def _draw(self):
+    def _draw(self) -> None:
         """Draw to the screen."""
 
         self._draw_session()     

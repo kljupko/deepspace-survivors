@@ -19,10 +19,10 @@ from ..utils import config, events
 class MusicPlayer():
     """A class which handles playing music from a sequence of sounds."""
 
-    def __init__(self, game: Game):
+    def __init__(self, game: Game) -> None:
         """Initialize the music player."""
 
-        self.game = game
+        self.game: Game = game
 
         pygame.mixer.set_reserved(4)
 
@@ -33,12 +33,12 @@ class MusicPlayer():
 
         self.set_volume()
 
-        self.current_step = 0
+        self.current_step: int = 0
 
-        self.drum_snd = None
-        self.bass_snd = None
-        self.chrd_snd = None
-        self.mldy_snd = None
+        self.drum_snd: Sound | None = None
+        self.bass_snd: Sound | None = None
+        self.chrd_snd: Sound | None = None
+        self.mldy_snd: Sound | None = None
 
         self.sequence_sounds: list[str] = []
         self.sequence: list[list[int]] = []
@@ -47,24 +47,24 @@ class MusicPlayer():
                       file_name: str,
                       loop_sequence: bool = False,
                       autoplay: bool = True
-                      ) -> bool:
+                      ) -> None:
         """Load a sequence of sounds."""
 
         path = Path(config.sequences_path, file_name)
         if not path.exists():
             print(f"No sequence at: {path}")
-            return False
+            return
         
         contents = None
         try:
             contents = json.loads(path.read_text())
         except Exception as e:
             print(f"Encountered an error while parsing sequence contents:\n{e}")
-            return False
+            return
         
         if contents is None:
             print("Contents of sequence is 'None'.")
-            return False
+            return
         
         self.sequence_sounds = contents['sounds']
         self.sequence = contents['sequence']
@@ -76,16 +76,15 @@ class MusicPlayer():
 
         if autoplay:
             self.update()
-        return True
     
-    def _load_step(self, step: int | None = None):
+    def _load_step(self, step: int | None = None) -> None:
         """Load the sounds for the given step."""
 
         if step is None:
             step = self.current_step + 1
         
         if step > self.max_step:
-            return False
+            return
 
         dir = config.sounds_path
         drum = self.sequence_sounds[self.sequence[step][0]]
@@ -99,7 +98,7 @@ class MusicPlayer():
 
         self._insert_silence()
     
-    def _insert_silence(self):
+    def _insert_silence(self) -> None:
         """
         Insert silence if no sounds are loaded,
         to prevent skipping to the next part before it's time.
@@ -109,11 +108,11 @@ class MusicPlayer():
             dir = config.sounds_path
             self.drum_snd = Sound(Path(dir, "silence.wav"))
 
-    def _play(self):
+    def _play(self) -> None:
         """Play the loaded sounds."""
 
         if self.current_step > self.max_step:
-            return False
+            return
         
         if self.drum_snd:
             self.drum_ch.play(self.drum_snd)
@@ -125,13 +124,13 @@ class MusicPlayer():
         if self.mldy_snd:
             self.mldy_ch.play(self.mldy_snd)
     
-    def reset_sequence(self):
+    def reset_sequence(self) -> None:
         """Set the sequence to step 0."""
         self.stop()
         self.current_step = 0
         self._load_step(0)
     
-    def pause(self):
+    def pause(self) -> None:
         """Pauses playback on all channels."""
 
         self.drum_ch.pause()
@@ -139,7 +138,7 @@ class MusicPlayer():
         self.chrd_ch.pause()
         self.mldy_ch.pause()
     
-    def unpause(self):
+    def unpause(self) -> None:
         """Resumes playback on all channels."""
 
         self.drum_ch.unpause()
@@ -147,7 +146,7 @@ class MusicPlayer():
         self.chrd_ch.unpause()
         self.mldy_ch.unpause()
     
-    def stop(self):
+    def stop(self) -> None:
         """Stop playback on all channels."""
 
         self.drum_ch.set_endevent()
@@ -156,7 +155,7 @@ class MusicPlayer():
         self.chrd_ch.stop()
         self.mldy_ch.stop()
     
-    def set_volume(self, volume: int | None = None):
+    def set_volume(self, volume: int | None = None) -> None:
         """Sets the volume for all channels."""
 
         if volume is None:
@@ -172,7 +171,7 @@ class MusicPlayer():
         self.chrd_ch.set_volume(volume * 0.1)
         self.mldy_ch.set_volume(volume * 0.1)
     
-    def update(self):
+    def update(self) -> None:
         """
         Update the music player. Play step, load next, increment step.
         """
@@ -181,7 +180,7 @@ class MusicPlayer():
             self.reset_sequence()
         
         if self.current_step > self.max_step:
-            return False
+            return
 
         self._play()
         self._load_step()

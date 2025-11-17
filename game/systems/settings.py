@@ -49,20 +49,20 @@ class Keybind():
     def __init__(self, control: str, keycode: int) -> None:
         """Initialize the keybind."""
 
-        self.control = control
-        self.keycode = keycode
+        self.control: str = control
+        self.keycode: int = keycode
     
-    def get_key_name(self):
+    def get_key_name(self) -> str:
         """Return the name of the key set to this keybind."""
 
         return pygame.key.name(self.keycode)
 
-    def set_keybind_to(self, keycode: int):
+    def set_keybind_to(self, keycode: int) -> None:
         """Sets the keybind to the given keycode."""
 
         self.keycode = keycode
     
-    def serialize(self):
+    def serialize(self) -> SerializedKeybind:
         """Return a dictionary containing the control and keycode."""
 
         keybind: SerializedKeybind = {
@@ -106,20 +106,20 @@ class SerializedKeybind(TypedDict):
 class Settings():
     """A class representing the user settings and controls."""
 
-    def __init__(self, game: Game):
+    def __init__(self, game: Game) -> None:
         """Initialize the user settings object."""
 
-        self.game = game
+        self.game: Game = game
 
         data = self._load_data(config.settings_path)
 
         if data:
-            self.data = self.deserialize_settings(data)
+            self.data: SettingsDict = self.deserialize_settings(data)
             return
         
         # otherwise, loading saved settings failed
         print("Applying default settings.")
-        self.data = self.deserialize_settings(self._defaults())
+        self.data: SettingsDict = self.deserialize_settings(self._defaults())
         self.save_data()
       
     def _load_data(self, path: str) -> SerializedSettingsDict | None:
@@ -276,7 +276,7 @@ class Settings():
 
         return deserialized
 
-    def serialize_settings(self):
+    def serialize_settings(self) -> SerializedSettingsDict:
         """Convert the Python objects from the settings into json."""
 
         kb = self.data['keybinds']
@@ -342,7 +342,7 @@ class Settings():
 
         return serialized
 
-    def save_data(self):
+    def save_data(self) -> None:
         "Save the current settings to a .json file."
 
         path = Path(config.settings_path)
@@ -354,7 +354,7 @@ class Settings():
         except Exception as e:
             print(f"Encountered an error while saving settings: {e}.")
     
-    def restore_to_defaults(self):
+    def restore_to_defaults(self) -> None:
         """Restore the settings to default values."""
 
         self.data = self.deserialize_settings(self._defaults())

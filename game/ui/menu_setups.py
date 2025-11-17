@@ -80,7 +80,7 @@ class UnionDict(TypedDict):
     elem_names: list[str]
     action: object | None
 
-def build_main_menu_elements(menu: MainMenu):
+def build_main_menu_elements(menu: MainMenu) -> list[ElementDict]:
     """Return the collection of dicts for the main menu UI Elements."""
 
     elements: list[ElementDict] = [
@@ -134,7 +134,7 @@ def build_main_menu_elements(menu: MainMenu):
     
     return elements
 
-def build_upgrade_menu_elements(menu: UpgradeMenu):
+def build_upgrade_menu_elements(menu: UpgradeMenu) -> list[ElementDict]:
     """
     Return the collection of dicts for the upgrade menu UI Elements.
     """
@@ -233,7 +233,7 @@ def build_upgrade_menu_elements(menu: UpgradeMenu):
 
     return elements
 
-def build_rewards_menu_elements(menu: RewardsMenu):
+def build_rewards_menu_elements(menu: RewardsMenu) -> list[ElementDict]:
     """
     Return the collection of dicts for the rewards menu UI Elements.
     """
@@ -321,7 +321,7 @@ def build_rewards_menu_elements(menu: RewardsMenu):
 
     return elements
 
-def build_settings_menu_elements(menu: SettingsMenu):
+def build_settings_menu_elements(menu: SettingsMenu) -> list[ElementDict]:
     """
     Return the collection of dicts for the settings menu UI Elements.
     """
@@ -631,7 +631,7 @@ def build_settings_menu_elements(menu: SettingsMenu):
 
     return elements
 
-def build_settings_menu_unions(menu: SettingsMenu):
+def build_settings_menu_unions(menu: SettingsMenu) -> list[UnionDict]:
     """
     Return the collection of dicts for the info menu ElemUnions.
     """
@@ -718,7 +718,7 @@ def build_settings_menu_unions(menu: SettingsMenu):
 
     return unions
 
-def build_info_menu_elements(menu: InfoMenu):
+def build_info_menu_elements(menu: InfoMenu) -> list[ElementDict]:
     """
     Return the collection of dicts for the info menu UI Elements.
     """
@@ -751,7 +751,7 @@ def build_info_menu_elements(menu: InfoMenu):
 
     return elements
 
-def build_pause_menu_elements(menu: PauseMenu):
+def build_pause_menu_elements(menu: PauseMenu) -> list[ElementDict]:
     """
     Return the collection of dicts for the pause menu UI Elements.
     """
@@ -783,7 +783,7 @@ def build_pause_menu_elements(menu: PauseMenu):
 
     return elements
 
-def build_top_tray_elements(tray: TopTray):
+def build_top_tray_elements(tray: TopTray) -> list[ElementDict]:
     """
     Return the collection of dicts for the top tray's UI Elements.
     """
@@ -856,7 +856,7 @@ def build_top_tray_elements(tray: TopTray):
 
     return elements
 
-def build_bot_tray_elements(tray: BottomTray):
+def build_bot_tray_elements(tray: BottomTray) -> list[ElementDict]:
     """
     Return the collection of dicts for the bottom tray's UI Elements.
     """
@@ -1019,7 +1019,7 @@ def build_bot_tray_elements(tray: BottomTray):
 
     return elements
 
-def build_bot_tray_unions(tray: BottomTray):
+def build_bot_tray_unions(tray: BottomTray) -> list[UnionDict]:
     """
     Return the collection of dicts for the bottom tray's ElemUnions.
     """

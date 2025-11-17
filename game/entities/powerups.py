@@ -16,22 +16,22 @@ from ..mechanics import stats, abilities
 class PowerUp(Entity):
     """A base class representing a powerup."""
 
-    name = "Base Powerup"
+    name: str = "Base Powerup"
     image: pygame.Surface = helper_funcs.load_image(None, "teal", (12, 12))
 
     def __init__(self,
                  game: Game,
                  position: tuple[float, float],
                  image: pygame.Surface | None = None
-                 ):
+                 ) -> None:
         """Initialize the powerup."""
 
         if image is None:
             image = helper_funcs.copy_image(PowerUp.image)
         super().__init__(game, image)
 
-        self.name = "Base Powerup"
-        self.description = "Powerup description."
+        self.name: str = PowerUp.name
+        self.description: str = f"{PowerUp.name} description."
 
         self.rect.center = position
         self.x = float(self.rect.x)
@@ -39,18 +39,18 @@ class PowerUp(Entity):
 
         self._calculate_bounds(pad_bot=-self.rect.height)
 
-        self.base_speed_y = config.base_speed * 0.15
+        self.base_speed_y: float = config.base_speed * 0.15
         self.calculate_relative_speed()
-        self.destination = (self.x, self.bounds["bottom"])
+        self.destination = (self.x, float(self.bounds["bottom"]))
 
     # override Entity update method
-    def update(self):
+    def update(self) -> None:
         """Update the powerup."""
 
         self._move()
         self._check_bottom()
     
-    def _check_bottom(self):
+    def _check_bottom(self) -> bool:
         """
         Check if the powerup is past the bottom of the screen.
         If so, destroy it.
@@ -62,8 +62,11 @@ class PowerUp(Entity):
         self.destroy()
         return True
     
-    def apply(self):
-        """Apply the powerup on pickup."""
+    def apply(self) -> None:
+        """
+        Apply the powerup on pickup.
+        Child classes should augment this method.
+        """
 
         self.destroy()
     
@@ -80,21 +83,21 @@ class ImproveStat(PowerUp):
                  position: tuple[float, float],
                  stat_class: type[stats.Stat],
                  magnitude: int = 1
-                 ):
+                 ) -> None:
         """Initialize the powerup."""
 
         image = helper_funcs.copy_image(ImproveStat.image)
         super().__init__(game, position, image)
 
-        self.stat_name = stat_class.name
-        self.magnitude = magnitude
-        self.name = f"Increase {self.stat_name}"
-        self.description = f"Increases a player ship's {self.stat_name} " \
+        self.stat_name: str = stat_class.name
+        self.magnitude: int = magnitude
+        self.name: str = f"Improve {self.stat_name}"
+        self.description: str = f"Improves a player ship's {self.stat_name} " \
             f"by {self.magnitude}."
 
         self.image.blit(stat_class.image, (1, 1))
 
-    def apply(self):
+    def apply(self) -> None:
         """Apply the powerup on pickup."""
 
         for stat in self.game.ship.stats.values():
@@ -108,27 +111,27 @@ class ImproveStat(PowerUp):
 class AddAbility(PowerUp):
     """A class representing a powerup that grants the ship an ability."""
 
-    name = "Add Ability"
-    image = helper_funcs.load_image(None, "peru", (12, 12))
+    name: str = "Add Ability"
+    image: pygame.Surface = helper_funcs.load_image(None, "peru", (12, 12))
 
     def __init__(self,
                  game: Game,
                  position: tuple[float, float],
                  ability_class: type[abilities.Ability]
-                 ):
+                 ) -> None:
         """Initialize the powerup."""
 
         image = helper_funcs.copy_image(AddAbility.image)
         super().__init__(game, position, image)
 
-        self.ability_class = ability_class
-        self.name = f"Add {self.ability_class.name}"
-        self.description = f"Gives the player the "
-        self.description += f"{self.ability_class.name} ability."
+        self.ability_class: type[abilities.Ability] = ability_class
+        self.name: str = f"Add {self.ability_class.name}"
+        self.description: str = f"Gives the player the " \
+            f"{self.ability_class.name} ability."
 
         self.image.blit(self.ability_class.image, (1, 1))
     
-    def apply(self):
+    def apply(self) -> None:
         """Apply the powerup on pickup."""
 
         valid_slot = self.game.ship.get_valid_slot_for(self.ability_class)
@@ -136,6 +139,6 @@ class AddAbility(PowerUp):
             return
         
         valid_slot.set_ability(self.ability_class)
-        self.game.powerups.remove(self)
+        return super().apply()
 
 __all__ = ["ImproveStat", "AddAbility"]

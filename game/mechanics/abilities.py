@@ -24,32 +24,32 @@ class Ability():
                  name: str | None = None,
                  description: str | None = None,
                  image: pygame.Surface | None = None,
-                 ):
+                 ) -> None:
         """Initialize the ability and add it to the given slot."""
 
         self.game = game
 
         if name is None:
             name = Ability.name
-        self.name = name
+        self.name: str = name
 
         if description is None:
             description = Ability.description
-        self.description = description
+        self.description: str = description
 
         if image is None:
             image = Ability.image
-        self.image = image
+        self.image: pygame.Surface = image
     
-    def fire(self):
+    def fire(self) -> None:
         """
         Hook for firing the ability. Does nothing.
         Overridden by grandchild classes.
         """
 
-        return None
+        return
     
-    def _remove(self):
+    def _remove(self) -> None:
         """Remove the ability from the slot."""
 
         for slot in self.game.ship.ability_slots.values():
@@ -63,16 +63,16 @@ class Ability():
 class Active(Ability):
     """A base class that represents a ship's active ability."""
 
-    name = "Base Active Ability"
-    description = "Base Active Ability description."
-    image = helper_funcs.load_image(None, 'gray', (10, 10))
+    name: str = "Base Active Ability"
+    description: str = "Base Active Ability description."
+    image: pygame.Surface = helper_funcs.load_image(None, 'gray', (10, 10))
 
     def __init__(self,
                  game: Game,
                  name: str | None = None,
                  description: str | None = None,
                  image: pygame.Surface | None = None,
-                 ):
+                 ) -> None:
         """Initialize the active ability."""
 
         if name is None:
@@ -86,27 +86,27 @@ class Active(Ability):
         
         super().__init__(game, name, description, image)
     
-    def fire(self):
+    def fire(self) -> None:
         """
         Fire the active ability, and remove from the containing slot.
+        Should be augmented by child classes.
         """
 
-        super().fire()
         self._remove()
 
 class Passive(Ability):
     """A class that represents a ship's passive ability."""
 
-    name = "Base Passive Ability"
-    description = "Base Passive Ability description."
-    image = helper_funcs.load_image(None, 'gray', (10, 10))
+    name: str = "Base Passive Ability"
+    description: str = "Base Passive Ability description."
+    image: pygame.Surface = helper_funcs.load_image(None, 'gray', (10, 10))
 
     def __init__(self,
                  game: Game,
                  name: str | None = None,
                  description: str | None = None,
                  image: pygame.Surface | None = None,
-                 ):
+                 ) -> None:
         """Initialize the passive ability."""
 
         if name is None:
@@ -120,9 +120,9 @@ class Passive(Ability):
         
         super().__init__(game, name, description, image)
 
-        self.level = 1
+        self.level: int = 1
     
-    def level_up(self):
+    def level_up(self) -> None:
         """Increase the level of the passive ability."""
 
         self.level += 1
@@ -133,24 +133,24 @@ class DeathPulse(Active):
     a large amount of damage to all enemies on the screen.
     """
 
-    name = "Death Pulse"
-    description = "Deals damage to all enemies on screen."
-    image = helper_funcs.load_image(None, 'red', (10, 10))
+    name: str = "Death Pulse"
+    description: str = "Deals damage to all enemies on screen."
+    image: pygame.Surface = helper_funcs.load_image(None, 'red', (10, 10))
 
     def __init__(self,
                  game: Game,
-                 ):
+                 ) -> None:
         """Initialize the Death Pulse ability."""
 
         name = DeathPulse.name
         img = DeathPulse.image
         super().__init__(game, name, None, img)
 
-        self.fp_bonus = 50
-        self.description = f"Deals {self.fp_bonus}x Fire Power to all enemies" \
-        " on the screen."
+        self.fp_bonus: int = 50
+        self.description: str = f"Deals {self.fp_bonus}x Fire Power \
+            to all enemies on the screen."
     
-    def fire(self):
+    def fire(self) -> None:
         """Fire the Death Pulse ability."""
 
         base_fp = self.game.ship.stats['fire_power'].value
@@ -161,7 +161,7 @@ class DeathPulse(Active):
                 continue
             alien.take_damage(base_fp * self.fp_bonus)
         
-        self._remove()
+        return super().fire()
 
 class Spear(Passive):
     """
@@ -169,24 +169,24 @@ class Spear(Passive):
     the ship's fire rate and allows it to continuously fire.
     """
 
-    name = "Spear"
-    description = "Fires a continuous stream of bullets."
-    image = helper_funcs.load_image(None, 'purple', (10, 10))
+    name: str = "Spear"
+    description: str = "Fires a continuous stream of bullets."
+    image: pygame.Surface = helper_funcs.load_image(None, 'purple', (10, 10))
 
     def __init__(self,
                  game: Game,
-                 ):
+                 ) -> None:
         """Initialize the Spear ability."""
 
         name = Spear.name
         img = Spear.image
         super().__init__(game, name, None, img)
 
-        self.fr_bonus = 1
-        self.description = "Fires a continuous stream of bullets." \
-        f" Each level increases fire rate by {self.fr_bonus}."
+        self.fr_bonus: int = 1
+        self.description: str = "Fires a continuous stream of bullets. " + \
+            f"Each level increases fire rate by {self.fr_bonus}."
     
-    def fire(self):
+    def fire(self) -> None:
         """Fire the Spear ability."""
 
         self.game.ship.fire_bullet(self.fr_bonus * self.level)

@@ -14,26 +14,26 @@ from ..entities import Alien
 class SpawnManager():
     """A class which manages the spawning of aliens."""
 
-    def __init__(self, game: Game):
+    def __init__(self, game: Game) -> None:
         """Initialize the spawn manager."""
 
-        self.game = game
+        self.game: Game = game
 
-        self.random_spawn_delay = 2000 # ms
-        self.random_spawn_cooldown = self.random_spawn_delay
-        self.random_spawn_count = 1
+        self.random_spawn_delay: float = 2000 # ms
+        self.random_spawn_cooldown: float = self.random_spawn_delay
+        self.random_spawn_count: int = 1
 
-        self.random_spawns = {
+        self.random_spawns: dict[int, tuple[type[Alien]]] = {
             1: (Alien,),
             # TODO: add more aliens when more alien classes are made
         }
 
-        self.waves = {
+        self.waves: dict[int, type[AlienWave]] = {
             5: AlienWave,
             # TODO: add more waves when more alien classes are made
         }
     
-    def level_up(self, level: int | None = None):
+    def level_up(self, level: int | None = None) -> None:
         """Reduces spawn delay and/or increases spawn count."""
 
         if level is None:
@@ -42,7 +42,7 @@ class SpawnManager():
         # TODO: refine the level up logic, just reducing delay for now
         self.random_spawn_delay *= 0.95
     
-    def spawn_random(self):
+    def spawn_random(self) -> None:
         """Spawns a number of randomly chosen enemies."""
 
         if self.random_spawn_cooldown < self.random_spawn_delay:
@@ -61,7 +61,7 @@ class SpawnManager():
         
         self.random_spawn_cooldown = 0
     
-    def spawn_wave(self, level: int | None = None):
+    def spawn_wave(self, level: int | None = None) -> None:
         """Spawns a preset wave of aliens all at once."""
         
         if level is None:
@@ -84,10 +84,10 @@ class WaveSetup(TypedDict):
 class AlienWave():
     """A class representing a preset spawn of aliens."""
 
-    def __init__(self, game: Game):
+    def __init__(self, game: Game) -> None:
         """Initialize the wave."""
 
-        self.game = game
+        self.game: Game = game
 
         self.aliens: list[Alien] = []
         # arranged in a + pattern
@@ -105,7 +105,7 @@ class AlienWave():
             alien.y = alien.bounds['top']
             self.aliens.append(alien)
     
-    def deploy(self):
+    def deploy(self) -> None:
         """Spawn the wave."""
 
         for alien in self.aliens:

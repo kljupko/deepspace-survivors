@@ -14,38 +14,41 @@ from ..utils import config, helper_funcs
 class Bullet(Entity):
     """A class that represents a bullet fired from the ship."""
 
-    name = "Base Bullet"
+    name: str = "Base Bullet"
     image: pygame.Surface = helper_funcs.load_image(None, 'orange', (4, 4))
 
-    def __init__(self, game: Game):
+    def __init__(self, game: Game) -> None:
         """Initialize the bullet."""
 
-        image = helper_funcs.copy_image(Bullet.image)
+        image: pygame.Surface = helper_funcs.copy_image(Bullet.image)
         super().__init__(game, image)
 
         # spawn bullet on top of the ship
         self._calculate_bounds(pad_top=-self.rect.height)
-        self.rect.midtop = self.game.ship.rect.midtop
+        self.rect.midbottom = self.game.ship.rect.midtop
         self.x = float(self.rect.x)
         self.y = float(self.rect.y)
 
         # allow the bullet to move upwards
-        self.base_speed_y = config.base_speed * 0.5
+        self.base_speed_y: float = config.base_speed * 0.5
         self.calculate_relative_speed()
-        self.destination = (self.x, self.bounds["top"])
+        self.destination = (self.x, float(self.bounds["top"]))
 
-        # TODO: determine if bullet will have any stats
+        self.damage: int = self.game.ship.stats["fire_power"].value
 
     # override Entity update method
-    def update(self):
+    def update(self) -> None:
         """Update the bullet."""
 
         self._move()
         self._check_alien_collisions()
         self._check_top()
     
-    def _check_alien_collisions(self):
-        """Check if the bullet is colliding with any aliens."""
+    def _check_alien_collisions(self) -> bool:
+        """
+        Check if the bullet is colliding with any aliens.
+        If so, deal damage to the alien and remove the bullet.
+        """
 
         collisions = pygame.sprite.spritecollide(self, self.game.aliens, False)
         if not collisions:
@@ -56,13 +59,16 @@ class Bullet(Entity):
         if not isinstance(alien, Alien):
             return False
         
-        alien.take_damage(self.game.ship.stats['fire_power'].value)
+        alien.take_damage(self.damage)
         
         self.destroy()
         return True
     
-    def _check_top(self):
-        """Check if the bullet has moved past the top of the screen."""
+    def _check_top(self) -> bool:
+        """
+        Check if the bullet has moved past the top of the screen.
+        If so, remove it.
+        """
 
         if self.y > self.bounds["top"]:
             return False

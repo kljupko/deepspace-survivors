@@ -11,31 +11,32 @@ from ..utils import helper_funcs
 class Reward():
     """A base class representing a reward."""
 
-    name = "Base Reward"
-    instructions = "You can't earn this base reward."
-    image = helper_funcs.load_image(None, 'gray', (10, 10))
+    name: str = "Base Reward"
+    instructions: str = "You can't earn this base reward."
+    instructions += " This base reward gives nothing."
+    image: pygame.Surface = helper_funcs.load_image(None, 'gray', (10, 10))
 
     def __init__(self,
                  game : Game,
                  name: str | None = None,
                  instructions: str | None = None,
                  image: pygame.Surface | None = None
-                 ):
+                 ) -> None:
         """Initialize the reward."""
 
         self.game = game
 
         if name is None:
             name = Reward.name
-        self.name = name
+        self.name: str = name
 
         if instructions is None:
             instructions = Reward.instructions
-        self.instructions = instructions
+        self.instructions: str = instructions
 
         if image is None:
             image = helper_funcs.copy_image(Reward.image)
-        self.image = image
+        self.image: pygame.Surface = image
 
         self.is_unlocked = False
     
@@ -45,22 +46,23 @@ class Reward():
         # to be overwritten by child classes
         return False
 
-    def unlock(self):
+    def unlock(self) -> None:
         """Unlocks the reward if conditions are met."""
 
-        if self.check_availability():
-            self.is_unlocked = True
-            self.game.progress.data['rewards'][self.name]['is_unlocked'] = True
-            self.game.progress.save_data()
-            return True
-        return False
+        if not self.check_availability():
+            return
+        
+        self.is_unlocked = True
+        self.game.progress.data['rewards'][self.name]['is_unlocked'] = True
+        self.game.progress.save_data()
 
 class ClaimableReward(Reward):
     """A class representing a reward that can be claimed once."""
 
-    name = "Base Claimable Reward"
-    instructions = "You can't earn this base claimable reward."
-    image = helper_funcs.load_image(None, 'gray', (10, 10))
+    name: str = "Base Claimable Reward"
+    instructions: str = "You can't earn this base claimable reward."
+    instructions += " This base claimable reward gives nothing."
+    image: pygame.Surface = helper_funcs.load_image(None, 'gray', (10, 10))
 
     def __init__(self,
                  game: Game,
@@ -68,7 +70,7 @@ class ClaimableReward(Reward):
                  instructions: str | None = None,
                  image: pygame.Surface | None = None,
                  credits: int = 0
-                 ):
+                 ) -> None:
         """Initialize the reward."""
 
         if name is None:
@@ -79,14 +81,14 @@ class ClaimableReward(Reward):
             image = ClaimableReward.image
 
         super().__init__(game, name, instructions, image)
-        self.is_claimed = False
-        self.credits = credits
+        self.is_claimed: bool = False
+        self.credits: int = credits
     
-    def claim(self):
+    def claim(self) -> None:
         """Claims the reward, if unlocked."""
 
         if self.is_claimed:
-            return False
+            return
         
         self.game.progress.data['credits'] += self.credits
         
@@ -94,7 +96,6 @@ class ClaimableReward(Reward):
         self.is_claimed = True
         self.game.progress.data['rewards'][self.name]['is_claimed_or_toggled'] = True
         self.game.progress.save_data()
-        return True
 
 class ToggleableReward(Reward):
     """
@@ -103,16 +104,17 @@ class ToggleableReward(Reward):
     ship, after it is unlocked.
     """
 
-    name = "Base Toggleable Reward"
-    instructions = "You can't earn this base toggleable reward."
-    image = helper_funcs.load_image(None, 'gray', (10, 10))
+    name: str = "Base Toggleable Reward"
+    instructions: str = "You can't earn this base toggleable reward."
+    instructions += " This base toggleable reward gives nothing."
+    image: pygame.Surface = helper_funcs.load_image(None, 'gray', (10, 10))
 
     def __init__(self,
                  game: Game,
                  name: str | None = None,
                  instructions: str | None = None,
                  image: pygame.Surface | None = None
-                 ):
+                 ) -> None:
         """Initialize the reward."""
 
         if name is None:
@@ -123,41 +125,39 @@ class ToggleableReward(Reward):
             image = ToggleableReward.image
 
         super().__init__(game, name, instructions, image)
-        self.is_toggled_on = False
+        self.is_toggled_on: bool = False
 
-    def toggle_on(self):
+    def toggle_on(self) -> None:
         """Turn the reward on."""
 
         # to be augmented by child classes
         self.is_toggled_on = True
         self.game.progress.data['rewards'][self.name]['is_claimed_or_toggled'] = True
         self.game.progress.save_data()
-        return True
     
-    def toggle_off(self):
+    def toggle_off(self) -> None:
         """Turn the reward off."""
 
         # to be augmented by child classes
         self.is_toggled_on = False
         self.game.progress.data['rewards'][self.name]['is_claimed_or_toggled'] = False
         self.game.progress.save_data()
-        return False
 
-    def toggle(self):
+    def toggle(self) -> None:
         """Toggles the reward on or off."""
 
         if self.is_toggled_on:
             self.toggle_off()
         else:
             self.toggle_on()
-        return self.is_toggled_on
 
 class BakersDozen(ClaimableReward):
     """Claimable reward for destroying 13 aliens in one session."""
 
-    name = "Baker's Dozen"
-    instructions = "Kill at least 13 aliens in a single session."
-    image = helper_funcs.load_image(None, 'gold', (10, 10))
+    name: str = "Baker's Dozen"
+    instructions: str = "Kill at least 13 aliens in a single session"
+    instructions += " to earn credit_amount credits."
+    image: pygame.Surface = helper_funcs.load_image(None, 'gold', (10, 10))
 
     def __init__(self, game: Game):
         """Initialize the reward."""
@@ -166,10 +166,11 @@ class BakersDozen(ClaimableReward):
         instructions = BakersDozen.instructions
         image = BakersDozen.image
         credits = 1300
+        instructions = instructions.replace("credit_amount", str(credits))
         super().__init__(game, name, instructions, image, credits)
 
     # override the grandparent method
-    def check_availability(self):
+    def check_availability(self) -> bool:
         """Check if the reward can be claimed."""
 
         if self.game.state.killcount >= 13:
@@ -181,12 +182,14 @@ class BakersDozen(ClaimableReward):
 class SpearFish(ToggleableReward):
     """Toggleable reward, granting you the SpearFish class ship."""
 
-    name = "SpearFish"
-    instructions = "End a session with a Fire Rate of 10 or more."
-    # TODO: load the ship's image, without circular imports
-    image = helper_funcs.load_image(None, 'darkslategray3', (10, 10))
+    name: str = "SpearFish"
+    instructions: str = "End a session with a Fire Rate of 10 or more"
+    instructions += " to unlock the SpearFish ship."
+    from ..entities import SpearFish as spearFishShip
+    ship_class: type[spearFishShip] = spearFishShip
+    image: pygame.Surface = helper_funcs.load_image(None, 'darkslategray3', (10, 10))
 
-    def __init__(self, game: Game):
+    def __init__(self, game: Game) -> None:
         """Initialize the reward."""
 
         name = SpearFish.name
@@ -195,25 +198,24 @@ class SpearFish(ToggleableReward):
         super().__init__(game, name, instructions, image)
     
     # override the grandparent method
-    def check_availability(self):
+    def check_availability(self) -> bool:
         """Check if the reward can be unlocked."""
 
         if self.game.ship.stats['fire_rate'].value >= 10:
             return True
         return False
     
-    def toggle_on(self):
+    def toggle_on(self) -> None:
         """Enable the SpearFish and disable other ships."""
 
 
         for ship_reward in self.game.toggleable_ships:
             ship_reward.toggle_off()
         
-        from ..entities import SpearFish
-        self.game.ship_class = SpearFish
+        self.game.ship_class = SpearFish.ship_class
         return super().toggle_on()
     
-    def toggle_off(self):
+    def toggle_off(self) -> None:
         """Disable the SpearFish."""
 
         self.game.ship_class = self.game.default_ship_class

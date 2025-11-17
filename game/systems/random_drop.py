@@ -16,10 +16,10 @@ from ..mechanics import abilities, stats
 class RandomDropManager():
     """A class which manages random powerup drops."""
 
-    def __init__(self, game: Game):
+    def __init__(self, game: Game) -> None:
         """Initialize the random drop."""
 
-        self.game = game
+        self.game: Game = game
 
         # TODO: load weights from saved upgrades
         # all choice weights are non-cumulative
@@ -43,14 +43,14 @@ class RandomDropManager():
     def try_drop(self,
                  chance: int,
                  position: tuple[float, float]
-                 ):
+                 ) -> powerups.AddAbility | powerups.ImproveStat | None:
         """
         Rolls for a drop and if successful, returns a random one
         at the given position.
         """
 
         if not self._is_dropping(chance):
-            return None
+            return
         
         powerup = choices(
             list(self.powerup_choices.keys()),
@@ -62,7 +62,7 @@ class RandomDropManager():
         else:
             return self._drop_stat(position)
     
-    def _is_dropping(self, chance: int):
+    def _is_dropping(self, chance: int) -> bool:
         """Roll for a random drop."""
 
         chance += self.game.upgrades['luck'].level
@@ -75,7 +75,9 @@ class RandomDropManager():
             return False
         return True
     
-    def _drop_ability(self, position: tuple[float, float]):
+    def _drop_ability(self,
+                      position: tuple[float, float]
+                      ) -> powerups.AddAbility:
         """Drops an AddAbility powerup."""
         
         ability_class = choices(
@@ -85,7 +87,9 @@ class RandomDropManager():
         
         return powerups.AddAbility(self.game, position, ability_class)
     
-    def _drop_stat(self, position: tuple[float, float]):
+    def _drop_stat(self,
+                   position: tuple[float, float]
+                   ) -> powerups.ImproveStat:
         """Drops an ImproveStat powerup."""
         
         stat_class = choices(

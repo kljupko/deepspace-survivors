@@ -69,7 +69,7 @@ class Ship(Entity):
                  image: pygame.Surface | None = None,
                  base_stat_values: StatValuesDict | None = None,
                  ability_loadout: AbilityLoadoutDict | None = None,
-                 ):
+                 ) -> None:
         """Initialize the ship."""
 
         if image is None:
@@ -79,11 +79,11 @@ class Ship(Entity):
 
         if name is None:
             name = Ship.name
-        self.name = name
+        self.name: str = name
 
         if description is None:
             description = Ship.description
-        self.description = description
+        self.description: str = description
 
         if base_stat_values is None:
             base_stat_values = {
@@ -120,27 +120,27 @@ class Ship(Entity):
                 'passive_3': None,
                 'passive_4': None,
             }
-        self.ability_loadout = ability_loadout
+        self.ability_loadout: AbilityLoadoutDict = ability_loadout
         self.apply_ability_loadout()
-        self.charging_ability = False
+        self.charging_ability: bool = False
         self.apply_charge_time_upgrades()
-        self.charge_time = 0
+        self.charge_time: float = 0
 
-        self.bullet_delay_ms = 1000 * 3
-        self.bullet_cooldown_ms = self.bullet_delay_ms
+        self.bullet_delay_ms: int = 1000 * 3
+        self.bullet_cooldown_ms: int = self.bullet_delay_ms
 
         # set position
-        self.x = self.game.play_rect.centerx - self.rect.width//2
-        self.y = self.bounds["bottom"]
-        self.rect.x, self.rect.y = int(self.x), int(self.y)
+        self.x = float(self.game.play_rect.centerx - self.rect.width//2)
+        self.y = float(self.bounds["bottom"])
+        self.rect.x, self.rect.y = round(self.x), round(self.y)
 
-        self.moving_left = False
-        self.moving_right = False
+        self.moving_left: bool = False
+        self.moving_right: bool = False
 
     # region INIT HELPER FUNCTIONS
     # -------------------------------------------------------------------
      
-    def apply_stat_upgrades(self):
+    def apply_stat_upgrades(self) -> None:
         """Apply purchased upgrades to the ship's stats."""
 
         ups = self.game.upgrades
@@ -150,7 +150,7 @@ class Ship(Entity):
         self.stats['fire_power'].modify_stat(ups['fire_power'].level)
         self.stats['fire_rate'].modify_stat(ups['fire_rate'].level)
     
-    def apply_slot_unlocks(self):
+    def apply_slot_unlocks(self) -> None:
         """Apply purchased upgrades to the ship's ability slots."""
         
         max_active_slots = self.game.upgrades['active_slots'].level + 1
@@ -168,7 +168,7 @@ class Ship(Entity):
         if max_passive_slots >= 4:
             self.ability_slots['passive_4'].set_is_locked(False)
     
-    def apply_ability_loadout(self,):
+    def apply_ability_loadout(self) -> None:
         """Apply the given ability loadout to the ship's slots."""
 
         self.ability_slots['active_1'].set_ability(self.ability_loadout['active_1'])
@@ -179,21 +179,21 @@ class Ship(Entity):
         self.ability_slots['passive_3'].set_ability(self.ability_loadout['passive_3'])
         self.ability_slots['passive_4'].set_ability(self.ability_loadout['passive_4'])
 
-    def apply_charge_time_upgrades(self):
+    def apply_charge_time_upgrades(self) -> None:
         """Apply the purchased upgrades to ability charge time."""
 
         base_time = config.required_ability_charge
         upgrade_level = self.game.upgrades['charge_time'].level
-        self.req_charge_time = base_time * 0.9**upgrade_level
+        self.req_charge_time: float = base_time * 0.9**upgrade_level
 
     # -------------------------------------------------------------------
     # endregion init helper functions
 
     # override Entity update method
-    def update(self):
+    def update(self) -> None:
         """Update the ship."""
 
-        self.bullet_cooldown_ms += self.game.dt * 1000
+        self.bullet_cooldown_ms += round(self.game.dt * 1000)
         self._steer()
         # TODO: use thrust for speed
         self._move()
@@ -202,11 +202,11 @@ class Ship(Entity):
         self._check_powerup_collisions()
         self._check_alien_collisions()
     
-    def _steer(self):
+    def _steer(self) -> None:
         """Steer the ship left or right."""
         
         if self.game.touch and self.game.touch.touch_start_ts:
-            return False
+            return
         
         if self.moving_left and self.moving_right:
             self.destination = None
@@ -217,7 +217,7 @@ class Ship(Entity):
         elif self.moving_right:
             self.destination = (self.bounds["right"], self.y)
     
-    def take_damage(self, damage: int):
+    def take_damage(self, damage: int) -> None:
         """
         Reduces the ship's HP by the given damage.
         Ends the session at 0 HP.
@@ -233,7 +233,7 @@ class Ship(Entity):
     # region COLLISION CHECKING
     # -------------------------------------------------------------------
 
-    def _check_alien_collisions(self):
+    def _check_alien_collisions(self) -> bool:
         """Check if the ship is colliding with any aliens."""
 
         collisions = pygame.sprite.spritecollide(self, self.game.aliens, False)
@@ -249,7 +249,7 @@ class Ship(Entity):
         
         return True
     
-    def _check_powerup_collisions(self):
+    def _check_powerup_collisions(self) -> bool:
         """Check if the ship is colliding with any powerups."""
 
         collisions = pygame.sprite.spritecollide(
@@ -259,34 +259,31 @@ class Ship(Entity):
             return False
         
         for powerup in collisions:
-            # ensure the powerup is a subclass of Powerup
             if not isinstance(powerup, PowerUp):
                 continue
             powerup.apply()
-        
-        # TODO: figure out a way to change ui on powerup pickup
-        #   probably in the powerup.apply method
         
         return True
     
     # -------------------------------------------------------------------
     # endregion collision checking
 
-    def fire_bullet(self, fire_rate_bonus: int = 0):
+    def fire_bullet(self, fire_rate_bonus: int = 0) -> None:
         """Fire a bullet."""
 
         fire_rate = self.stats['fire_rate'].value + fire_rate_bonus
         if self.bullet_cooldown_ms < self.bullet_delay_ms / fire_rate:
-            return False
+            return
 
         self.game.bullets.add(Bullet(self.game))
         self.bullet_cooldown_ms = 0
-        return True
     
     # region ABILITY SLOTS AND ABILITIES
     # -------------------------------------------------------------------
     
-    def get_valid_slot_for(self, ability_class: type[abs.Ability]):
+    def get_valid_slot_for(self,
+                           ability_class: type[abs.Ability]
+                           ) -> abs.Slot | None:
         """
         Return the first valid slot where an ability of the given class can fit.
         Return None if there are no valid slots.
@@ -301,42 +298,41 @@ class Ship(Entity):
         
         return None                
 
-    def start_ability_charge(self):
+    def start_ability_charge(self) -> None:
         """Start charging active abs."""
 
         self.charging_ability = True
         self.charge_time = 0
     
-    def _charge_abilities(self):
+    def _charge_abilities(self) -> None:
         """Charge up the active abilities and fire if fully charged."""
 
         if not self.charging_ability:
-            return False
+            return
         
         self.charge_time += self.game.dt * 1000
         if self.charge_time < self.req_charge_time:
-            return False
+            return
         
         self._fire_active_abilities()
     
-    def _fire_active_abilities(self):
-        """Fire enabled active abs."""
+    def _fire_active_abilities(self) -> None:
+        """Fire enabled active abilities."""
         
         self.ability_slots['active_1'].fire_ability()
         self.ability_slots['active_2'].fire_ability()
         self.ability_slots['active_3'].fire_ability()
         self.stop_ability_charge()
         self.game.bot_tray.update()
-        return True
     
-    def stop_ability_charge(self):
+    def stop_ability_charge(self) -> None:
         """Stop charging active abilities and reset charge time to 0."""
 
         self.charging_ability = False
         self.charge_time = 0
         
-    def _fire_passive_abilities(self):
-        """Fire all the enabled passive abs."""
+    def _fire_passive_abilities(self) -> None:
+        """Fire all the enabled passive abilities."""
 
         self.ability_slots['passive_1'].fire_ability()
         self.ability_slots['passive_2'].fire_ability()
@@ -353,7 +349,7 @@ class SpearFish(Ship):
     description = "A ship with a high fire rate and the Spear passive ability."
     image = helper_funcs.load_image(None, 'darkslategray3', (20, 28))
 
-    def __init__(self, game: Game):
+    def __init__(self, game: Game) -> None:
         """Initialize the SpearFish."""
 
         name = SpearFish.name

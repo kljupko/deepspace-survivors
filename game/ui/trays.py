@@ -12,23 +12,23 @@ from .menu_setups import build_bot_tray_unions
 class TopTray(Tray):
     """A class representing the top tray."""
 
-    name = "Top Tray"
-    height = 23
+    name: str = "Top Tray"
+    height: int = 23
 
-    def __init__(self, game: Game):
+    def __init__(self, game: Game) -> None:
         """Initialize the top tray."""
 
         name = TopTray.name
         height = TopTray.height
         super().__init__(game, name, height=height)
     
-    def _load_elements(self):
+    def _load_elements(self) -> None:
         """Populate the tray with UI Elements."""
 
         self._add_elements_from_dicts(build_top_tray_elements(self))
         # no need to call self._expand_height
     
-    def get_session_duration(self):
+    def get_session_duration(self) -> str:
         """Return the duration of the current session."""
 
         duration = self.game.state.session_duration
@@ -41,17 +41,19 @@ class TopTray(Tray):
         
         return time
 
-    def get_fps(self):
+    def get_fps(self) -> str:
         """Return the fps if 'show_fps' setting is True. Else blank."""
-        
-        return "" if not self.game.settings.data['show_fps'] else self.game.fps
+        fps = ""
+        if self.game.settings.data['show_fps']:
+            fps = str(self.game.fps)
+        return fps
 
 class BottomTray(Tray):
     """A class representing the bottom tray."""
 
-    name = "Bottom Tray"
+    name: str = "Bottom Tray"
 
-    def __init__(self, game: Game):
+    def __init__(self, game: Game) -> None:
         """Initialize the bottom tray."""
 
         name = BottomTray.name
@@ -60,12 +62,10 @@ class BottomTray(Tray):
         super().__init__(game, name, height=height)
         self.rect.y = self.game.screen.height - self.rect.height
     
-    def _load_elements(self):
+    def _load_elements(self) -> None:
         """Populate the tray with UI Elements"""
 
         self._add_elements_from_dicts(build_bot_tray_elements(self))
         # no need to call self._expand_height
 
         self._add_element_unions_from_dicts(build_bot_tray_unions(self))
-
-__all__ = ["TopTray", "BottomTray"]

@@ -51,15 +51,15 @@ class RewardsProgressDict(TypedDict):
 class Progress():
     """A class which handles saving and loading the player's progress."""
 
-    def __init__(self, game: Game):
+    def __init__(self, game: Game) -> None:
         """Initialize the progress handler."""
 
-        self.game = game
+        self.game: Game = game
 
         data = self._load_data(config.main_save_path)
         if data:
             # loading main file successful
-            self.data = data
+            self.data: ProgressDict = data
             self.save_data(True) # save current data as backup
             return
         
@@ -68,12 +68,12 @@ class Progress():
         data = self._load_data(config.back_save_path)
         if data:
             # at least the backup worked
-            self.data = data
+            self.data: ProgressDict = data
             return
         
         # otherwise, just use the defaults
         print("Failed to load backup save. Using defaults.")
-        self.data = self._defaults()
+        self.data: ProgressDict = self._defaults()
     
     def _defaults(self) -> ProgressDict:
         """Returns default progress data (new game)."""

@@ -20,17 +20,17 @@ class Menu():
                  width: int | None = None,
                  height: int | None = None,
                  padding: tuple[int, int, int, int] | None = None
-                 ):
+                 ) -> None:
         """Initialize the menu."""
 
-        self.game = game
-        self.name = name
-        self.is_visible = False # determines if menu is shown
+        self.game: Game = game
+        self.name: str = name
+        self.is_visible: bool = False # determines if menu is shown
 
         # inner coordinates where the user clicked
         self.inner_pos: tuple[int, int] | None = None
-        self.was_scrolled = False
-        self.needs_redraw = True
+        self.was_scrolled: bool = False
+        self.needs_redraw: bool = True
 
         self._set_surface(width, height)
         if padding is None:
@@ -44,7 +44,7 @@ class Menu():
     def _set_surface(self,
                      width: int | None = None,
                      height: int | None = None
-                     ):
+                     ) -> None:
         """Set the surface for menu and derive the size."""
 
         if width is None:
@@ -54,35 +54,35 @@ class Menu():
         
         self.surface = pygame.Surface((width, height))
         self.rect = self.surface.get_rect()
-        ck = config.global_colorkey
+        ck: pygame.Color = config.global_colorkey
         self.surface.set_colorkey(ck)
         pygame.draw.rect(self.surface, ck, self.rect)
 
     def _set_padding(self,
                      padding: tuple[int, int, int, int] | None = None
-                     ):
+                     ) -> None:
         """Sets the padding for the menu: (top, bottom, left, right)."""
 
         if padding is None:
             padding = (0, 0, 0, 0)
 
-        self.padding = {
+        self.padding: dict[str, int] = {
             'top': padding[0], 'bottom': padding[1],
             'left': padding[2], 'right': padding[3]
         }
     
     def _set_background(self,
                         background: pygame.Surface | None = None
-                        ):
+                        ) -> None:
         """Set the background for the menu."""
 
         if background is None:
             background = pygame.Surface((self.rect.width, self.rect.height))
             pygame.draw.rect(background, 'aquamarine', background.get_rect())
         # TODO: otherwise, load the background image
-        self.background = background
+        self.background: pygame.Surface = background
 
-    def _load_elements(self):
+    def _load_elements(self) -> None:
         """A hook for populating the menu with UI Elements."""
 
         # this is just a hook to be overwritten by child classes
@@ -91,7 +91,7 @@ class Menu():
     def _add_elements_from_dicts(self,
                                  dicts: list[ElementDict],
                                  origin: tuple[int, int] = (0, 0)
-                                 ):
+                                 ) -> None:
         """
         To be used in _load_elements.
         Takes a sequence of dictionaries containing element data, and
@@ -99,28 +99,28 @@ class Menu():
         """
 
         for element in dicts:
-            el_type = element['type']
-            name = element['name']
-            content = element['content']
+            el_type: str = element['type']
+            name: str = element['name']
+            content: str | pygame.Surface = element['content']
 
-            font = element['font']
-            wraplength = element['wraplength']
+            font: pygame.Font = element['font']
+            wraplength: int | None = element['wraplength']
 
-            x_offset = element['x_offset']
-            y_offset = element['y_offset']
+            x_offset: int = element['x_offset']
+            y_offset: int = element['y_offset']
             x = origin[0] + x_offset
             y = origin[1] + y_offset
 
             # region POSITION ACCORDING TO LINKED ELEMENT
             # -----------------------------------------------------------
 
-            linked_elem_name = element['linked_to']
+            linked_elem_name: str | None = element['linked_to']
             if linked_elem_name:
                 linked_to = self.elements.get(linked_elem_name, None)
 
-                ignore_linked_x = element['ignore_linked_x']
-                ignore_linked_y = element['ignore_linked_y']
-                linked_anchor = element['linked_anchor']
+                ignore_linked_x: bool = element['ignore_linked_x']
+                ignore_linked_y: bool = element['ignore_linked_y']
+                linked_anchor: str = element['linked_anchor']
 
                 if linked_to and not ignore_linked_x:
                     x = linked_to.rect.x + x_offset
@@ -142,16 +142,17 @@ class Menu():
             # endregion POSITION ACCORDING TO LINKED ELEMENT
 
             # adjust for padding
-            left_limit = self.padding['left']
-            right_limit = self.rect.width - self.padding['right']
-            top_limit = self.padding['top']
+            left_limit: int = self.padding['left']
+            right_limit: int = self.rect.width - self.padding['right']
+            top_limit: int = self.padding['top']
             x = x if x > left_limit else left_limit
             x = x if x < right_limit else right_limit
             y = y if y > top_limit else top_limit
 
-            anchor = element.get('anchor', None)
-            action = element.get('action', None)
+            anchor: str = element.get('anchor', None)
+            action: object | None = element.get('action', None)
 
+            # creating the UI element adds it automatically
             if el_type == 'icon' and type(content) == pygame.Surface:
                 Icon(
                     self, name, content, (x, y), anchor, action
@@ -168,7 +169,9 @@ class Menu():
                 print(f"Failed to add element{name}!")
                 print("\tPerhaps the content or element type is invalid?")
 
-    def _add_element_unions_from_dicts(self, dicts: list[UnionDict]):
+    def _add_element_unions_from_dicts(self,
+                                       dicts: list[UnionDict]
+                                       ) -> None:
         """
         To be used in _load_elemets.
         Takes a sequence of dictionaries containing union data, and adds
@@ -182,9 +185,10 @@ class Menu():
                 if isinstance(el, UIElement):
                     elems.append(el)
             
+            # creating the Element union adds it automatically
             ElemUnion(self, d['name'], *elems, action=d['action'])
 
-    def _expand_height(self):
+    def _expand_height(self) -> None:
         """
         To be used in _load_elements.
         Expands the rect height to include all elements + bottom padding.
@@ -204,13 +208,13 @@ class Menu():
         self._set_surface(width, height)
         self.rect.x, self.rect.y = pos_x, pos_y
 
-    def update(self):
+    def update(self) -> None:
         """Re-renders the menu with current values."""
 
         self._load_elements()        
         self.needs_redraw = True
     
-    def open(self):
+    def open(self) -> None:
         """Make the menu visible and interactive."""
 
         if self.is_visible:
@@ -226,7 +230,7 @@ class Menu():
 
     def close(self,
               next_menu: Menu | None = None
-              ):
+              ) -> None:
         """Make the menu hidden and non-interactive."""
 
         if not self.is_visible:
@@ -239,42 +243,39 @@ class Menu():
     
     def start_touch(self,
                     position: tuple[int, int]
-                    ):
+                    ) -> None:
         """Register a touch on the menu."""
 
         if not self.is_visible:
             return
 
-        self.inner_pos = (
+        self.inner_pos: tuple[int, int] | None = (
             position[0] - self.rect.x,
             position[1] - self.rect.y
         )
         self.was_scrolled = False
     
-    def interact(self):
+    def interact(self) -> None:
         """
         Triggers any elements touched/ clicked if the menu is in focus.
         Can be called on touch/ mouse down or up.
         """
 
         if not self.is_visible:
-            return False
+            return
         
         if self.was_scrolled:
-            return False
+            return
         
         if not self.inner_pos:
-            return False
+            return
         
-        done = False
         for element in self.elements.values():
             if element.rect.collidepoint(self.inner_pos):
                 if element.action is None:
                     continue
                 element.trigger()
-                done = True
                 break
-        return done
     
     def end_touch(self):
         """Stop registering the touch/ mouse on the menu."""
@@ -284,11 +285,11 @@ class Menu():
     def scroll(self,
                position: tuple[int, int],
                is_mousewheel_scroll: bool = False
-               ):
+               ) -> None:
         """Scroll the menu."""
 
         if not self.is_visible:
-            return False
+            return
 
         if self.inner_pos:
             # scrolling via mouse/ finger drag
@@ -298,10 +299,10 @@ class Menu():
             destination = self.rect.y + position[1]
         else:
             # not scrolling
-            return False
+            return
 
         if self.rect.y == destination:
-            return False
+            return
         
         top_limit = 0
         bottom_limit = self.game.screen.height - self.rect.height
@@ -315,9 +316,8 @@ class Menu():
             self.rect.y = bottom_limit
         
         self.needs_redraw = True
-        return True
         
-    def draw(self):
+    def draw(self) -> None:
         """Draw the menu to the screen."""
 
         if not self.is_visible or not self.needs_redraw:
@@ -356,7 +356,7 @@ class Tray(Menu):
                  width: int | None = None,
                  height: int | None = None,
                  padding: tuple[int, int, int, int] | None = None
-                 ):
+                 ) -> None:
         """Initialize the tray with a surface."""
 
         if width is None:
@@ -373,7 +373,7 @@ class Tray(Menu):
             padding = (1, 1, 1, 1)
 
         super().__init__(game, name, background, width, height, padding)
-        self.is_visible = True
+        self.is_visible: bool = True
 
 class UIElement():
     """A class that represents a single element of the user interface."""
@@ -385,30 +385,29 @@ class UIElement():
                  position: tuple[int, int] = (0, 0),
                  anchor: str = "topleft",
                  action: object | None = None
-                 ):
+                 ) -> None:
         """Initialize the UI element."""
 
-        self.container = container
-        self.game = self.container.game
-        self.name = name
-        self.content = content
+        self.container: Menu = container
+        self.game: Game = self.container.game
+        self.name: str = name
+        self.content: pygame.Surface = content
 
-        self.anchor_pos = position
-        self.anchor = anchor
+        self.anchor_pos: tuple[int, int] = position
+        self.anchor: str = anchor
         self._set_rect()
         self._set_rect_position()
 
-        self.content = content
-        self.action = action
+        self.action: object = action
 
         self.container.elements[self.name] = self # does this work?
     
-    def _set_rect(self):
+    def _set_rect(self) -> None:
         """Set the rect for the UI Element based on the content."""
 
         self.rect = self.content.get_rect()
     
-    def _set_rect_position(self):
+    def _set_rect_position(self) -> None:
         """
         Calculate the position at which the UI element will be drawn,
         based on the anchor.
@@ -429,16 +428,15 @@ class UIElement():
         self.rect.x = draw_x
         self.rect.y = draw_y
     
-    def trigger(self):
+    def trigger(self) -> None:
         """Hook for doing something when the element is activated."""
 
         if not callable(self.action):
-            return False
+            return
         
         self.action()
-        return True
     
-    def draw(self):
+    def draw(self) -> None:
         """Draw the element to the container surface."""
 
         self.container.surface.blit(self.content, self.rect)
@@ -453,7 +451,7 @@ class Icon(UIElement):
                  position: tuple[int, int] = (0, 0),
                  anchor: str = "topleft",
                  action: object | None = None
-                 ):
+                 ) -> None:
         """Initialize the icon."""
 
         if content is None:
@@ -472,7 +470,7 @@ class TextBox(UIElement):
                  position: tuple[int, int] = (0, 0),
                  anchor: str = "topleft",
                  action: object | None = None
-                 ):
+                 ) -> None:
         """Initialize the text box."""
 
         if font is None:
@@ -500,7 +498,7 @@ class Label(TextBox):
                  position: tuple[int, int] = (0, 0),
                  anchor: str = "topleft",
                  action: object | None = None
-                 ):
+                 ) -> None:
         """Initialize the label."""
 
         super().__init__(container, name, content, font, wraplength, position, anchor, action)
@@ -513,37 +511,35 @@ class ElemUnion():
                  name: str,
                  *elems: UIElement,
                  action: object | None = None
-                 ):
+                 ) -> None:
         """Initialize the union."""
 
-        self.name = name
-        self.container = container
-        self.game = self.container.game
-        self.elems = elems
-        self.action = action
+        self.name: str = name
+        self.container: Menu = container
+        self.game: Game = self.container.game
+        self.elems: tuple[UIElement, ...] = elems
+        self.action: object = action
 
         self._unify_elements()
 
         self.container.elements[self.name] = self
 
-    
-    def _unify_elements(self):
+    def _unify_elements(self) -> None:
         """Create the rectangle around the elements."""
 
         self.rect = self.elems[0].rect
         for element in self.elems[1:]:
             self.rect = pygame.Rect.union(self.rect, element.rect)
 
-    def trigger(self):
+    def trigger(self) -> None:
         """Hook for doing something when the element is activated."""
 
         if not callable(self.action):
-            return False
+            return
         
         self.action()
-        return True
     
-    def draw(self):
+    def draw(self) -> None:
         """Hook for drawing the union. Does nothing currently."""
 
         # does nothing; exists so the code does not break

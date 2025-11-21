@@ -12,6 +12,7 @@ from .input import *
 from .ui import menus, trays
 from .utils import config, events
 from .mechanics import upgrades, rewards
+from .utils import helper_funcs
 
 class Game:
     """Class that represents the game object."""
@@ -31,7 +32,7 @@ class Game:
         # ---
 
         # --- used for testing ---
-        self.native_resolution: tuple[int, int] = (1080, 2340)
+        self.native_resolution: tuple[int, int] = config.resolutions[0]
         # ---
 
         self._configure_display()
@@ -157,17 +158,11 @@ class Game:
         self.state = State()
         self.state.session_running = True
 
-        self.play_surf = pygame.Surface((
-            self.screen.width, self.screen.height - 28
-        ))
-        self.play_rect = self.play_surf.get_rect()
+        self._configure_play_surf()
 
         self.ship = self.ship_class(self)
 
-        self.top_tray = trays.TopTray(self)
-        self.top_tray.update()
-        self.bot_tray = trays.BottomTray(self)
-        self.bot_tray.update()
+        self._configure_trays()
 
         self.bullets: sprite.Group[sprite.Sprite] = sprite.Group()
         self.aliens: sprite.Group[sprite.Sprite] = sprite.Group()
@@ -295,11 +290,47 @@ class Game:
             return max_resolution
         return min_resolution
     
+    def _configure_play_surf(self) -> None:
+        """
+        Configures the playable surface where the ship and enemies
+        are drawn.
+        """
+
+        self.play_surf = pygame.Surface((
+            self.screen.width, self.screen.height - 28
+        ))
+        self.play_rect = self.play_surf.get_rect()
+    
+    def _configure_trays(self) -> None:
+        """
+        Configure the trays (UI) where the ship stats and abilities
+        are shown.
+        """
+
+        self.top_tray = trays.TopTray(self)
+        self.top_tray.update()
+        self.bot_tray = trays.BottomTray(self)
+        self.bot_tray.update()
+    
     # -------------------------------------------------------------------
     # endregion
     
     # region EVENT HANDLING FUNCTIONS
     # -------------------------------------------------------------------
+
+    def _cycle_resolutions(self) -> None:
+        """Cycle through the resolutions from the list in the config."""
+        # TODO: delete after testing?
+
+        next_res = helper_funcs.cycle_values(
+            self.native_resolution, config.resolutions
+        )
+
+        if next_res is None:
+            return
+        
+        self.native_resolution = next_res
+        self._handle_resize_event()
 
     def _handle_events(self) -> None:
         """Handle user input and window events."""
@@ -336,6 +367,9 @@ class Game:
         """Handle what happens when certain keys are pressed."""
         
         self.menus['remap'].listen_for_key(event.key)
+
+        if event.key == pygame.K_BACKSPACE:
+            self._cycle_resolutions()
 
         if not self.state.session_running:
             return
@@ -386,15 +420,23 @@ class Game:
         if self.screen.size != new_res:
             self._configure_display(new_res)
         
+        for menu in self.menus.values():
+            if not isinstance(menu, menus.Menu):
+                continue
+            menu.handle_resize()
+        
         if not self.state.session_running:
             return
-        # TODO: recalculate speed of all game entities
-        # TODO: move all game entities to appropriate positions
+        
+        self._configure_play_surf()
+        self._configure_trays()
+
         self.ship.handle_resize()
         for alien in self.aliens:
             if not isinstance(alien, Alien):
                 continue
             alien.handle_resize()
+        
     
     def _handle_mousedown_event(self, event: pygame.Event) -> None:
         """
@@ -574,7 +616,7 @@ class Game:
         
         # first, clear the play surface by drawing the background
         # TODO: use a background image
-        pygame.draw.rect(self.play_surf, "black", self.play_rect)
+        pygame.draw.rect(self.play_surf, "yellow", self.play_rect)
 
         # TODO: use an entities group to draw the entities
         self.ship.draw()

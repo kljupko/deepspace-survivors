@@ -1,5 +1,7 @@
 """A module containing project-wide helper functions."""
 
+from typing import Iterable
+
 from pathlib import Path
 import pygame
 
@@ -52,3 +54,25 @@ def shorten_number(number: int) -> str:
     
     n = number / 1000
     return f"{n:.2f}K"
+
+def cycle_values[T](
+        current_value: T, values: Iterable[T]
+        ) -> T | None:
+
+    if not values:
+        return None
+    
+    first_value = None
+    reached_current = False
+
+
+    for value in values:
+        if first_value is None:
+            first_value = value
+        if value == current_value:
+            reached_current = True
+            continue
+        if reached_current:
+            return value
+    
+    return first_value

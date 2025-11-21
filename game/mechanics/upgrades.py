@@ -241,8 +241,8 @@ class ChargeTime(Upgrade):
     """
 
     name: str = "Active Ability Charge Time Upgrade"
-    description: str = "Reduce the time required to charge and fire \
-        an Active Ability by 10% of its current value."
+    description: str = "Reduce the time required to charge and fire "
+    description += "an Active Ability by 10% of its current value."
     max_level: int | None = None
     base_cost: int = 120
     image: pygame.Surface = helper_funcs.load_image(None, 'salmon', (10, 10))

@@ -346,6 +346,14 @@ class Menu():
 
         self.needs_redraw = False
 
+    def handle_resize(self) -> None:
+        """Resize the menu to fit the screen."""
+
+        self._set_surface()
+        self._set_padding((10, 10, 10, 10))
+        self._set_background()
+        self.update()
+
 class Tray(Menu):
     """A base class for the top and bottom trays."""
 

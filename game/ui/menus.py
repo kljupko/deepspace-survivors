@@ -123,16 +123,13 @@ class Settings(Menu):
     def cycle_framerates(self) -> None:
         """Cycle through available framerates."""
 
-        id = 0
-        n_options = len(config.framerates)
-        for i in range(n_options):
-            framerate = config.framerates[i]
-            if self.game.settings.data['fps'] == framerate:
-                id = i
-                break
-
-        next_id = (n_options + id + 1) % n_options
-        next_framerate = config.framerates[next_id]
+        current_framerate = self.game.settings.data["fps"]
+        next_framerate = helper_funcs.cycle_values(
+            current_framerate, config.framerates
+        )
+        if next_framerate is None:
+            return
+        
         self.game.settings.data['fps'] = next_framerate
         self.game.settings.save_data()
         self.update()
@@ -140,16 +137,13 @@ class Settings(Menu):
     def cycle_music_volume(self) -> None:
         """Cycle through available music volume."""
 
-        id = 0
-        n_options = len(config.music_volumes)
-        for i in range(n_options):
-            volume = config.music_volumes[i]
-            if self.game.settings.data['music_volume'] == volume:
-                id = i
-                break
-
-        next_id = (n_options + id + 1) % n_options
-        next_volume = config.music_volumes[next_id]
+        current_volume = self.game.settings.data['music_volume']
+        next_volume = helper_funcs.cycle_values(
+            current_volume, config.music_volumes
+        )
+        if next_volume is None:
+            return
+        
         self.game.settings.data['music_volume'] = next_volume
         self.game.music_player.set_volume()
         self.game.settings.save_data()
